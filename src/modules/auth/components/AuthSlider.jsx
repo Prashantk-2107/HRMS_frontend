@@ -27,7 +27,6 @@ const AuthSlider = () => {
     <div className="w-full max-w-[520px] flex flex-col items-center gap-10">
       <div className="relative w-full h-[380px] flex justify-center items-center select-none">
         
-        {/* Card 1: Upcoming Schedule */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 absolute transition-transform duration-300 w-[250px] top-[10px] left-[20px] z-30">
           <h4 className="m-0 mb-3 text-xs font-semibold text-gray-700 flex justify-between items-center">
             Upcoming Schedule <Calendar size={14} className="text-gray-400" />
@@ -58,14 +57,12 @@ const AuthSlider = () => {
           </div>
         </div>
 
-        {/* Card 2: Payment Status */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 absolute transition-transform duration-300 w-[170px] top-[60px] right-[20px] z-20 text-center">
           <h4 className="m-0 mb-3 text-xs font-semibold text-gray-700 flex justify-between items-center">
             Payment Status <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Today</span>
           </h4>
           <div className="relative w-[90px] h-[90px] mx-auto mb-2 flex justify-center items-center">
             <svg className="-rotate-90" width="90" height="90">
-              {/* Background circle */}
               <circle
                 cx="45"
                 cy="45"
@@ -74,7 +71,6 @@ const AuthSlider = () => {
                 stroke="#e5e7eb"
                 strokeWidth="8"
               />
-              {/* Segment 1: Orange */}
               <circle
                 cx="45"
                 cy="45"
@@ -85,7 +81,6 @@ const AuthSlider = () => {
                 strokeDasharray="226"
                 strokeDashoffset="65"
               />
-              {/* Segment 2: Violet */}
               <circle
                 cx="45"
                 cy="45"
@@ -105,7 +100,6 @@ const AuthSlider = () => {
           <div className="text-[10px] text-emerald-500 font-semibold">+12% from last month</div>
         </div>
 
-        {/* Card 3: Present Employees (Gauge) */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 absolute transition-transform duration-300 w-[190px] bottom-[20px] left-[10px] sm:left-0 z-40">
           <div className="flex flex-col items-center text-center">
             <div className="relative w-[120px] h-[60px] overflow-hidden flex justify-center items-end">
@@ -123,7 +117,6 @@ const AuthSlider = () => {
           </div>
         </div>
 
-        {/* Card 4: Employee Salary Tracker */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 absolute transition-transform duration-300 w-[210px] bottom-[10px] right-[10px] z-10">
           <h4 className="m-0 mb-2 text-xs font-semibold text-gray-700 flex justify-between items-center">
             Employee Salary Tracker <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Today</span>

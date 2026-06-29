@@ -5,11 +5,6 @@ import { AUTH_ENDPOINTS } from './endpoints.js';
 let isRefreshing = false;
 let failedQueue = [];
 
-/**
- * Iterates through the failed requests queue and either resolves or rejects them.
- * @param {Error|null} error - The refresh token request error (if failed)
- * @param {string|null} token - The new access token (if succeeded)
- */
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -21,12 +16,7 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-/**
- * Configure request and response interceptors on the Axios instance.
- * @param {AxiosInstance} axiosInstance - The configured Axios instance
- */
 export const setupInterceptors = (axiosInstance) => {
-  // Request Interceptor: Automatically attach the authorization token to headers
   axiosInstance.interceptors.request.use(
     (config) => {
       const token = useAuthStore.getState().accessToken;
@@ -40,16 +30,13 @@ export const setupInterceptors = (axiosInstance) => {
     }
   );
 
-  // Response Interceptor: Handle success response or refresh expired token on 401 error
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
       const status = error.response ? error.response.status : null;
 
-      // Handle 401 Unauthorized errors (token expiration)
       if (status === 401 && !originalRequest._retry) {
-        // If refreshing is already in progress, queue the current request
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -68,7 +55,6 @@ export const setupInterceptors = (axiosInstance) => {
 
         const refreshToken = useAuthStore.getState().refreshToken;
 
-        // If no refresh token is present, perform logout and redirect
         if (!refreshToken) {
           isRefreshing = false;
           useAuthStore.getState().logout();
@@ -77,7 +63,6 @@ export const setupInterceptors = (axiosInstance) => {
         }
 
         try {
-          // Use standard Axios for refreshing to avoid calling the interceptor recursively
           const response = await axios.post(
             `${axiosInstance.defaults.baseURL}${AUTH_ENDPOINTS.REFRESH}`,
             { refreshToken }
@@ -85,21 +70,17 @@ export const setupInterceptors = (axiosInstance) => {
 
           const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-          // Update tokens in store
           useAuthStore.getState().setTokens({
             accessToken,
             refreshToken: newRefreshToken || refreshToken,
           });
 
-          // Resolve all queued requests with the new access token
           processQueue(null, accessToken);
           isRefreshing = false;
 
-          // Retry the original request
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return axiosInstance(originalRequest);
         } catch (refreshError) {
-          // If token refresh fails, clear store, reject queued requests, and redirect to login
           processQueue(refreshError, null);
           isRefreshing = false;
           useAuthStore.getState().logout();
@@ -108,7 +89,6 @@ export const setupInterceptors = (axiosInstance) => {
         }
       }
 
-      // Handle other common API status errors
       if (error.response) {
         switch (status) {
           case 400:

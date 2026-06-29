@@ -1,9 +1,5 @@
 import React from 'react';
 
-/**
- * Reusable Input component styled with Tailwind CSS.
- * Uses forwardRef to be fully compatible with react-hook-form.
- */
 const Input = React.forwardRef(({
   label,
   name,

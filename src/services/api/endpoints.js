@@ -1,12 +1,13 @@
-// Authentication-related API endpoints
 export const AUTH_ENDPOINTS = {
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
   REFRESH: '/auth/refresh',
   PROFILE: '/auth/profile',
+  FORGOT_PASSWORD: '/auth/forgot-password',
+  VERIFY_OTP: '/auth/verify-otp',
+  RESET_PASSWORD: '/auth/reset-password',
 };
 
-// Employee-related API endpoints
 export const EMPLOYEE_ENDPOINTS = {
   LIST: '/employees',
   DETAILS: (id) => `/employees/${id}`,

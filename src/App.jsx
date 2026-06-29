@@ -1,9 +1,14 @@
 import React from 'react';
-import LoginPage from './modules/auth/pages/LoginPage';
+import { RouterProvider } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { router } from './app/router';
 
 function App() {
   return (
-    <LoginPage />
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-center" />
+    </>
   );
 }
 

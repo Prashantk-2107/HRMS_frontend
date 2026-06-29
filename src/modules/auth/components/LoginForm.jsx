@@ -1,9 +1,14 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Mail, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Input from '../../../components/ui/Input';
+import { useNavigate, Link } from 'react-router-dom';
+import api, { AUTH_ENDPOINTS } from '../../../services/api';
+import { useAuthStore } from '../../../store/auth.store';
 
 const LoginForm = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -15,20 +20,46 @@ const LoginForm = () => {
     }
   });
 
-  const onSubmit = (data) => {
-    console.log('Form Submitted Data:', data);
-    alert('Form is valid! Data: ' + JSON.stringify(data));
+
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await api.post(AUTH_ENDPOINTS.LOGIN, {
+        identifier: data.identifier,
+        email: data.identifier,
+        password: data.password
+      });
+      console.log('Login Response:', response.data);
+      if (response.data.success) {
+        useAuthStore.getState().setUser(response?.data?.data?.employee);
+        useAuthStore.getState().setRole(response?.data?.data?.employee?.role);
+        useAuthStore.getState().login({
+          user: response?.data?.data?.employee,
+          permissions: response?.data?.data?.permissions,
+          role: response?.data?.data?.employee?.role,
+          accessToken: response?.data?.data?.accessToken,
+          refreshToken: response?.data?.data?.refreshToken,
+        });
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+    }
   };
 
   return (
-    <div className="w-full max-w-[420px] mx-auto px-4 sm:px-0">
+    <motion.div
+      initial={{ opacity: 0, x: -50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="w-full max-w-[420px] mx-auto px-4 sm:px-0"
+    >
       <div className="mb-8 text-left">
-        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Get Started</h2>
-        <p className="text-sm text-gray-500">Enter your personal details below to continue</p>
+        <h2 className="text-3xl font-extrabold tracking-tight mb-2">Login</h2>
+        <p className="text-sm text-gray-500">Enter your details below to continue</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
-        {/* Email or Username field */}
         <Input
           label="Email or Username"
           name="identifier"
@@ -46,7 +77,6 @@ const LoginForm = () => {
           })}
         />
 
-        {/* Password field */}
         <Input
           label="Password"
           name="password"
@@ -64,19 +94,17 @@ const LoginForm = () => {
           })}
         />
 
-        {/* Actions row: Forgot Password link only */}
         <div className="flex justify-end items-center text-sm">
-          <a href="#forgot" className="text-indigo-600 font-medium hover:text-indigo-800 hover:underline transition-colors duration-200" onClick={(e) => e.preventDefault()}>
+          <Link to="/forgot-password" className="text-indigo-600 font-medium hover:text-indigo-800 hover:underline transition-colors duration-200">
             Forgot password?
-          </a>
+          </Link>
         </div>
 
-        {/* Submit Button */}
         <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold py-3.5 px-4 rounded-lg text-base transition-all duration-200 cursor-pointer flex justify-center items-center mt-2.5 shadow-sm">
           Login
         </button>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
