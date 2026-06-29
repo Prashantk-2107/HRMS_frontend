@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { useAuthStore } from '../../store/auth.store.js';
+import { store } from '../../store';
+import { logout, setTokens } from '../../store/slices/authSlice.js';
 import { AUTH_ENDPOINTS } from './endpoints.js';
 
 let isRefreshing = false;
@@ -19,7 +20,7 @@ const processQueue = (error, token = null) => {
 export const setupInterceptors = (axiosInstance) => {
   axiosInstance.interceptors.request.use(
     (config) => {
-      const token = useAuthStore.getState().accessToken;
+      const token = store.getState().auth.accessToken;
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -53,12 +54,11 @@ export const setupInterceptors = (axiosInstance) => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-        const refreshToken = useAuthStore.getState().refreshToken;
+        const refreshToken = store.getState().auth.refreshToken;
 
         if (!refreshToken) {
           isRefreshing = false;
-          useAuthStore.getState().logout();
-          window.location.href = '/login';
+          store.dispatch(logout());
           return Promise.reject(error);
         }
 
@@ -70,10 +70,10 @@ export const setupInterceptors = (axiosInstance) => {
 
           const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-          useAuthStore.getState().setTokens({
+          store.dispatch(setTokens({
             accessToken,
             refreshToken: newRefreshToken || refreshToken,
-          });
+          }));
 
           processQueue(null, accessToken);
           isRefreshing = false;
@@ -83,8 +83,7 @@ export const setupInterceptors = (axiosInstance) => {
         } catch (refreshError) {
           processQueue(refreshError, null);
           isRefreshing = false;
-          useAuthStore.getState().logout();
-          window.location.href = '/login';
+          store.dispatch(logout());
           return Promise.reject(refreshError);
         }
       }

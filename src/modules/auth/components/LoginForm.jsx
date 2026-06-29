@@ -4,11 +4,14 @@ import { Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Input from '../../../components/ui/Input';
 import { useNavigate, Link } from 'react-router-dom';
-import api, { AUTH_ENDPOINTS } from '../../../services/api';
-import { useAuthStore } from '../../../store/auth.store';
+import api, { AUTH_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
+import { useDispatch } from 'react-redux';
+import { login, setPermissions } from '../../../store/slices/authSlice';
+import toast from 'react-hot-toast';
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -20,8 +23,6 @@ const LoginForm = () => {
     }
   });
 
-
-
   const onSubmit = async (data) => {
     try {
       const response = await api.post(AUTH_ENDPOINTS.LOGIN, {
@@ -31,19 +32,43 @@ const LoginForm = () => {
       });
       console.log('Login Response:', response.data);
       if (response.data.success) {
-        useAuthStore.getState().setUser(response?.data?.data?.employee);
-        useAuthStore.getState().setRole(response?.data?.data?.employee?.role);
-        useAuthStore.getState().login({
+        // Store user, tokens, and initial data first so Axios interceptor can access token
+        dispatch(login({
           user: response?.data?.data?.employee,
-          permissions: response?.data?.data?.permissions,
+          permissions: response?.data?.data?.permissions || [],
           role: response?.data?.data?.employee?.role,
           accessToken: response?.data?.data?.accessToken,
           refreshToken: response?.data?.data?.refreshToken,
-        });
+        }));
+
+        // Fetch all permissions from `/permission/get-all-permissions`
+        try {
+          const permResponse = await api.get(PERMISSION_ENDPOINTS.GET_ALL);
+          console.log('Get All Permissions Response:', permResponse.data);
+
+          if (permResponse.data.success) {
+            const rawPermissions = permResponse.data.data?.permissions || permResponse.data.data || permResponse.data.permissions || [];
+
+            // Convert to string array if objects are received
+            const processedPermissions = Array.isArray(rawPermissions)
+              ? rawPermissions.map(p => (p && typeof p === 'object' ? (p.name || p.codename || p.permission || p.title || JSON.stringify(p)) : p))
+              : [];
+
+            console.log('Processed Permissions:', processedPermissions);
+            dispatch(setPermissions(processedPermissions));
+          }
+        } catch (permError) {
+          console.error('Failed to fetch permissions upon login:', permError);
+        }
+
+        toast.success('Logged in successfully!');
         navigate('/dashboard');
+      } else {
+        toast.error(response?.data?.message || 'Login failed');
       }
     } catch (error) {
       console.error('Login Error:', error);
+      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.');
     }
   };
 

@@ -1,7 +1,9 @@
 import React from 'react';
-import { useAuthStore } from '../../../store/auth.store.js';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuth, logout } from '../../../store/slices/authSlice.js';
 
 const DashboardPage = () => {
+  const dispatch = useDispatch();
   const {
     user,
     accessToken,
@@ -9,9 +11,8 @@ const DashboardPage = () => {
     permissions,
     role,
     isAuthenticated,
-    isLoading,
-    logout
-  } = useAuthStore();
+    isLoading
+  } = useSelector(selectAuth);
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 font-sans text-slate-800">
@@ -20,10 +21,10 @@ const DashboardPage = () => {
         <header className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
           <div>
             <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-xs text-slate-500">Zustand Store Viewer</p>
+            <p className="text-xs text-slate-500">Redux Store Viewer</p>
           </div>
           <button
-            onClick={logout}
+            onClick={() => dispatch(logout())}
             className="bg-red-550 hover:bg-red-600 active:scale-[0.98] text-white font-medium text-sm py-2 px-4 rounded-lg transition-all duration-200 cursor-pointer shadow-sm"
             style={{ backgroundColor: '#ef4444' }}
           >

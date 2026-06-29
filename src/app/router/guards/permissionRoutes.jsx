@@ -1,11 +1,10 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '../../../store/auth.store.js';
+import { useSelector } from 'react-redux';
+import { selectPermissions } from '../../../store/slices/authSlice.js';
 
 const PermissionRoute = ({ requiredPermissions, checkAll = false }) => {
-  const hasPermission = useAuthStore((state) => state.hasPermission);
-  const hasAnyPermission = useAuthStore((state) => state.hasAnyPermission);
-  const hasAllPermissions = useAuthStore((state) => state.hasAllPermissions);
+  const userPermissions = useSelector(selectPermissions) || [];
 
   if (!requiredPermissions) {
     return <Outlet />;
@@ -14,10 +13,10 @@ const PermissionRoute = ({ requiredPermissions, checkAll = false }) => {
   let hasAccess = false;
   if (Array.isArray(requiredPermissions)) {
     hasAccess = checkAll
-      ? hasAllPermissions(requiredPermissions)
-      : hasAnyPermission(requiredPermissions);
+      ? requiredPermissions.every((perm) => userPermissions.includes(perm))
+      : requiredPermissions.some((perm) => userPermissions.includes(perm));
   } else {
-    hasAccess = hasPermission(requiredPermissions);
+    hasAccess = userPermissions.includes(requiredPermissions);
   }
 
   return hasAccess ? <Outlet /> : <Navigate to="/unauthorized" replace />;

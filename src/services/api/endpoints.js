@@ -3,7 +3,8 @@ export const AUTH_ENDPOINTS = {
   LOGOUT: '/auth/logout',
   REFRESH: '/auth/refresh',
   PROFILE: '/auth/profile',
-  FORGOT_PASSWORD: '/auth/forgot-password',
+  SEND_OTP: '/auth/send-otp',
+  FORGOT_PASSWORD: '/auth/forget-password',
   VERIFY_OTP: '/auth/verify-otp',
   RESET_PASSWORD: '/auth/reset-password',
 };
@@ -14,4 +15,8 @@ export const EMPLOYEE_ENDPOINTS = {
   CREATE: '/employees',
   UPDATE: (id) => `/employees/${id}`,
   DELETE: (id) => `/employees/${id}`,
+};
+
+export const PERMISSION_ENDPOINTS = {
+  GET_ALL: '/permission/get-all-permissions',
 };
