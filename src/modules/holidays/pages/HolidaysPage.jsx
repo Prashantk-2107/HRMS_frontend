@@ -1,14 +1,21 @@
 import { useState, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../../services/api';
 import CalendarGrid from '../components/CalendarGrid';
 import CalendarLegend from '../components/CalendarLegend';
 import MonthStats from '../components/MonthStats';
 import AddHolidayModal from '../components/AddHolidayModal';
 import EventDetailsPopup from '../components/EventDetailsPopup';
 import HolidaysTable from '../components/HolidaysTable';
+import PermissionGuard from '../../../components/common/PermissionGuard';
+import { PERMISSIONS } from '../../../constants/permissions';
+import usePermission from '../../../hooks/usePermission';
 
 const HolidaysPage = () => {
+  const queryClient = useQueryClient();
+  const canManageHolidays = usePermission(PERMISSIONS.HOLIDAY_MANAGE);
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -17,7 +24,30 @@ const HolidaysPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const [events, setEvents] = useState([]);
+  // Fetch holidays using TanStack Query
+  const { data: holidaysData } = useQuery({
+    queryKey: ['holidays'],
+    queryFn: async () => {
+      const response = await api.get('/holiday/get-all-holidays');
+      return response.data?.data?.holidays || [];
+    },
+  });
+
+  // Map backend holidays payload structure to calendar grid events mapping
+  const events = useMemo(() => {
+    if (!holidaysData) return [];
+    return holidaysData.map(h => {
+      // Parse datetime value to date string yyyy-mm-dd (timezone-safe splitting)
+      const formattedDate = h.holiday_date ? h.holiday_date.split('T')[0] : '';
+      return {
+        id: h.holiday_id,
+        date: formattedDate,
+        type: 'holiday',
+        label: h.holiday_name,
+        holidayType: h.holiday_type
+      };
+    });
+  }, [holidaysData]);
 
   const eventsMap = useMemo(() => {
     const map = {};
@@ -40,27 +70,88 @@ const HolidaysPage = () => {
     }
   };
 
-  const handleAddHoliday = (dateStr, name, category) => {
-    if (eventsMap[dateStr]) {
-      toast.error('An event already exists on this date!');
+  // Create holiday mutation
+  const createMutation = useMutation({
+    mutationFn: async (payload) => {
+      const response = await api.post('/holiday/create-holiday', payload);
+      return response.data?.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['holidays'] });
+      toast.success('Holiday added successfully!');
+
+      const holiday = data?.holiday || data;
+      if (holiday?.holiday_date) {
+        const formattedDate = holiday.holiday_date.split('T')[0];
+        setSelectedDate(formattedDate);
+        setCurrentDate(new Date(formattedDate));
+      }
+      setIsDetailsOpen(true); // Open event details popup
+    },
+    onError: (err) => {
+      const errorMsg = err.response?.data?.message || 'Failed to add holiday!';
+      toast.error(errorMsg);
+    }
+  });
+
+  // Delete holiday mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (holidayId) => {
+      await api.delete(`/holiday/delete-holiday/${holidayId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['holidays'] });
+      toast.success('Holiday deleted successfully!');
+    },
+    onError: (err) => {
+      const errorMsg = err.response?.data?.message || 'Failed to delete holiday!';
+      toast.error(errorMsg);
+    }
+  });
+
+  // Bulk create weekend holidays mutation
+  const bulkCreateMutation = useMutation({
+    mutationFn: async (payloads) => {
+      const promises = payloads.map(p => api.post('/holiday/create-holiday', p));
+      await Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['holidays'] });
+      toast.success('Weekend holidays registered successfully!');
+    },
+    onError: (err) => {
+      const errorMsg = err.response?.data?.message || 'Failed to register weekend holidays!';
+      toast.error(errorMsg);
+    }
+  });
+
+  const handleMarkWeekends = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const weekendHolidays = [];
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const tempDate = new Date(year, month, d);
+      const dayOfWeek = tempDate.getDay(); // 0 = Sunday, 6 = Saturday
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        if (!eventsMap[dateStr]) {
+          weekendHolidays.push({
+            holiday_date: dateStr,
+            holiday_name: dayOfWeek === 6 ? 'Saturday' : 'Sunday',
+            holiday_type: 'company'
+          });
+        }
+      }
+    }
+
+    if (weekendHolidays.length === 0) {
+      toast.error('All weekends in this month are already marked as holidays!');
       return;
     }
-    setEvents(prev => [...prev, { date: dateStr, type: 'holiday', label: name, holidayType: category }]);
-    setSelectedDate(dateStr); // Select the newly added date
-    setIsDetailsOpen(true); // Open details popup for newly added holiday
-    
-    // Adjust calendar month view if the added date is in a different month
-    const parsedDate = new Date(dateStr);
-    if (!isNaN(parsedDate.getTime())) {
-      setCurrentDate(parsedDate);
-    }
-    
-    toast.success('Holiday added successfully!');
-  };
 
-  const handleDeleteHoliday = (dateStr) => {
-    setEvents(prev => prev.filter(evt => !(evt.date === dateStr && evt.type === 'holiday')));
-    toast.success('Holiday deleted successfully!');
+    bulkCreateMutation.mutate(weekendHolidays);
   };
 
   const selectedEvent = eventsMap[selectedDate];
@@ -73,14 +164,28 @@ const HolidaysPage = () => {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Calendar</h1>
           <p className="text-sm text-slate-500">View and manage corporate attendances, holidays, leaves, and team schedules.</p>
         </div>
-        
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10"
-        >
-          <Plus size={16} />
-          <span>Add Holiday</span>
-        </button>
+
+        <div className="flex gap-3">
+          <PermissionGuard requiredPermission={PERMISSIONS.HOLIDAY_MANAGE}>
+            <button
+              onClick={handleMarkWeekends}
+              disabled={bulkCreateMutation.isPending}
+              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer border border-slate-200 disabled:opacity-50"
+            >
+              {bulkCreateMutation.isPending ? 'Marking...' : 'Mark Weekends'}
+            </button>
+          </PermissionGuard>
+
+          <PermissionGuard requiredPermission={PERMISSIONS.HOLIDAY_MANAGE}>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10"
+            >
+              <Plus size={16} />
+              <span>Add Holiday</span>
+            </button>
+          </PermissionGuard>
+        </div>
       </div>
 
       {/* Grid of holiday lists / layouts */}
@@ -111,7 +216,7 @@ const HolidaysPage = () => {
       {/* Corporate Holidays Table */}
       <HolidaysTable
         holidays={holidaysList}
-        onDeleteHoliday={handleDeleteHoliday}
+        onDeleteHoliday={canManageHolidays ? handleDeleteHoliday : undefined}
       />
 
       {/* Pop-up Modals */}
