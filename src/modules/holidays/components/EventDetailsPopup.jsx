@@ -85,7 +85,7 @@ const EventDetailsPopup = ({ isOpen, onClose, dateStr, event }) => {
                   event.type === 'leave' ? 'bg-rose-100/50 text-rose-700 border-rose-200' :
                   'bg-amber-100/50 text-amber-700 border-amber-200'
                 }`}>
-                  {event.type}
+                  {event.type === 'holiday' && event.holidayType ? `${event.holidayType} ${event.type}` : event.type}
                 </span>
                 <h5 className="text-sm font-extrabold text-slate-800">{event.label}</h5>
                 <p className="text-xs text-slate-500 mt-1">

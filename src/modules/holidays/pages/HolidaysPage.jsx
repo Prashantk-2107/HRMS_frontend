@@ -40,12 +40,12 @@ const HolidaysPage = () => {
     }
   };
 
-  const handleAddHoliday = (dateStr, name) => {
+  const handleAddHoliday = (dateStr, name, category) => {
     if (eventsMap[dateStr]) {
       toast.error('An event already exists on this date!');
       return;
     }
-    setEvents(prev => [...prev, { date: dateStr, type: 'holiday', label: name }]);
+    setEvents(prev => [...prev, { date: dateStr, type: 'holiday', label: name, holidayType: category }]);
     setSelectedDate(dateStr); // Select the newly added date
     setIsDetailsOpen(true); // Open details popup for newly added holiday
     

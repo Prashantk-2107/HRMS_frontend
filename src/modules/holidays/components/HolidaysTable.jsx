@@ -46,6 +46,7 @@ const HolidaysTable = ({ holidays, onDeleteHoliday }) => {
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Day</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Holiday Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Category</th>
                 {onDeleteHoliday && (
                   <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Action</th>
                 )}
@@ -62,6 +63,9 @@ const HolidaysTable = ({ holidays, onDeleteHoliday }) => {
                   </td>
                   <td className="px-6 py-4 text-sm font-bold text-slate-800">
                     {h.label}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-semibold text-slate-500 capitalize">
+                    {h.holidayType ? `${h.holidayType} Holiday` : 'National Holiday'}
                   </td>
                   {onDeleteHoliday && (
                     <td className="px-6 py-4 text-sm text-right">
@@ -81,7 +85,6 @@ const HolidaysTable = ({ holidays, onDeleteHoliday }) => {
         ) : (
           <div className="p-10 text-center flex flex-col items-center justify-center">
             <span className="text-slate-400 font-medium text-sm">No Holidays Registered</span>
-            <p className="text-xs text-slate-400 mt-1">Use the "Add Holiday" button at the top to register a holiday.</p>
           </div>
         )}
       </div>
