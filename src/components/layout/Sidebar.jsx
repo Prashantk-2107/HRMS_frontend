@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,12 +19,15 @@ import {
 } from 'lucide-react';
 import { selectAuth, logout } from '../../store/slices/authSlice';
 import logoImg from '../../assets/icons/WorkSphere.png';
+import { usePermission } from '../../hooks/usePermission';
+import { SIDEBAR_PERMISSIONS } from '../../constants/permissions';
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, permissions, role } = useSelector(selectAuth);
+  const { user } = useSelector(selectAuth);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { hasPermission } = usePermission();
 
   const menuSections = [
     {
@@ -39,37 +42,37 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           name: 'Employees',
           path: '/employees',
           icon: UserIcon,
-          permission: 'view_employees',
+          permissions: SIDEBAR_PERMISSIONS.EMPLOYEES,
         },
         {
           name: 'Attendances',
           path: '/attendance',
           icon: CheckSquare,
-          permission: 'view_attendance',
+          permissions: SIDEBAR_PERMISSIONS.ATTENDANCE,
         },
         {
           name: 'Calendar',
           path: '/holidays',
           icon: Calendar,
-          permission: 'view_holidays',
+          permissions: SIDEBAR_PERMISSIONS.HOLIDAYS,
         },
         {
           name: 'Leaves',
           path: '/leaves',
           icon: LogOut,
-          permission: 'view_leaves',
+          permissions: SIDEBAR_PERMISSIONS.LEAVES,
         },
         {
           name: 'Payroll',
           path: '/bank-accounts',
           icon: Coins,
-          permission: 'view_bank_accounts',
+          permissions: SIDEBAR_PERMISSIONS.PAYROLL,
         },
         {
           name: 'Documents',
           path: '/documents',
           icon: Folder,
-          permission: 'view_documents',
+          permissions: SIDEBAR_PERMISSIONS.DOCUMENTS,
         },
       ],
     },
@@ -80,7 +83,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           name: 'Roles & Permissions',
           path: '/roles',
           icon: ShieldCheck,
-          permission: 'view_roles',
+          permissions: SIDEBAR_PERMISSIONS.ROLES,
         },
         {
           name: 'Apps & Integration',
@@ -107,21 +110,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
   ];
 
-  // Helper to verify user permissions (supporting admin/superadmin bypass)
+  // Helper to verify user permissions
   const hasAccess = (item) => {
-    if (!item.permission) return true;
-
-    // Normalize role string or object
-    const roleName = typeof role === 'object' ? role?.name : role;
-    if (roleName) {
-      const normalizedRole = roleName.toLowerCase().replace(/[\s_-]/g, '');
-      if (normalizedRole === 'admin' || normalizedRole === 'superadmin') {
-        return true;
-      }
-    }
-
-    const userPerms = permissions || [];
-    return userPerms.includes(item.permission);
+    if (!item.permission && !item.permissions) return true;
+    return hasPermission(item.permissions || item.permission);
   };
 
   const handleLogout = () => {
@@ -140,19 +132,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   };
 
   const userDisplayName = user?.name || user?.employeeId || 'User';
-  const userDisplayRole = (typeof role === 'object' ? role?.name : role) || 'Employee';
 
   const sidebarVariants = {
     expanded: { width: 260, transition: { duration: 0.3, ease: 'easeInOut' } },
     collapsed: { width: 78, transition: { duration: 0.3, ease: 'easeInOut' } },
   };
 
-  const textVariants = {
-    expanded: { opacity: 1, x: 0, display: 'block', transition: { duration: 0.2, delay: 0.05 } },
-    collapsed: { opacity: 0, x: -10, transitionEnd: { display: 'none' }, transition: { duration: 0.1 } },
-  };
-
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <div className="flex flex-col h-full bg-white text-slate-600 border-r border-slate-150 relative shadow-sm">
 
       {/* Floating Circular Collapse Toggle Button absolute-positioned on the border */}
@@ -306,11 +292,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     <>
       {/* Desktop Sidebar */}
       <motion.div
+        initial={false}
         animate={isCollapsed ? 'collapsed' : 'expanded'}
         variants={sidebarVariants}
         className="hidden md:block h-screen sticky top-0 flex-shrink-0 z-20"
       >
-        <SidebarContent />
+        {renderSidebarContent()}
       </motion.div>
 
       {/* Mobile Drawer Backdrop */}
@@ -336,7 +323,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="md:hidden fixed top-0 bottom-0 left-0 w-[260px] z-50 shadow-2xl"
           >
-            <SidebarContent />
+            {renderSidebarContent()}
           </motion.div>
         )}
       </AnimatePresence>

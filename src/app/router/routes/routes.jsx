@@ -17,6 +17,7 @@ import AppsPage from '../../../modules/apps/pages/AppsPage';
 import SettingsPage from '../../../modules/settings/pages/SettingsPage';
 import HelpPage from '../../../modules/help/pages/HelpPage';
 import PermissionRoute from '../guards/permissionRoutes';
+import { SIDEBAR_PERMISSIONS } from '../../../constants/permissions';
 
 export const routes = [
   {
@@ -47,7 +48,7 @@ export const routes = [
             element: <DashboardPage />
           },
           {
-            element: <PermissionRoute requiredPermissions="view_employees" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.EMPLOYEES} />,
             children: [
               {
                 path: '/employees',
@@ -56,7 +57,7 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions="view_bank_accounts" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.PAYROLL} />,
             children: [
               {
                 path: '/bank-accounts',
@@ -65,7 +66,7 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions="view_holidays" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.HOLIDAYS} />,
             children: [
               {
                 path: '/holidays',
@@ -74,7 +75,7 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions="view_attendance" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.ATTENDANCE} />,
             children: [
               {
                 path: '/attendance',
@@ -83,7 +84,7 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions="view_roles" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.ROLES} />,
             children: [
               {
                 path: '/roles',
@@ -92,7 +93,7 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions="view_leaves" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.LEAVES} />,
             children: [
               {
                 path: '/leaves',
@@ -101,7 +102,7 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions="view_documents" />,
+            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.DOCUMENTS} />,
             children: [
               {
                 path: '/documents',
