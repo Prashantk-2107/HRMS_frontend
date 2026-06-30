@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+@utility custom-scrollbar {
+  /* Standard overflow behavior */
+  overflow-y: auto !important;
+  
+  /* Firefox: Keep scrollbar space constant (thin) but toggle color visibility to prevent shifts */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+  }
+
+  /* Chrome, Safari, Edge: Keep scrollbar space constant (6px) but toggle thumb opacity/color */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    background-clip: padding-box;
+    border: 1.5px solid transparent;
+    border-radius: 9999px;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.25); /* Fades in grey on hover of container */
+    background-clip: padding-box;
+    border: 1.5px solid transparent;
+  }
+
+  &:hover::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(99, 102, 241, 0.65); /* Highlight to brand Indigo on thumb hover */
+    background-clip: padding-box;
+    border: 1.5px solid transparent;
+  }
+}

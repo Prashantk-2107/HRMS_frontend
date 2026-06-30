@@ -17,7 +17,7 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-slate-50 p-6 font-sans text-slate-800">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        
+
         <header className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
           <div>
             <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
@@ -39,7 +39,7 @@ const DashboardPage = () => {
               <div className="flex flex-col gap-2">
                 <div>
                   <span className="text-xs text-slate-400 block">Name</span>
-                  <span className="text-sm font-semibold text-slate-800">{user.name || 'N/A'}</span>
+                  <span className="text-sm font-semibold text-slate-800">{user.first_name + ' ' + user.last_name || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-xs text-slate-400 block">Email</span>

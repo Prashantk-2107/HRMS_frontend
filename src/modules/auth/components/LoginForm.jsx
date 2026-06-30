@@ -1,4 +1,3 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -26,13 +25,11 @@ const LoginForm = () => {
   const onSubmit = async (data) => {
     try {
       const response = await api.post(AUTH_ENDPOINTS.LOGIN, {
-        identifier: data.identifier,
         email: data.identifier,
         password: data.password
       });
       console.log('Login Response:', response.data);
       if (response.data.success) {
-        // Store user, tokens, and initial data first so Axios interceptor can access token
         dispatch(login({
           user: response?.data?.data?.employee,
           permissions: response?.data?.data?.permissions || [],
@@ -41,21 +38,25 @@ const LoginForm = () => {
           refreshToken: response?.data?.data?.refreshToken,
         }));
 
-        // Fetch all permissions from `/permission/get-all-permissions`
         try {
-          const permResponse = await api.get(PERMISSION_ENDPOINTS.GET_ALL);
-          console.log('Get All Permissions Response:', permResponse.data);
+          const empId = response?.data?.data?.employee?.emp_id;
+          if (empId) {
+            const permResponse = await api.get(PERMISSION_ENDPOINTS.GET_USER_PERMISSIONS(empId));
+            console.log('Get User Permissions Response:', permResponse.data);
 
-          if (permResponse.data.success) {
-            const rawPermissions = permResponse.data.data?.permissions || permResponse.data.data || permResponse.data.permissions || [];
+            if (permResponse.data.success) {
+              const rawPermissions = permResponse.data.data?.effectivePermissions || [];
 
-            // Convert to string array if objects are received
-            const processedPermissions = Array.isArray(rawPermissions)
-              ? rawPermissions.map(p => (p && typeof p === 'object' ? (p.name || p.codename || p.permission || p.title || JSON.stringify(p)) : p))
-              : [];
+              // Convert to string array if objects are received
+              const processedPermissions = Array.isArray(rawPermissions)
+                ? rawPermissions.map(p => (p && typeof p === 'object' ? (p.name || p.codename || p.permission || p.title || JSON.stringify(p)) : p))
+                : [];
 
-            console.log('Processed Permissions:', processedPermissions);
-            dispatch(setPermissions(processedPermissions));
+              console.log('Processed Permissions:', processedPermissions);
+              dispatch(setPermissions(processedPermissions));
+            }
+          } else {
+            console.warn('Could not retrieve employee ID from login response.');
           }
         } catch (permError) {
           console.error('Failed to fetch permissions upon login:', permError);
