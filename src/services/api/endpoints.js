@@ -25,4 +25,6 @@ export const PERMISSION_ENDPOINTS = {
 
 export const ROLE_ENDPOINTS = {
   GET_ALL: '/role/get-all-roles',
+  CREATE: '/role/create-role',
+  DELETE: (roleId) => `/role/delete-role/${roleId}`,
 };

@@ -1,15 +1,28 @@
 import React from 'react';
-import { ShieldCheck, Check } from 'lucide-react';
+import { ShieldCheck, Trash2 } from 'lucide-react';
 
-const RoleCard = ({ role, onViewPermissions }) => {
+const RoleCard = ({ role, onViewPermissions, isDeleteMode, onDeleteClick }) => {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100/80 shadow-sm flex flex-col justify-between hover:border-indigo-100 transition-all duration-200 text-left">
+    <div className="bg-white p-6 rounded-3xl border border-slate-100/80 shadow-sm flex flex-col justify-between hover:border-indigo-100 transition-all duration-200 text-left relative overflow-hidden">
       <div>
-        <div className="flex justify-between items-start mb-3">
+        <div className="flex justify-between items-center mb-3">
           <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
             <ShieldCheck size={10} /> Role
           </span>
-          <span className="text-xs font-semibold text-slate-400">{role.membersCount} Members</span>
+          {isDeleteMode ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteClick(role);
+              }}
+              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-100 transition-all duration-150 cursor-pointer active:scale-90"
+              title="Delete Role"
+            >
+              <Trash2 size={14} />
+            </button>
+          ) : (
+            <span className="text-xs font-semibold text-slate-400">{role.membersCount} Members</span>
+          )}
         </div>
 
         <h3 className="text-lg font-bold text-slate-800">{role.name}</h3>

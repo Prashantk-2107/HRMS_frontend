@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
 import RolesHeader from '../components/RolesHeader';
 import RoleCard from '../components/RoleCard';
 import PermissionsModal from '../components/PermissionsModal';
+import CreateRoleModal from '../components/CreateRoleModal';
 import api, { ROLE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 
 const RolesPage = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [deleteConfirmRole, setDeleteConfirmRole] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isCreatingRole, setIsCreatingRole] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: roles = [], isLoading, error } = useQuery({
@@ -30,7 +37,27 @@ const RolesPage = () => {
   });
 
   const handleCreateRole = () => {
-    console.log('Create New Role clicked');
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateRoleSubmit = async (roleData) => {
+    setIsCreatingRole(true);
+    const toastId = toast.loading('Creating new role...');
+    try {
+      await api.post(ROLE_ENDPOINTS.CREATE, {
+        name: roleData.name,
+        description: roleData.description,
+      });
+      toast.success('Role created successfully!', { id: toastId });
+      setIsCreateModalOpen(false);
+      // Invalidate roles query cache to refresh role lists instantly
+      await queryClient.invalidateQueries({ queryKey: ['roles'] });
+    } catch (err) {
+      console.error('Failed to create role:', err);
+      toast.error(err.response?.data?.message || 'Failed to create role', { id: toastId });
+    } finally {
+      setIsCreatingRole(false);
+    }
   };
 
   const handleViewPermissions = (role) => {
@@ -58,13 +85,40 @@ const RolesPage = () => {
     }
   };
 
+  const handleDeleteClick = (role) => {
+    setDeleteConfirmRole(role);
+  };
+
+  const handleConfirmDeleteSubmit = async () => {
+    if (!deleteConfirmRole) return;
+
+    setIsUpdating(true);
+    const toastId = toast.loading(`Deleting role "${deleteConfirmRole.name}"...`);
+    try {
+      await api.delete(ROLE_ENDPOINTS.DELETE(deleteConfirmRole.role_id));
+      toast.success('Role deleted successfully!', { id: toastId });
+      setDeleteConfirmRole(null);
+      // Invalidate roles query cache to refresh role lists instantly
+      await queryClient.invalidateQueries({ queryKey: ['roles'] });
+    } catch (err) {
+      console.error('Failed to delete role:', err);
+      toast.error(err.response?.data?.message || 'Failed to delete role', { id: toastId });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   // Get the most up-to-date selected role data from roles list
   const activeRole = roles.find(r => r.role_id === selectedRole?.role_id) || selectedRole;
 
   return (
     <div className="flex flex-col gap-6 text-left">
       {/* Header */}
-      <RolesHeader onCreateClick={handleCreateRole} />
+      <RolesHeader 
+        onCreateClick={handleCreateRole} 
+        onDeleteModeToggle={() => setIsDeleteMode(!isDeleteMode)}
+        isDeleteMode={isDeleteMode}
+      />
 
       {isLoading ? (
         <div className="flex justify-center items-center py-20">
@@ -78,7 +132,13 @@ const RolesPage = () => {
         /* Role list representation */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {roles.map((r, i) => (
-            <RoleCard key={i} role={r} onViewPermissions={handleViewPermissions} />
+            <RoleCard 
+              key={i} 
+              role={r} 
+              onViewPermissions={handleViewPermissions} 
+              isDeleteMode={isDeleteMode}
+              onDeleteClick={handleDeleteClick}
+            />
           ))}
         </div>
       )}
@@ -92,6 +152,72 @@ const RolesPage = () => {
         onTogglePermission={handleTogglePermission}
         isUpdating={isUpdating}
       />
+
+      {/* Create Role Modal */}
+      <CreateRoleModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateRoleSubmit}
+        isSubmitting={isCreatingRole}
+      />
+
+      {/* Themed Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirmRole && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeleteConfirmRole(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs"
+            />
+
+            {/* Confirmation Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: 'spring', duration: 0.25 }}
+              className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 p-6 z-10 flex flex-col items-center text-center"
+            >
+              {/* Icon Container */}
+              <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+                <Trash2 size={24} />
+              </div>
+
+              {/* Title & Desc */}
+              <h4 className="text-base font-bold text-slate-900 tracking-tight">
+                Delete Role?
+              </h4>
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                Are you sure you want to delete the role{' '}
+                <span className="font-semibold text-slate-700">"{deleteConfirmRole.name}"</span>?
+                This action is permanent and cannot be undone.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 w-full mt-6">
+                <button
+                  disabled={isUpdating}
+                  onClick={() => setDeleteConfirmRole(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={isUpdating}
+                  onClick={handleConfirmDeleteSubmit}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 shadow-sm shadow-rose-600/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
