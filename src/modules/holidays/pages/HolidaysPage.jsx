@@ -11,7 +11,7 @@ import EventDetailsPopup from '../components/EventDetailsPopup';
 import HolidaysTable from '../components/HolidaysTable';
 import PermissionGuard from '../../../components/common/PermissionGuard';
 import { PERMISSIONS } from '../../../constants/permissions';
-import usePermission from '../../../hooks/usePermission';
+import { usePermission } from '../../../hooks/usePermission';
 
 const HolidaysPage = () => {
   const queryClient = useQueryClient();
@@ -108,6 +108,25 @@ const HolidaysPage = () => {
       toast.error(errorMsg);
     }
   });
+
+  const handleAddHoliday = (dateStr, name, category) => {
+    const payload = {
+      holiday_date: dateStr,
+      holiday_name: name,
+      holiday_type: category
+    };
+    createMutation.mutate(payload);
+  };
+
+  const handleDeleteHoliday = (holidayDate) => {
+    // Find holiday record to retrieve its DB ID
+    const targetHoliday = holidaysList.find(h => h.date === holidayDate);
+    if (!targetHoliday?.id) {
+      toast.error('Could not find holiday record identifier!');
+      return;
+    }
+    deleteMutation.mutate(targetHoliday.id);
+  };
 
   // Bulk create weekend holidays mutation
   const bulkCreateMutation = useMutation({

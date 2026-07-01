@@ -68,37 +68,38 @@ const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDa
     const isSelected = item.dateString === selectedDate;
     const event = eventsMap[item.dateString];
 
-    let base = 'h-full min-h-[44px] w-full flex flex-col justify-between p-1 border rounded-xl cursor-pointer transition-all duration-150 relative ';
-
-    if (isSelected) {
-      base += 'ring-2 ring-indigo-500 z-10 border-indigo-500 ';
-    } else {
-      base += 'border-slate-100/50 hover:bg-slate-50 ';
-    }
+    let base = 'h-full min-h-[44px] w-full flex flex-col justify-between p-1 border rounded-xl transition-all duration-150 relative ';
 
     if (!item.isCurrentMonth) {
-      base += 'text-slate-350 bg-slate-50/20 ';
+      // Grayed out, non-clickable state for previous/next month days
+      base += 'text-slate-300 bg-slate-50/60 border-slate-100/30 pointer-events-none select-none ';
     } else {
-      base += 'text-slate-700 font-semibold ';
+      // Current month days get crisp border highlighting and standard pointer cursor
+      base += 'text-slate-700 font-semibold border-slate-200/85 hover:bg-slate-50/80 cursor-pointer ';
     }
 
-    if (isToday) {
-      // If today is selected, it maintains the light blue styling with indigo border ring
-      return base + 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100/80';
+    if (isSelected && item.isCurrentMonth) {
+      base += 'ring-2 ring-indigo-500 z-10 border-indigo-500 ';
     }
 
-    if (event) {
-      if (event.type === 'attendance') {
-        return base + 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/80';
+    if (item.isCurrentMonth) {
+      if (isToday) {
+        return base + 'bg-blue-50/90 text-blue-700 border-blue-200 hover:bg-blue-100/80';
       }
-      if (event.type === 'holiday') {
-        return base + 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/80';
-      }
-      if (event.type === 'leave') {
-        return base + 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/80';
-      }
-      if (event.type === 'meeting') {
-        return base + 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100/80';
+
+      if (event) {
+        if (event.type === 'attendance') {
+          return base + 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/80';
+        }
+        if (event.type === 'holiday') {
+          return base + 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/80';
+        }
+        if (event.type === 'leave') {
+          return base + 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/80';
+        }
+        if (event.type === 'meeting') {
+          return base + 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100/80';
+        }
       }
     }
 
@@ -144,7 +145,7 @@ const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDa
           return (
             <div
               key={idx}
-              onClick={() => setSelectedDate(item.dateString)}
+              onClick={() => item.isCurrentMonth && setSelectedDate(item.dateString)}
               className={getDayClass(item)}
             >
               <div className="text-xs leading-none select-none pl-1 pt-1">
