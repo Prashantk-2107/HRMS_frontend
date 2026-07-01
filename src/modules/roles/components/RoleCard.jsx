@@ -1,5 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Trash2 } from 'lucide-react';
+import PermissionGuard from '../../../components/common/PermissionGuard';
+import { PERMISSIONS } from '../../../constants/permissions';
 
 const RoleCard = ({ role, onViewPermissions, isDeleteMode, onDeleteClick }) => {
   return (
@@ -28,22 +30,23 @@ const RoleCard = ({ role, onViewPermissions, isDeleteMode, onDeleteClick }) => {
         <h3 className="text-lg font-bold text-slate-800">{role.name}</h3>
         <p className="text-xs text-slate-500 mt-2 leading-relaxed">{role.description}</p>
       </div>
+      <PermissionGuard permissions={[PERMISSIONS.PERMISSION_GRANT_REVOKE]}>
+        <div className="mt-6 border-t border-slate-50 pt-4 flex flex-col gap-3">
+          <div className="flex justify-between items-center text-xs font-semibold text-slate-400">
+            <span>Granted Permissions</span>
+            <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-[10px] border border-indigo-100/50">
+              {role.permissions?.length || 0} Permissions
+            </span>
+          </div>
 
-      <div className="mt-6 border-t border-slate-50 pt-4 flex flex-col gap-3">
-        <div className="flex justify-between items-center text-xs font-semibold text-slate-400">
-          <span>Granted Permissions</span>
-          <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-[10px] border border-indigo-100/50">
-            {role.permissions?.length || 0} Permissions
-          </span>
+          <button
+            onClick={() => onViewPermissions(role)}
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-indigo-100 hover:border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-semibold text-xs transition-all duration-200 cursor-pointer active:scale-[0.98]"
+          >
+            <span>See Granted Permissions</span>
+          </button>
         </div>
-        
-        <button
-          onClick={() => onViewPermissions(role)}
-          className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-indigo-100 hover:border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-semibold text-xs transition-all duration-200 cursor-pointer active:scale-[0.98]"
-        >
-          <span>See Granted Permissions</span>
-        </button>
-      </div>
+      </PermissionGuard>
     </div>
   );
 };

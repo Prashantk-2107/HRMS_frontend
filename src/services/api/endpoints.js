@@ -10,11 +10,11 @@ export const AUTH_ENDPOINTS = {
 };
 
 export const EMPLOYEE_ENDPOINTS = {
-  LIST: '/employees',
-  DETAILS: (id) => `/employees/${id}`,
-  CREATE: '/employees',
-  UPDATE: (id) => `/employees/${id}`,
-  DELETE: (id) => `/employees/${id}`,
+  LIST: '/employee/get-all-emp',
+  DETAILS: (id) => `/employee/get-emp/${id}`,
+  CREATE: '/employee/create-emp',
+  UPDATE: (id) => `/employee/update-emp/${id}`,
+  DELETE: (id) => `/employee/delete-emp/${id}`,
   UPDATE_ME: '/employee/update-me',
   UPLOAD_PHOTO: '/employee/upload-profile-photo',
 };

@@ -17,6 +17,7 @@ const ProfilePage = () => {
   // Local UI state
   const [isSaving, setIsSaving] = useState(false);
   const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const {
     register,
@@ -99,10 +100,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadPhotoFile = async (file) => {
     // Immediately show preview
     const localUrl = URL.createObjectURL(file);
     setProfileImagePreview(localUrl);
@@ -130,6 +128,40 @@ const ProfilePage = () => {
       console.error('Photo upload error:', err);
       toast.error(err.response?.data?.message || 'Failed to upload photo', { id: toastId });
       setProfileImagePreview(currentUser?.profile_image || null);
+    }
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadPhotoFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        await uploadPhotoFile(file);
+      } else {
+        toast.error('Please upload an image file');
+      }
     }
   };
 
@@ -366,8 +398,17 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Drag & Drop mockup */}
-            <div className="w-full border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-indigo-300 transition-all duration-200 bg-slate-50/20">
+            {/* Drag & Drop Card Container */}
+            <div
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`w-full border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 ${isDragging
+                  ? 'border-indigo-500 bg-indigo-50/40 scale-[1.02] shadow-inner'
+                  : 'border-slate-200 hover:border-indigo-300 bg-slate-50/20'
+                }`}
+            >
               <label className="flex flex-col items-center cursor-pointer gap-2">
                 <UploadCloud size={28} className="text-indigo-500" />
                 <span className="text-xs font-semibold text-slate-600">Drag a photo here</span>

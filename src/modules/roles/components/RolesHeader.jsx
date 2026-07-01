@@ -1,4 +1,6 @@
-import { Plus, Trash2, ShieldAlert, UserCheck, Download } from 'lucide-react';
+import { Plus, Trash2, ShieldAlert, UserCheck, Download, Import } from 'lucide-react';
+import PermissionGuard from '../../../components/common/PermissionGuard';
+import { PERMISSIONS } from '../../../constants/permissions';
 
 const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssignClick, onExportClick }) => {
   return (
@@ -13,29 +15,31 @@ const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssign
           onClick={onExportClick}
           className="flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98]"
         >
-          <Download size={16} />
-          <span>Export</span>
+          <Import size={16} />
+          <span>Import</span>
         </button>
 
-        <button
-          onClick={onDeleteModeToggle}
-          className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98] ${isDeleteMode
-            ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/10'
-            : 'border border-rose-200 bg-rose-50/20 hover:bg-rose-50 text-rose-600 hover:text-rose-700'
-            }`}
-        >
-          {isDeleteMode ? (
-            <>
-              <ShieldAlert size={16} />
-              <span>Exit Delete Mode</span>
-            </>
-          ) : (
-            <>
-              <Trash2 size={16} />
-              <span>Delete Role</span>
-            </>
-          )}
-        </button>
+        <PermissionGuard permissions={PERMISSIONS.ROLE_DELETE}>
+          <button
+            onClick={onDeleteModeToggle}
+            className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98] ${isDeleteMode
+              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/10'
+              : 'border border-rose-200 bg-rose-50/20 hover:bg-rose-50 text-rose-600 hover:text-rose-700'
+              }`}
+          >
+            {isDeleteMode ? (
+              <>
+                <ShieldAlert size={16} />
+                <span>Exit Delete Mode</span>
+              </>
+            ) : (
+              <>
+                <Trash2 size={16} />
+                <span>Delete Role</span>
+              </>
+            )}
+          </button>
+        </PermissionGuard>
 
         <button
           onClick={onAssignClick}
@@ -45,13 +49,15 @@ const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssign
           <span>Assign Role</span>
         </button>
 
-        <button
-          onClick={onCreateClick}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10"
-        >
-          <Plus size={16} />
-          <span>Create New Role</span>
-        </button>
+        <PermissionGuard permissions={PERMISSIONS.ROLE_CREATE}>
+          <button
+            onClick={onCreateClick}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10"
+          >
+            <Plus size={16} />
+            <span>Create New Role</span>
+          </button>
+        </PermissionGuard>
       </div>
     </div>
   );

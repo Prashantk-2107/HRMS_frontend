@@ -1,13 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, UserPlus, FileDown, Search } from 'lucide-react';
+import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
 
 const EmployeesPage = () => {
-  const mockEmployees = [
-    { id: 'EMP001', name: 'Alok Mishra', email: 'alok.mishra@crm.com', role: 'Super Admin', status: 'Active' },
-    { id: 'EMP002', name: 'Prashant Kumar', email: 'prashant.kumar@crm.com', role: 'HR Manager', status: 'Active' },
-    { id: 'EMP003', name: 'Sneha Patel', email: 'sneha.patel@crm.com', role: 'Software Engineer', status: 'On Leave' },
-    { id: 'EMP004', name: 'Rohan Sharma', email: 'rohan.sharma@crm.com', role: 'Business Analyst', status: 'Active' },
-  ];
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
+        if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
+          setEmployees(response.data.data.employees);
+        } else {
+          setEmployees([]);
+        }
+      } catch (err) {
+        console.error('Error fetching employees:', err);
+        setError(err.response?.data?.message || 'Failed to fetch employees. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  // Filter based on search term
+  const filteredEmployees = employees.filter((emp) => {
+    const term = searchTerm.toLowerCase();
+    const fullName = `${emp.first_name || ''} ${emp.last_name || ''}`.toLowerCase();
+    const id = (emp.empCode || emp.emp_id || '').toLowerCase();
+    const role = (emp.role?.name || '').toLowerCase();
+    const email = (emp.email || '').toLowerCase();
+    return (
+      fullName.includes(term) ||
+      id.includes(term) ||
+      role.includes(term) ||
+      email.includes(term)
+    );
+  });
+
+  // Calculate stats dynamically
+  const totalStaff = employees.length;
+  const activeStaff = employees.filter((emp) => emp.employee_status === 'active').length;
+  const inactiveStaff = employees.filter((emp) => emp.employee_status === 'in_active').length;
 
   return (
     <div className="flex flex-col gap-6 text-left">
@@ -17,7 +58,7 @@ const EmployeesPage = () => {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Employees Directory</h1>
           <p className="text-sm text-slate-500">Manage, view, and add corporate staff members.</p>
         </div>
-        
+
         <div className="flex gap-3">
           <button className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-sm">
             <FileDown size={16} />
@@ -38,18 +79,17 @@ const EmployeesPage = () => {
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Total Staff</span>
-            <span className="text-2xl font-bold text-slate-800">48</span>
+            <span className="text-2xl font-bold text-slate-800">{loading ? '...' : totalStaff}</span>
           </div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <div className="w-2 h-2 rounded-full bg-emerald-600 animate-ping absolute" />
             <Users size={24} />
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Active Staff</span>
-            <span className="text-2xl font-bold text-slate-800">45</span>
+            <span className="text-2xl font-bold text-slate-800">{loading ? '...' : activeStaff}</span>
           </div>
         </div>
 
@@ -58,8 +98,8 @@ const EmployeesPage = () => {
             <Users size={24} />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">On Leave</span>
-            <span className="text-2xl font-bold text-slate-800">3</span>
+            <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Inactive Staff</span>
+            <span className="text-2xl font-bold text-slate-800">{loading ? '...' : inactiveStaff}</span>
           </div>
         </div>
       </div>
@@ -75,6 +115,8 @@ const EmployeesPage = () => {
               type="text"
               placeholder="Search by name, ID or role..."
               className="bg-transparent text-xs text-slate-700 outline-none w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
@@ -92,21 +134,46 @@ const EmployeesPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {mockEmployees.map((emp, i) => (
-                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-500">{emp.id}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-slate-800">{emp.name}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{emp.email}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 font-medium">{emp.role}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                      emp.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {emp.status}
-                    </span>
+              {loading ? (
+                Array.from({ length: 4 }).map((_, idx) => (
+                  <tr key={idx} className="animate-pulse">
+                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
+                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-32"></div></td>
+                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-48"></div></td>
+                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
+                    <td className="px-6 py-4"><div className="h-6 bg-slate-200 rounded-full w-16"></div></td>
+                  </tr>
+                ))
+              ) : error ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-red-500 font-semibold">
+                    {error}
                   </td>
                 </tr>
-              ))}
+              ) : filteredEmployees.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400 font-semibold">
+                    No staff members found matching the search criteria.
+                  </td>
+                </tr>
+              ) : (
+                filteredEmployees.map((emp, i) => (
+                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-500">{emp.empCode || emp.emp_id}</td>
+                    <td className="px-6 py-4 text-sm font-bold text-slate-800">
+                      {`${emp.first_name || ''} ${emp.last_name || ''}`.trim() || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{emp.email}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 font-medium">{emp.role?.name || 'N/A'}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${emp.employee_status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                        {emp.employee_status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
