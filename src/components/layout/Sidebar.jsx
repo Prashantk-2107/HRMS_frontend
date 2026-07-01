@@ -161,7 +161,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   animate={{ opacity: 1, width: 'auto' }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
-                  className="font-black text-indigo-600 text-lg tracking-tight whitespace-nowrap bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent overflow-hidden"
+                  className="font-black text-indigo-600 text-lg tracking-tight whitespace-nowrap bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent overflow-hidden relative -top-[1.5px]"
                 >
                   WorkSphere
                 </motion.span>

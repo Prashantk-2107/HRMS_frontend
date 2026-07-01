@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Search, CheckCircle, XCircle } from 'lucide-react';
+import { X, Search, CheckCircle, XCircle, ShieldAlert } from 'lucide-react';
 
 const PermissionsModal = ({ isOpen, onClose, role, allPermissions, onTogglePermission, isUpdating }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [confirmData, setConfirmData] = useState(null);
 
   if (!isOpen || !role) return null;
 
@@ -16,116 +17,202 @@ const PermissionsModal = ({ isOpen, onClose, role, allPermissions, onTogglePermi
     return role?.permissions?.some(p => p.name === permissionName);
   };
 
+  const handleConfirmAction = async () => {
+    if (confirmData) {
+      await onTogglePermission(
+        confirmData.roleId,
+        confirmData.permissionId,
+        confirmData.isGranted
+      );
+      setConfirmData(null);
+    }
+  };
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-          />
+    <>
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
 
-          {/* Modal Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: 'spring', duration: 0.3 }}
-            className="relative bg-white w-full max-w-lg rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[80vh] z-10 text-left"
-          >
-            {/* Header */}
-            <div className="p-6 border-b border-slate-100 flex justify-between items-start flex-shrink-0">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                  {role.name} Permissions
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Showing granted and revoked privileges for this role. Click a status badge to toggle.
-                </p>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 active:scale-95 transition-all duration-150 cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Search Bar */}
-            <div className="p-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0">
-              <div className="flex items-center gap-2 bg-white border border-slate-200/60 rounded-xl px-3 py-2 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all duration-200">
-                <Search size={16} className="text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search permissions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent text-sm text-slate-700 outline-none w-full placeholder-slate-400 font-medium"
-                />
-              </div>
-            </div>
-
-            {/* List */}
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-3">
-              {filteredPermissions.length > 0 ? (
-                filteredPermissions.map((p, idx) => {
-                  const granted = isGranted(p.name);
-                  return (
-                    <div
-                      key={p.id || idx}
-                      className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 ${
-                        granted
-                          ? 'bg-emerald-50/20 border-emerald-100/50 hover:bg-emerald-50/30'
-                          : 'bg-slate-50/30 border-slate-100 hover:bg-slate-50/50'
-                      }`}
-                    >
-                      <div className="flex flex-col pr-4">
-                        <span className="text-sm font-semibold text-slate-700 capitalize">
-                          {p.name.replace(/:/g, ' - ').replace(/_/g, ' ')}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
-                          {p.name.split(':')[0]} module
-                        </span>
-                      </div>
-
-                      <div className="flex-shrink-0">
-                        <button
-                          disabled={isUpdating}
-                          onClick={() => onTogglePermission(role.role_id, p.permission_id, !granted, p.name, role.name)}
-                          className={`flex items-center outline-none select-none transition-all duration-150 active:scale-95 cursor-pointer ${
-                            isUpdating ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                        >
-                          {granted ? (
-                            <span className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 border border-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all">
-                              <CheckCircle size={10} className="text-emerald-500" />
-                              Granted
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all">
-                              <XCircle size={10} className="text-rose-500" />
-                              Revoked
-                            </span>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-slate-400 font-medium">No permissions found</p>
+            {/* Modal Container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', duration: 0.3 }}
+              className="relative bg-white w-full max-w-lg rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[80vh] z-10 text-left"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-slate-100 flex justify-between items-start flex-shrink-0">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                    {role.name} Permissions
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Showing granted and revoked privileges for this role. Click a status badge to toggle.
+                  </p>
                 </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+                <button
+                  onClick={onClose}
+                  className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 active:scale-95 transition-all duration-150 cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Search Bar */}
+              <div className="p-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0">
+                <div className="flex items-center gap-2 bg-white border border-slate-200/60 rounded-xl px-3 py-2 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all duration-200">
+                  <Search size={16} className="text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search permissions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent text-sm text-slate-700 outline-none w-full placeholder-slate-400 font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-3">
+                {filteredPermissions.length > 0 ? (
+                  filteredPermissions.map((p, idx) => {
+                    const granted = isGranted(p.name);
+                    return (
+                      <div
+                        key={p.id || idx}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 ${
+                          granted
+                            ? 'bg-emerald-50/20 border-emerald-100/50 hover:bg-emerald-50/30'
+                            : 'bg-slate-50/30 border-slate-100 hover:bg-slate-50/50'
+                        }`}
+                      >
+                        <div className="flex flex-col pr-4">
+                          <span className="text-sm font-semibold text-slate-700 capitalize">
+                            {p.name.replace(/:/g, ' - ').replace(/_/g, ' ')}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
+                            {p.name.split(':')[0]} module
+                          </span>
+                        </div>
+
+                        <div className="flex-shrink-0">
+                          <button
+                            disabled={isUpdating}
+                            onClick={() => setConfirmData({
+                              roleId: role.role_id,
+                              permissionId: p.permission_id,
+                              isGranted: !granted,
+                              permissionName: p.name,
+                              roleName: role.name
+                            })}
+                            className={`flex items-center outline-none select-none transition-all duration-150 active:scale-95 cursor-pointer ${
+                              isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          >
+                            {granted ? (
+                              <span className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 border border-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all">
+                                <CheckCircle size={10} className="text-emerald-500" />
+                                Granted
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all">
+                                <XCircle size={10} className="text-rose-500" />
+                                Revoked
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-slate-400 font-medium">No permissions found</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Themed Confirmation Modal */}
+      <AnimatePresence>
+        {confirmData && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            {/* Dark overlay for confirmation */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setConfirmData(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs"
+            />
+
+            {/* Confirmation Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: 'spring', duration: 0.25 }}
+              className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 p-6 z-10 flex flex-col items-center text-center"
+            >
+              {/* Icon Container */}
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
+                confirmData.isGranted 
+                  ? 'bg-indigo-50 text-indigo-600' 
+                  : 'bg-rose-50/80 text-rose-600'
+              }`}>
+                <ShieldAlert size={24} />
+              </div>
+
+              {/* Title & Desc */}
+              <h4 className="text-base font-bold text-slate-900 tracking-tight">
+                {confirmData.isGranted ? 'Grant' : 'Revoke'} Permission?
+              </h4>
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                Are you sure you want to {confirmData.isGranted ? 'grant' : 'revoke'} the{' '}
+                <span className="font-semibold text-slate-700">
+                  "{confirmData.permissionName.replace(/:/g, ' - ').replace(/_/g, ' ')}"
+                </span>{' '}
+                permission for{' '}
+                <span className="font-semibold text-slate-700">"{confirmData.roleName}"</span>?
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 w-full mt-6">
+                <button
+                  onClick={() => setConfirmData(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmAction}
+                  className={`flex-1 py-2.5 rounded-xl text-white font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 shadow-sm ${
+                    confirmData.isGranted
+                      ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/10'
+                      : 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/10'
+                  }`}
+                >
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

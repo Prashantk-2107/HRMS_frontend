@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { Menu, Bell, Search, User } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from './Sidebar';
+import api, { PERMISSION_ENDPOINTS } from '../../services/api';
+import { selectUser, setPermissions } from '../../store/slices/authSlice';
 
 const DashboardLayout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    const syncUserPermissions = async () => {
+      if (user?.emp_id) {
+        try {
+          const permResponse = await api.get(PERMISSION_ENDPOINTS.GET_USER_PERMISSIONS(user.emp_id));
+          if (permResponse.data.success) {
+            const rawPermissions = permResponse.data.data?.effectivePermissions || [];
+
+            // Convert to string array if objects are received
+            const processedPermissions = Array.isArray(rawPermissions)
+              ? rawPermissions.map(p => (p && typeof p === 'object' ? (p.name || p.codename || p.permission || p.title || JSON.stringify(p)) : p))
+              : [];
+
+            dispatch(setPermissions(processedPermissions));
+          }
+        } catch (err) {
+          console.error('Failed to sync permissions:', err);
+        }
+      }
+    };
+
+    syncUserPermissions();
+  }, [location.pathname, user?.emp_id, dispatch]);
 
   // Simple helper to derive page title from current path
   const getPageTitle = () => {

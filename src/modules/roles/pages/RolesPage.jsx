@@ -38,27 +38,23 @@ const RolesPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleTogglePermission = async (roleId, permissionId, isGranted, permissionName, roleName) => {
-    const action = isGranted ? 'grant' : 'revoke';
-    const ok = window.confirm(`Are you sure you want to ${action} the "${permissionName.replace(/:/g, ' - ').replace(/_/g, ' ')}" permission for "${roleName}"?`);
-    if (ok) {
-      setIsUpdating(true);
-      const toastId = toast.loading(`${isGranted ? 'Granting' : 'Revoking'} permission...`);
-      try {
-        await api.post(PERMISSION_ENDPOINTS.GRANT_REVOKE, {
-          role_id: roleId,
-          permission_id: permissionId,
-          isGranted,
-        });
-        toast.success(`Permission ${isGranted ? 'granted' : 'revoked'} successfully!`, { id: toastId });
-        // Invalidate roles query to get the updated roles and permissions list
-        await queryClient.invalidateQueries({ queryKey: ['roles'] });
-      } catch (err) {
-        console.error('Failed to toggle permission:', err);
-        toast.error(err.response?.data?.message || 'Failed to update permission', { id: toastId });
-      } finally {
-        setIsUpdating(false);
-      }
+  const handleTogglePermission = async (roleId, permissionId, isGranted) => {
+    setIsUpdating(true);
+    const toastId = toast.loading(`${isGranted ? 'Granting' : 'Revoking'} permission...`);
+    try {
+      await api.post(PERMISSION_ENDPOINTS.GRANT_REVOKE, {
+        role_id: roleId,
+        permission_id: permissionId,
+        isGranted,
+      });
+      toast.success(`Permission ${isGranted ? 'granted' : 'revoked'} successfully!`, { id: toastId });
+      // Invalidate roles query to get the updated roles and permissions list
+      await queryClient.invalidateQueries({ queryKey: ['roles'] });
+    } catch (err) {
+      console.error('Failed to toggle permission:', err);
+      toast.error(err.response?.data?.message || 'Failed to update permission', { id: toastId });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
