@@ -1,20 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import RolesHeader from '../components/RolesHeader';
 import RoleCard from '../components/RoleCard';
-import api, { ROLE_ENDPOINTS } from '../../../services/api';
+import PermissionsModal from '../components/PermissionsModal';
+import api, { ROLE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 
 const RolesPage = () => {
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { data: roles = [], isLoading, error } = useQuery({
     queryKey: ['roles'],
     queryFn: async () => {
       const response = await api.get(ROLE_ENDPOINTS.GET_ALL);
+      console.log("Role Response", response.data)
       return response.data?.data?.roles || [];
+    },
+  });
+
+  const { data: allPermissions = [] } = useQuery({
+    queryKey: ['allPermissions'],
+    queryFn: async () => {
+      const response = await api.get(PERMISSION_ENDPOINTS.GET_ALL);
+      return response.data?.data?.permissions || [];
     },
   });
 
   const handleCreateRole = () => {
     console.log('Create New Role clicked');
+  };
+
+  const handleViewPermissions = (role) => {
+    setSelectedRole(role);
+    setIsModalOpen(true);
   };
 
   return (
@@ -34,10 +52,18 @@ const RolesPage = () => {
         /* Role list representation */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {roles.map((r, i) => (
-            <RoleCard key={i} role={r} />
+            <RoleCard key={i} role={r} onViewPermissions={handleViewPermissions} />
           ))}
         </div>
       )}
+
+      {/* Permissions Modal */}
+      <PermissionsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        role={selectedRole}
+        allPermissions={allPermissions}
+      />
     </div>
   );
 };
