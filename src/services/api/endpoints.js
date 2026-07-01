@@ -21,3 +21,7 @@ export const PERMISSION_ENDPOINTS = {
   GET_ALL: '/permission/get-all-permissions',
   GET_USER_PERMISSIONS: (empId) => `/permission/emp-permissions/${empId}`,
 };
+
+export const ROLE_ENDPOINTS = {
+  GET_ALL: '/role/get-all-roles',
+};
