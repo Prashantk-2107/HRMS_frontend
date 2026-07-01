@@ -20,6 +20,7 @@ export const EMPLOYEE_ENDPOINTS = {
 export const PERMISSION_ENDPOINTS = {
   GET_ALL: '/permission/get-all-permissions',
   GET_USER_PERMISSIONS: (empId) => `/permission/emp-permissions/${empId}`,
+  GRANT_REVOKE: '/permission/grant-revoke-permission',
 };
 
 export const ROLE_ENDPOINTS = {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 import RolesHeader from '../components/RolesHeader';
 import RoleCard from '../components/RoleCard';
 import PermissionsModal from '../components/PermissionsModal';
@@ -8,6 +9,8 @@ import api, { ROLE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api
 const RolesPage = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: roles = [], isLoading, error } = useQuery({
     queryKey: ['roles'],
@@ -35,6 +38,33 @@ const RolesPage = () => {
     setIsModalOpen(true);
   };
 
+  const handleTogglePermission = async (roleId, permissionId, isGranted, permissionName, roleName) => {
+    const action = isGranted ? 'grant' : 'revoke';
+    const ok = window.confirm(`Are you sure you want to ${action} the "${permissionName.replace(/:/g, ' - ').replace(/_/g, ' ')}" permission for "${roleName}"?`);
+    if (ok) {
+      setIsUpdating(true);
+      const toastId = toast.loading(`${isGranted ? 'Granting' : 'Revoking'} permission...`);
+      try {
+        await api.post(PERMISSION_ENDPOINTS.GRANT_REVOKE, {
+          role_id: roleId,
+          permission_id: permissionId,
+          isGranted,
+        });
+        toast.success(`Permission ${isGranted ? 'granted' : 'revoked'} successfully!`, { id: toastId });
+        // Invalidate roles query to get the updated roles and permissions list
+        await queryClient.invalidateQueries({ queryKey: ['roles'] });
+      } catch (err) {
+        console.error('Failed to toggle permission:', err);
+        toast.error(err.response?.data?.message || 'Failed to update permission', { id: toastId });
+      } finally {
+        setIsUpdating(false);
+      }
+    }
+  };
+
+  // Get the most up-to-date selected role data from roles list
+  const activeRole = roles.find(r => r.role_id === selectedRole?.role_id) || selectedRole;
+
   return (
     <div className="flex flex-col gap-6 text-left">
       {/* Header */}
@@ -61,8 +91,10 @@ const RolesPage = () => {
       <PermissionsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        role={selectedRole}
+        role={activeRole}
         allPermissions={allPermissions}
+        onTogglePermission={handleTogglePermission}
+        isUpdating={isUpdating}
       />
     </div>
   );

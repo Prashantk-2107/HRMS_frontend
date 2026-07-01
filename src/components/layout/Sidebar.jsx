@@ -46,7 +46,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       permissions: SIDEBAR_PERMISSIONS.EMPLOYEES,
     },
     {
-      name: 'All Departments',
+      name: 'Roles & Permission',
       path: '/roles',
       icon: Network,
       permissions: SIDEBAR_PERMISSIONS.ROLES,

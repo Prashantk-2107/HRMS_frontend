@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, CheckCircle, XCircle } from 'lucide-react';
 
-const PermissionsModal = ({ isOpen, onClose, role, allPermissions }) => {
+const PermissionsModal = ({ isOpen, onClose, role, allPermissions, onTogglePermission, isUpdating }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   if (!isOpen || !role) return null;
@@ -44,7 +44,7 @@ const PermissionsModal = ({ isOpen, onClose, role, allPermissions }) => {
                   {role.name} Permissions
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Showing granted and revoked privileges for this role.
+                  Showing granted and revoked privileges for this role. Click a status badge to toggle.
                 </p>
               </div>
               <button
@@ -93,17 +93,25 @@ const PermissionsModal = ({ isOpen, onClose, role, allPermissions }) => {
                       </div>
 
                       <div className="flex-shrink-0">
-                        {granted ? (
-                          <span className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            <CheckCircle size={10} className="text-emerald-500" />
-                            Granted
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 bg-rose-50/80 text-rose-600 border border-rose-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            <XCircle size={10} className="text-rose-500" />
-                            Revoked
-                          </span>
-                        )}
+                        <button
+                          disabled={isUpdating}
+                          onClick={() => onTogglePermission(role.role_id, p.permission_id, !granted, p.name, role.name)}
+                          className={`flex items-center outline-none select-none transition-all duration-150 active:scale-95 cursor-pointer ${
+                            isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          {granted ? (
+                            <span className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 border border-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all">
+                              <CheckCircle size={10} className="text-emerald-500" />
+                              Granted
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all">
+                              <XCircle size={10} className="text-rose-500" />
+                              Revoked
+                            </span>
+                          )}
+                        </button>
                       </div>
                     </div>
                   );
