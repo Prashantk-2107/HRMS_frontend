@@ -108,6 +108,16 @@ const RolesPage = () => {
     }
   };
 
+  const handleAssignRole = () => {
+    console.log('Assign Role clicked');
+    toast.success('Assign Role clicked (Mock Action)');
+  };
+
+  const handleExport = () => {
+    console.log('Export clicked');
+    toast.success('Export clicked (Mock Action)');
+  };
+
   // Get the most up-to-date selected role data from roles list
   const activeRole = roles.find(r => r.role_id === selectedRole?.role_id) || selectedRole;
 
@@ -118,6 +128,8 @@ const RolesPage = () => {
         onCreateClick={handleCreateRole} 
         onDeleteModeToggle={() => setIsDeleteMode(!isDeleteMode)}
         isDeleteMode={isDeleteMode}
+        onAssignClick={handleAssignRole}
+        onExportClick={handleExport}
       />
 
       {isLoading ? (

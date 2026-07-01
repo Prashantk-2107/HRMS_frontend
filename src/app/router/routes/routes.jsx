@@ -16,6 +16,7 @@ import DocumentsPage from '../../../modules/documents/pages/DocumentsPage';
 import AppsPage from '../../../modules/apps/pages/AppsPage';
 import SettingsPage from '../../../modules/settings/pages/SettingsPage';
 import HelpPage from '../../../modules/help/pages/HelpPage';
+import ProfilePage from '../../../modules/profile/pages/ProfilePage';
 import PermissionRoute from '../guards/permissionRoutes';
 import { SIDEBAR_PERMISSIONS } from '../../../constants/permissions';
 
@@ -113,6 +114,10 @@ export const routes = [
           {
             path: '/apps',
             element: <AppsPage />
+          },
+          {
+            path: '/profile',
+            element: <ProfilePage />
           },
           {
             path: '/settings',

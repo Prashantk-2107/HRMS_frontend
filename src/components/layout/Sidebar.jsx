@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   CircleDollarSign,
   Briefcase,
+  User,
   UserCheck,
   ClipboardList,
   CalendarDays,
@@ -95,6 +96,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: 'Help & Support',
       path: '/help',
       icon: HelpCircle,
+    },
+    {
+      name: 'My Profile',
+      path: '/profile',
+      icon: User,
     },
   ];
 

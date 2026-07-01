@@ -45,6 +45,7 @@ const DashboardLayout = () => {
     if (path.startsWith('/holidays')) return 'Holidays Calendar';
     if (path.startsWith('/attendance')) return 'Attendance Records';
     if (path.startsWith('/roles')) return 'Roles & Permissions';
+    if (path.startsWith('/profile')) return 'Profile';
     return 'CRM Portal';
   };
 
@@ -58,7 +59,7 @@ const DashboardLayout = () => {
         <div className="flex-1 flex flex-col h-full bg-white md:rounded-[24px] md:border md:border-slate-100/80 md:shadow-sm overflow-hidden">
           {/* Top Header Bar */}
           <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 z-10 shadow-sm flex-shrink-0">
-            
+
             {/* Left: Mobile Toggle & Page Title */}
             <div className="flex items-center gap-4">
               <button
@@ -94,11 +95,15 @@ const DashboardLayout = () => {
 
               {/* Quick Link to Profile/Dashboard */}
               <Link
-                to="/dashboard"
+                to="/profile"
                 className="flex items-center justify-center p-1 rounded-full border-2 border-transparent hover:border-indigo-100 transition-all duration-150"
               >
-                <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
-                  <User size={18} />
+                <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center overflow-hidden font-bold text-sm">
+                  {user?.profile_image ? (
+                    <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={18} />
+                  )}
                 </div>
               </Link>
             </div>
