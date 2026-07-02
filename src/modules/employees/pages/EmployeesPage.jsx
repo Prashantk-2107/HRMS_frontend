@@ -1,49 +1,88 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, FileDown, Search } from 'lucide-react';
+import { UserPlus, FileDown, Trash2, ShieldAlert } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
+import StatsCards from '../components/StatsCards';
+import EmployeeTable from '../components/EmployeeTable';
+import AddEmployeeModal from '../components/AddEmployeeModal';
+import PermissionGuard from '../../../components/common/PermissionGuard';
+import { PERMISSIONS } from '../../../constants/permissions';
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
+      if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
+        setEmployees(response.data.data.employees);
+      } else {
+        setEmployees([]);
+      }
+    } catch (err) {
+      console.error('Error fetching employees:', err);
+      setError(err.response?.data?.message || 'Failed to fetch employees. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClick = (emp) => {
+    setDeleteConfirmEmployee(emp);
+  };
+
+  const handleConfirmDeleteSubmit = async () => {
+    if (!deleteConfirmEmployee) return;
+
+    setIsUpdating(true);
+    const toastId = toast.loading(`Deleting employee "${deleteConfirmEmployee.first_name} ${deleteConfirmEmployee.last_name}"...`);
+    try {
+      await api.delete(EMPLOYEE_ENDPOINTS.DELETE(deleteConfirmEmployee.emp_id));
+      toast.success('Employee deleted successfully!', { id: toastId });
+      setDeleteConfirmEmployee(null);
+      fetchEmployees();
+    } catch (err) {
+      console.error('Failed to delete employee:', err);
+      toast.error(err.response?.data?.message || 'Failed to delete employee', { id: toastId });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
-        if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
-          setEmployees(response.data.data.employees);
-        } else {
-          setEmployees([]);
-        }
-      } catch (err) {
-        console.error('Error fetching employees:', err);
-        setError(err.response?.data?.message || 'Failed to fetch employees. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEmployees();
   }, []);
 
-  // Filter based on search term
-  const filteredEmployees = employees.filter((emp) => {
-    const term = searchTerm.toLowerCase();
-    const fullName = `${emp.first_name || ''} ${emp.last_name || ''}`.toLowerCase();
-    const id = (emp.empCode || emp.emp_id || '').toLowerCase();
-    const role = (emp.role?.name || '').toLowerCase();
-    const email = (emp.email || '').toLowerCase();
-    return (
-      fullName.includes(term) ||
-      id.includes(term) ||
-      role.includes(term) ||
-      email.includes(term)
-    );
-  });
+  // Sort by empCode alphanumeric ascending, then filter based on search term
+  const sortedAndFilteredEmployees = [...employees]
+    .sort((a, b) => {
+      const codeA = a.empCode || '';
+      const codeB = b.empCode || '';
+      return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+    })
+    .filter((emp) => {
+      const term = searchTerm.toLowerCase();
+      const fullName = `${emp.first_name || ''} ${emp.last_name || ''}`.toLowerCase();
+      const id = (emp.empCode || emp.emp_id || '').toLowerCase();
+      const role = (emp.role?.name || '').toLowerCase();
+      const email = (emp.email || '').toLowerCase();
+      return (
+        fullName.includes(term) ||
+        id.includes(term) ||
+        role.includes(term) ||
+        email.includes(term)
+      );
+    });
 
   // Calculate stats dynamically
   const totalStaff = employees.length;
@@ -64,120 +103,123 @@ const EmployeesPage = () => {
             <FileDown size={16} />
             <span>Export</span>
           </button>
-          <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10">
+          <PermissionGuard permissions={PERMISSIONS.EMP_DELETE}>
+            <button
+              onClick={() => setIsDeleteMode(!isDeleteMode)}
+              className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98] ${
+                isDeleteMode
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/10'
+                  : 'border border-rose-200 bg-rose-50/20 hover:bg-rose-50 text-rose-600 hover:text-rose-700'
+              }`}
+            >
+              {isDeleteMode ? (
+                <>
+                  <ShieldAlert size={16} />
+                  <span>Exit Delete Mode</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 size={16} />
+                  <span>Delete Employee</span>
+                </>
+              )}
+            </button>
+          </PermissionGuard>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10"
+          >
             <UserPlus size={16} />
             <span>Add Employee</span>
           </button>
         </div>
       </div>
 
-      {/* Grid containing Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <Users size={24} />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Total Staff</span>
-            <span className="text-2xl font-bold text-slate-800">{loading ? '...' : totalStaff}</span>
-          </div>
-        </div>
+      {/* Quick Stats Cards */}
+      <StatsCards
+        loading={loading}
+        totalStaff={totalStaff}
+        activeStaff={activeStaff}
+        inactiveStaff={inactiveStaff}
+      />
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <Users size={24} />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Active Staff</span>
-            <span className="text-2xl font-bold text-slate-800">{loading ? '...' : activeStaff}</span>
-          </div>
-        </div>
+      {/* Staff Roster Table */}
+      <EmployeeTable
+        loading={loading}
+        error={error}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        employees={sortedAndFilteredEmployees}
+        isDeleteMode={isDeleteMode}
+        onDeleteClick={handleDeleteClick}
+      />
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 sm:col-span-2 lg:col-span-1">
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <Users size={24} />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Inactive Staff</span>
-            <span className="text-2xl font-bold text-slate-800">{loading ? '...' : inactiveStaff}</span>
-          </div>
-        </div>
-      </div>
+      {/* Add Employee Modal */}
+      <AddEmployeeModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchEmployees}
+      />
 
-      {/* Main content table panel */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        {/* Search header inside panel */}
-        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-          <h3 className="font-bold text-slate-800">Staff Roster</h3>
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2 w-full sm:w-72">
-            <Search size={16} className="text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by name, ID or role..."
-              className="bg-transparent text-xs text-slate-700 outline-none w-full"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+      {/* Themed Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirmEmployee && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeleteConfirmEmployee(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs"
             />
-          </div>
-        </div>
 
-        {/* Table representation */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, idx) => (
-                  <tr key={idx} className="animate-pulse">
-                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-32"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-48"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
-                    <td className="px-6 py-4"><div className="h-6 bg-slate-200 rounded-full w-16"></div></td>
-                  </tr>
-                ))
-              ) : error ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-red-500 font-semibold">
-                    {error}
-                  </td>
-                </tr>
-              ) : filteredEmployees.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400 font-semibold">
-                    No staff members found matching the search criteria.
-                  </td>
-                </tr>
-              ) : (
-                filteredEmployees.map((emp, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-500">{emp.empCode || emp.emp_id}</td>
-                    <td className="px-6 py-4 text-sm font-bold text-slate-800">
-                      {`${emp.first_name || ''} ${emp.last_name || ''}`.trim() || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{emp.email}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 font-medium">{emp.role?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${emp.employee_status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
-                        {emp.employee_status === 'active' ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            {/* Confirmation Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: 'spring', duration: 0.25 }}
+              className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 p-6 z-10 flex flex-col items-center text-center"
+            >
+              {/* Icon Container */}
+              <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+                <Trash2 size={24} />
+              </div>
+
+              {/* Title & Desc */}
+              <h4 className="text-base font-bold text-slate-900 tracking-tight">
+                Delete Employee?
+              </h4>
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                Are you sure you want to delete the employee{' '}
+                <span className="font-semibold text-slate-700">
+                  "{deleteConfirmEmployee.first_name} {deleteConfirmEmployee.last_name}"
+                </span>?
+                This action is permanent and cannot be undone.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 w-full mt-6">
+                <button
+                  disabled={isUpdating}
+                  onClick={() => setDeleteConfirmEmployee(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={isUpdating}
+                  onClick={handleConfirmDeleteSubmit}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 shadow-sm shadow-rose-600/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
