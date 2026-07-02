@@ -22,7 +22,20 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
   const [roles, setRoles] = useState([]);
   const [rolesLoading, setRolesLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const [isEmpTypeDropdownOpen, setIsEmpTypeDropdownOpen] = useState(false);
+
+  const genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  const employmentTypeOptions = [
+    { value: 'permanent', label: 'Permanent' },
+    { value: 'intern', label: 'Intern' },
+  ];
 
   useEffect(() => {
     if (!isOpen) return;
@@ -192,20 +205,52 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
                   className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 relative">
                 <label className="text-xs font-semibold text-slate-600">Gender</label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors cursor-pointer"
-                >
-                  <option value="">Select gender...</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => !submitting && setIsGenderDropdownOpen(!isGenderDropdownOpen)}
+                    disabled={submitting}
+                    className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
+                  >
+                    <span className={formData.gender ? "text-slate-800" : "text-slate-400"}>
+                      {formData.gender
+                        ? genderOptions.find(opt => opt.value === formData.gender)?.label
+                        : 'Select gender...'
+                      }
+                    </span>
+                    <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isGenderDropdownOpen ? 'transform rotate-180' : ''}`} />
+                  </button>
+
+                  {isGenderDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setIsGenderDropdownOpen(false)} />
+                      <div className="absolute z-20 top-full mt-1.5 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1">
+                        {genderOptions.map((opt) => {
+                          const isSelected = opt.value === formData.gender;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => {
+                                setFormData((prev) => ({ ...prev, gender: opt.value }));
+                                setIsGenderDropdownOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left ${isSelected
+                                ? 'bg-indigo-50 text-indigo-600 font-semibold'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                                }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isSelected && <Check size={14} className="text-indigo-600" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-slate-600">Date of Birth</label>
@@ -266,26 +311,59 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
                   className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 relative">
                 <label className="text-xs font-semibold text-slate-600">Employment Type</label>
-                <select
-                  name="employment_type"
-                  value={formData.employment_type}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors cursor-pointer"
-                >
-                  <option value="">Select type...</option>
-                  <option value="permanent">Permanent</option>
-                  <option value="intern">Intern</option>
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => !submitting && setIsEmpTypeDropdownOpen(!isEmpTypeDropdownOpen)}
+                    disabled={submitting}
+                    className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
+                  >
+                    <span className={formData.employment_type ? "text-slate-800" : "text-slate-400"}>
+                      {formData.employment_type
+                        ? employmentTypeOptions.find(opt => opt.value === formData.employment_type)?.label
+                        : 'Select type...'
+                      }
+                    </span>
+                    <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isEmpTypeDropdownOpen ? 'transform rotate-180' : ''}`} />
+                  </button>
+
+                  {isEmpTypeDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setIsEmpTypeDropdownOpen(false)} />
+                      <div className="absolute z-20 top-full mt-1.5 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1">
+                        {employmentTypeOptions.map((opt) => {
+                          const isSelected = opt.value === formData.employment_type;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => {
+                                setFormData((prev) => ({ ...prev, employment_type: opt.value }));
+                                setIsEmpTypeDropdownOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left ${isSelected
+                                ? 'bg-indigo-50 text-indigo-600 font-semibold'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                                }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isSelected && <Check size={14} className="text-indigo-600" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
               <div className="flex flex-col gap-1.5 sm:col-span-2 relative">
                 <label className="text-xs font-semibold text-slate-600">Assign Role *</label>
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={() => !submitting && !rolesLoading && setIsDropdownOpen(!isDropdownOpen)}
+                    onClick={() => !submitting && !rolesLoading && setIsRoleDropdownOpen(!isRoleDropdownOpen)}
                     disabled={submitting || rolesLoading}
                     className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
                   >
@@ -297,12 +375,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
                           : 'Select a role...'
                       }
                     </span>
-                    <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
+                    <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isRoleDropdownOpen ? 'transform rotate-180' : ''}`} />
                   </button>
 
-                  {isDropdownOpen && (
+                  {isRoleDropdownOpen && (
                     <>
-                      <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                      <div className="fixed inset-0 z-10" onClick={() => setIsRoleDropdownOpen(false)} />
                       <div className="absolute z-20 bottom-full mb-1.5 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-bottom-2 duration-150 py-1">
                         {roles.length === 0 ? (
                           <div className="px-4 py-2.5 text-xs text-slate-400 italic">No roles found</div>
@@ -315,7 +393,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
                                 type="button"
                                 onClick={() => {
                                   setFormData((prev) => ({ ...prev, role_id: role.role_id }));
-                                  setIsDropdownOpen(false);
+                                  setIsRoleDropdownOpen(false);
                                 }}
                                 className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left ${isSelected
                                   ? 'bg-indigo-50 text-indigo-600 font-semibold'

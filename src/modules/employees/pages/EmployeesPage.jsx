@@ -6,6 +6,7 @@ import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
 import StatsCards from '../components/StatsCards';
 import EmployeeTable from '../components/EmployeeTable';
 import AddEmployeeModal from '../components/AddEmployeeModal';
+import ViewEmployeeModal from '../components/ViewEmployeeModal';
 import PermissionGuard from '../../../components/common/PermissionGuard';
 import { PERMISSIONS } from '../../../constants/permissions';
 
@@ -18,6 +19,8 @@ const EmployeesPage = () => {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedViewEmployeeId, setSelectedViewEmployeeId] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const fetchEmployees = async () => {
     try {
@@ -39,6 +42,11 @@ const EmployeesPage = () => {
 
   const handleDeleteClick = (emp) => {
     setDeleteConfirmEmployee(emp);
+  };
+
+  const handleViewClick = (empId) => {
+    setSelectedViewEmployeeId(empId);
+    setIsViewModalOpen(true);
   };
 
   const handleConfirmDeleteSubmit = async () => {
@@ -106,11 +114,10 @@ const EmployeesPage = () => {
           <PermissionGuard permissions={PERMISSIONS.EMP_DELETE}>
             <button
               onClick={() => setIsDeleteMode(!isDeleteMode)}
-              className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98] ${
-                isDeleteMode
+              className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98] ${isDeleteMode
                   ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/10'
                   : 'border border-rose-200 bg-rose-50/20 hover:bg-rose-50 text-rose-600 hover:text-rose-700'
-              }`}
+                }`}
             >
               {isDeleteMode ? (
                 <>
@@ -152,6 +159,7 @@ const EmployeesPage = () => {
         employees={sortedAndFilteredEmployees}
         isDeleteMode={isDeleteMode}
         onDeleteClick={handleDeleteClick}
+        onViewClick={handleViewClick}
       />
 
       {/* Add Employee Modal */}
@@ -159,6 +167,13 @@ const EmployeesPage = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={fetchEmployees}
+      />
+
+      {/* View Employee Details Modal */}
+      <ViewEmployeeModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        employeeId={selectedViewEmployeeId}
       />
 
       {/* Themed Delete Confirmation Modal */}
