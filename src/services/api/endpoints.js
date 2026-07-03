@@ -17,6 +17,7 @@ export const EMPLOYEE_ENDPOINTS = {
   DELETE: (id) => `/employee/delete-emp/${id}`,
   UPDATE_ME: '/employee/update-me',
   UPLOAD_PHOTO: '/employee/upload-profile-photo',
+  SET_STATUS: '/employee/set-status',
 };
 
 export const PERMISSION_ENDPOINTS = {

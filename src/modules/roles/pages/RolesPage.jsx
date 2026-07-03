@@ -8,6 +8,7 @@ import RoleCard from '../components/RoleCard';
 import PermissionsModal from '../components/PermissionsModal';
 import CreateRoleModal from '../components/CreateRoleModal';
 import api, { ROLE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
+import Skeleton from '../../../components/ui/Skeleton';
 
 const RolesPage = () => {
   const [selectedRole, setSelectedRole] = useState(null);
@@ -124,8 +125,8 @@ const RolesPage = () => {
   return (
     <div className="flex flex-col gap-6 text-left">
       {/* Header */}
-      <RolesHeader 
-        onCreateClick={handleCreateRole} 
+      <RolesHeader
+        onCreateClick={handleCreateRole}
         onDeleteModeToggle={() => setIsDeleteMode(!isDeleteMode)}
         isDeleteMode={isDeleteMode}
         onAssignClick={handleAssignRole}
@@ -133,8 +134,27 @@ const RolesPage = () => {
       />
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-100/80 shadow-sm flex flex-col gap-6 text-left relative overflow-hidden">
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <Skeleton className="h-5 w-32 mt-3" />
+                <Skeleton className="h-3 w-full mt-3" />
+                <Skeleton className="h-3 w-4/5 mt-1.5" />
+              </div>
+              <div className="border-t border-slate-50 pt-4 flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-3.5 w-28" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-9 w-full rounded-xl" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className="text-center py-10 bg-rose-50 rounded-2xl border border-rose-100 p-6">
@@ -144,10 +164,10 @@ const RolesPage = () => {
         /* Role list representation */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {roles.map((r, i) => (
-            <RoleCard 
-              key={i} 
-              role={r} 
-              onViewPermissions={handleViewPermissions} 
+            <RoleCard
+              key={i}
+              role={r}
+              onViewPermissions={handleViewPermissions}
               isDeleteMode={isDeleteMode}
               onDeleteClick={handleDeleteClick}
             />

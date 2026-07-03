@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Loader2, User, Mail, Phone, Calendar, MapPin, Building, Shield, Heart, Tag } from 'lucide-react';
 import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
+import Skeleton from '../../../components/ui/Skeleton';
 
 const ViewEmployeeModal = ({ isOpen, onClose, employeeId }) => {
   const [employee, setEmployee] = useState(null);
@@ -72,9 +73,73 @@ const ViewEmployeeModal = ({ isOpen, onClose, employeeId }) => {
 
         {/* Modal Content */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 size={36} className="animate-spin text-indigo-600" />
-            <p className="text-sm text-slate-500 font-semibold">Loading employee profile...</p>
+          <div className="p-6 overflow-y-auto flex flex-col gap-6 text-left animate-in fade-in duration-200">
+            {/* Top Profile Summary Card Skeleton */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 bg-slate-50/50 border border-slate-100 rounded-2xl">
+              {/* Avatar Initial Skeleton */}
+              <Skeleton className="w-16 h-16 rounded-full" />
+              <div className="flex-1 flex flex-col gap-2.5 items-center sm:items-start w-full">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            </div>
+
+            {/* Grid Sections Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Section 1: Personal Details Skeleton */}
+              <div className="flex flex-col gap-4">
+                <Skeleton className="h-4 w-32 bg-indigo-50" />
+                <div className="flex flex-col gap-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={idx} className="flex flex-col gap-1.5">
+                      <Skeleton className="h-2.5 w-16" />
+                      <Skeleton className="h-4 w-36" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 2: Job Details Skeleton */}
+              <div className="flex flex-col gap-4">
+                <Skeleton className="h-4 w-36 bg-indigo-50" />
+                <div className="flex flex-col gap-3">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="flex flex-col gap-1.5">
+                      <Skeleton className="h-2.5 w-24" />
+                      <Skeleton className="h-4 w-40" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 3: Contact & Address Skeleton */}
+              <div className="sm:col-span-2 flex flex-col gap-4">
+                <Skeleton className="h-4 w-48 bg-indigo-50" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-2.5 w-32" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-2.5 w-32" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                  <div className="sm:col-span-2 flex flex-col gap-1.5">
+                    <Skeleton className="h-2.5 w-28" />
+                    <Skeleton className="h-8 w-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Close Button Skeleton */}
+            <div className="mt-4 shrink-0 flex">
+              <Skeleton className="w-full h-10" />
+            </div>
           </div>
         ) : !employee ? (
           <div className="text-center py-12 text-rose-500 font-semibold">

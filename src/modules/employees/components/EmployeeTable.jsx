@@ -1,8 +1,16 @@
 import React from 'react';
 import { Search, Trash2, Eye, Pencil } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { usePermission } from '../../../hooks/usePermission';
+import { PERMISSIONS } from '../../../constants/permissions';
 
-const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick, onEditClick }) => {
+const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick, onEditClick, onStatusClick }) => {
+  const { hasPermission } = usePermission();
+  const canView = hasPermission(PERMISSIONS.EMP_VIEW_ANY);
+  const canEdit = hasPermission(PERMISSIONS.EMP_UPDATE);
+  const canDelete = hasPermission(PERMISSIONS.EMP_DELETE);
+
+  const showActionColumn = canView || canEdit || (canDelete && isDeleteMode);
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       {/* Search header inside panel */}
@@ -30,7 +38,9 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
               <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Email</th>
               <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Role</th>
               <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+              {showActionColumn && (
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -42,20 +52,22 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
                   <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-48"></div></td>
                   <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
                   <td className="px-6 py-4"><div className="h-6 bg-slate-200 rounded-full w-16"></div></td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="h-8 bg-slate-200 rounded-xl w-24 ml-auto"></div>
-                  </td>
+                  {showActionColumn && (
+                    <td className="px-6 py-4 text-right">
+                      <div className="h-8 bg-slate-200 rounded-xl w-24 ml-auto"></div>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : error ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-red-500 font-semibold">
+                <td colSpan={showActionColumn ? 6 : 5} className="px-6 py-8 text-center text-red-500 font-semibold">
                   {error}
                 </td>
               </tr>
             ) : employees.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-slate-400 font-semibold">
+                <td colSpan={showActionColumn ? 6 : 5} className="px-6 py-8 text-center text-slate-400 font-semibold">
                   No staff members found matching the search criteria.
                 </td>
               </tr>
@@ -69,47 +81,69 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
                   <td className="px-6 py-4 text-sm text-slate-600">{emp.email}</td>
                   <td className="px-6 py-4 text-sm text-slate-600 font-medium">{emp.role?.name || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm">
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${emp.employee_status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                      }`}>
-                      {emp.employee_status === 'active' ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end items-center gap-2">
+                    {canEdit ? (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onViewClick(emp.emp_id);
+                          onStatusClick(emp);
                         }}
-                        className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-700 border border-slate-200/60 transition-all duration-150 cursor-pointer active:scale-90"
-                        title="View Employee Details"
+                        className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 border ${emp.employee_status === 'active'
+                            ? 'bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 border-emerald-200/60'
+                            : 'bg-amber-50 hover:bg-amber-100/80 text-amber-700 border-amber-200/60'
+                          }`}
+                        title={`Click to change status to ${emp.employee_status === 'active' ? 'Inactive' : 'Active'}`}
                       >
-                        <Eye size={14} />
+                        {emp.employee_status === 'active' ? 'Active' : 'Inactive'}
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditClick(emp.emp_id);
-                        }}
-                        className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-700 border border-slate-200/60 transition-all duration-150 cursor-pointer active:scale-90"
-                        title="Edit Employee"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      {isDeleteMode && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteClick(emp);
-                          }}
-                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-100 transition-all duration-150 cursor-pointer active:scale-90"
-                          title="Delete Employee"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
+                    ) : (
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${emp.employee_status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                        {emp.employee_status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+                    )}
                   </td>
+                  {showActionColumn && (
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end items-center gap-2">
+                        {canView && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onViewClick(emp.emp_id);
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-700 border border-slate-200/60 transition-all duration-150 cursor-pointer active:scale-90"
+                            title="View Employee Details"
+                          >
+                            <Eye size={14} />
+                          </button>
+                        )}
+                        {canEdit && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditClick(emp.emp_id);
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-700 border border-slate-200/60 transition-all duration-150 cursor-pointer active:scale-90"
+                            title="Edit Employee"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                        )}
+                        {isDeleteMode && canDelete && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteClick(emp);
+                            }}
+                            className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-100 transition-all duration-150 cursor-pointer active:scale-90"
+                            title="Delete Employee"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
