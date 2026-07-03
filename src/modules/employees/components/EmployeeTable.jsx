@@ -88,8 +88,8 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
                           onStatusClick(emp);
                         }}
                         className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 border ${emp.employee_status === 'active'
-                            ? 'bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 border-emerald-200/60'
-                            : 'bg-amber-50 hover:bg-amber-100/80 text-amber-700 border-amber-200/60'
+                          ? 'bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 border-emerald-200/60'
+                          : 'bg-amber-50 hover:bg-amber-100/80 text-amber-700 border-amber-200/60'
                           }`}
                         title={`Click to change status to ${emp.employee_status === 'active' ? 'Inactive' : 'Active'}`}
                       >

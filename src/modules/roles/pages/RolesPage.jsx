@@ -7,6 +7,7 @@ import RolesHeader from '../components/RolesHeader';
 import RoleCard from '../components/RoleCard';
 import PermissionsModal from '../components/PermissionsModal';
 import CreateRoleModal from '../components/CreateRoleModal';
+import EmployeePermissionsModal from '../components/EmployeePermissionsModal';
 import api, { ROLE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 import Skeleton from '../../../components/ui/Skeleton';
 
@@ -14,6 +15,7 @@ const RolesPage = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEmpPermissionsModalOpen, setIsEmpPermissionsModalOpen] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [deleteConfirmRole, setDeleteConfirmRole] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -131,6 +133,7 @@ const RolesPage = () => {
         isDeleteMode={isDeleteMode}
         onAssignClick={handleAssignRole}
         onExportClick={handleExport}
+        onDirectPermissionsClick={() => setIsEmpPermissionsModalOpen(true)}
       />
 
       {isLoading ? (
@@ -250,6 +253,15 @@ const RolesPage = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Employee Permissions Modal */}
+      {isEmpPermissionsModalOpen && (
+        <EmployeePermissionsModal
+          isOpen={isEmpPermissionsModalOpen}
+          onClose={() => setIsEmpPermissionsModalOpen(false)}
+          allPermissions={allPermissions}
+        />
+      )}
     </div>
   );
 };

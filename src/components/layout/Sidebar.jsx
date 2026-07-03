@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,6 +33,23 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const { user } = useSelector(selectAuth);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { hasPermission } = usePermission();
+  const [showTopIndicator, setShowTopIndicator] = useState(false);
+  const [showBottomIndicator, setShowBottomIndicator] = useState(false);
+  const navRef = useRef(null);
+
+  const checkScrollLimits = () => {
+    if (navRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = navRef.current;
+      setShowTopIndicator(scrollTop > 5);
+      setShowBottomIndicator(scrollTop + clientHeight < scrollHeight - 5);
+    }
+  };
+
+  useEffect(() => {
+    // Run initial check after layout settles
+    const timer = setTimeout(checkScrollLimits, 200);
+    return () => clearTimeout(timer);
+  }, [isCollapsed, user]);
 
   const menuItems = [
     {
@@ -132,7 +149,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     let base = `flex items-center transition-all duration-300 group relative text-sm font-medium rounded-xl `;
 
     if (isCollapsed) {
-      base += `pl-[8px] pr-0 py-2.5 mx-1 `;
+      base += `justify-center py-2.5 mx-2 `;
     } else {
       base += `pl-6 pr-4 py-3.5 mx-2 `;
     }
@@ -157,7 +174,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* Main Sidebar Card */}
       <div className="flex flex-col h-full bg-white border border-slate-100/80 rounded-[24px] shadow-sm overflow-hidden select-none">
         {/* Logo Header */}
-        <div className={`flex items-center py-6 transition-all duration-300 ${isCollapsed ? 'pl-[10px]' : 'pl-5'} flex-shrink-0`}>
+        <div className={`flex items-center py-6 transition-all duration-300 ${isCollapsed ? 'justify-center pr-[1.5px]' : 'pl-5'} flex-shrink-0`}>
           <div className="flex items-center gap-3 overflow-hidden">
             <img src={logoImg} alt="WorkSphere Logo" className="w-8 h-8 flex-shrink-0" />
             <AnimatePresence>
@@ -176,8 +193,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           </div>
         </div>
 
-        {/* Main Navigation Menu */}
-        <nav className="flex-1 px-1 space-y-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar pb-4">
+        {/* Main Navigation Menu Wrapper */}
+        <div className="flex-1 relative overflow-hidden flex flex-col min-h-0">
+          <nav
+            ref={navRef}
+            onScroll={checkScrollLimits}
+            className={`flex-1 px-1 space-y-1.5 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'scrollbar-none' : 'custom-scrollbar'} pb-4`}
+          >
           {menuItems.filter(hasAccess).map((item, itemIdx) => {
             const Icon = item.icon;
 
@@ -186,7 +208,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 <button
                   key={itemIdx}
                   onClick={(e) => handleMockClick(e, item.name)}
-                  className={`w-full flex items-center transition-all duration-300 group relative text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl ${isCollapsed ? 'pl-[8px] pr-0 py-2.5 mx-1' : 'pl-6 pr-4 py-3.5 mx-2'} cursor-pointer`}
+                  className={`w-full flex items-center transition-all duration-300 group relative text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl ${isCollapsed ? 'justify-center py-2.5 mx-2' : 'pl-6 pr-4 py-3.5 mx-2'} cursor-pointer`}
                   title={isCollapsed ? item.name : undefined}
                 >
                   <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
@@ -255,11 +277,24 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           })}
         </nav>
 
-        {/* Logout Button Footer */}
+        {/* Scroll indicators (fade shadows) */}
+        <div
+          className={`absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
+            showTopIndicator ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        <div
+          className={`absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
+            showBottomIndicator ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      </div>
+
+      {/* Logout Button Footer */}
         <div className={`transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'} border-t border-slate-100 bg-white flex-shrink-0`}>
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center transition-all duration-300 ${isCollapsed ? 'pl-[9px] pr-0 py-2.5' : 'pl-6 pr-4 py-3'} rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 text-rose-600 hover:text-rose-700 font-semibold text-sm shadow-sm active:scale-[0.98] cursor-pointer`}
+            className={`w-full flex items-center transition-all duration-300 ${isCollapsed ? 'justify-center py-2.5' : 'pl-6 pr-4 py-3'} rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 text-rose-600 hover:text-rose-700 font-semibold text-sm shadow-sm active:scale-[0.98] cursor-pointer`}
             title={isCollapsed ? 'Logout' : undefined}
           >
             <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">

@@ -24,6 +24,8 @@ export const PERMISSION_ENDPOINTS = {
   GET_ALL: '/permission/get-all-permissions',
   GET_USER_PERMISSIONS: (empId) => `/permission/emp-permissions/${empId}`,
   GRANT_REVOKE: '/permission/grant-revoke-permission',
+  SET_EXTRA: '/permission/set-extra-permission',
+  DELETE_EXTRA: '/permission/delete-extra-permission',
 };
 
 export const ROLE_ENDPOINTS = {
