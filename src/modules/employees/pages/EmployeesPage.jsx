@@ -7,6 +7,7 @@ import StatsCards from '../components/StatsCards';
 import EmployeeTable from '../components/EmployeeTable';
 import AddEmployeeModal from '../components/AddEmployeeModal';
 import ViewEmployeeModal from '../components/ViewEmployeeModal';
+import EditEmployeeModal from '../components/EditEmployeeModal';
 import PermissionGuard from '../../../components/common/PermissionGuard';
 import { PERMISSIONS } from '../../../constants/permissions';
 
@@ -21,6 +22,8 @@ const EmployeesPage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedViewEmployeeId, setSelectedViewEmployeeId] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEditEmployeeId, setSelectedEditEmployeeId] = useState(null);
 
   const fetchEmployees = async () => {
     try {
@@ -47,6 +50,11 @@ const EmployeesPage = () => {
   const handleViewClick = (empId) => {
     setSelectedViewEmployeeId(empId);
     setIsViewModalOpen(true);
+  };
+
+  const handleEditClick = (empId) => {
+    setSelectedEditEmployeeId(empId);
+    setIsEditModalOpen(true);
   };
 
   const handleConfirmDeleteSubmit = async () => {
@@ -160,6 +168,7 @@ const EmployeesPage = () => {
         isDeleteMode={isDeleteMode}
         onDeleteClick={handleDeleteClick}
         onViewClick={handleViewClick}
+        onEditClick={handleEditClick}
       />
 
       {/* Add Employee Modal */}
@@ -174,6 +183,17 @@ const EmployeesPage = () => {
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
         employeeId={selectedViewEmployeeId}
+      />
+
+      {/* Edit Employee Modal */}
+      <EditEmployeeModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedEditEmployeeId(null);
+        }}
+        onSuccess={fetchEmployees}
+        employeeId={selectedEditEmployeeId}
       />
 
       {/* Themed Delete Confirmation Modal */}

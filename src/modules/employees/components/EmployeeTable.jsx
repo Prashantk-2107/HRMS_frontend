@@ -2,7 +2,7 @@ import React from 'react';
 import { Search, Trash2, Eye, Pencil } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick }) => {
+const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick, onEditClick }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       {/* Search header inside panel */}
@@ -89,7 +89,7 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toast.success(`Edit action triggered for: ${emp.first_name || ''} ${emp.last_name || ''}`);
+                          onEditClick(emp.emp_id);
                         }}
                         className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-700 border border-slate-200/60 transition-all duration-150 cursor-pointer active:scale-90"
                         title="Edit Employee"
