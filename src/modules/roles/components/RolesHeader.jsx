@@ -2,7 +2,7 @@ import { Plus, Trash2, ShieldAlert, UserCheck, Download, Import } from 'lucide-r
 import PermissionGuard from '../../../components/common/PermissionGuard';
 import { PERMISSIONS } from '../../../constants/permissions';
 
-const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssignClick, onExportClick }) => {
+const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssignClick, onExportClick, onDirectPermissionsClick }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
       <div>
@@ -48,6 +48,17 @@ const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssign
           <UserCheck size={16} />
           <span>Assign Role</span>
         </button>
+
+        <PermissionGuard permissions={PERMISSIONS.EMP_GRANT_EXTRA_PERMISSION}>
+          <button
+            onClick={onDirectPermissionsClick}
+            className="flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98]"
+            title="Grant direct permission overrides to a specific employee"
+          >
+            <UserCheck size={16} className="text-indigo-600" />
+            <span>Employee Permissions</span>
+          </button>
+        </PermissionGuard>
 
         <PermissionGuard permissions={PERMISSIONS.ROLE_CREATE}>
           <button
