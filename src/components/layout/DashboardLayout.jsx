@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { Menu, Bell, Search, User } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from './Sidebar';
+import api, { PERMISSION_ENDPOINTS } from '../../services/api';
+import { selectUser, setPermissions } from '../../store/slices/authSlice';
 
 const DashboardLayout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    const syncUserPermissions = async () => {
+      if (user?.emp_id) {
+        try {
+          const permResponse = await api.get(PERMISSION_ENDPOINTS.GET_USER_PERMISSIONS(user.emp_id));
+          if (permResponse.data.success) {
+            const rawPermissions = permResponse.data.data?.effectivePermissions || [];
+
+            // Convert to string array if objects are received
+            const processedPermissions = Array.isArray(rawPermissions)
+              ? rawPermissions.map(p => (p && typeof p === 'object' ? (p.name || p.codename || p.permission || p.title || JSON.stringify(p)) : p))
+              : [];
+
+            dispatch(setPermissions(processedPermissions));
+          }
+        } catch (err) {
+          console.error('Failed to sync permissions:', err);
+        }
+      }
+    };
+
+    syncUserPermissions();
+  }, [location.pathname, user?.emp_id, dispatch]);
 
   // Simple helper to derive page title from current path
   const getPageTitle = () => {
@@ -16,6 +45,7 @@ const DashboardLayout = () => {
     if (path.startsWith('/holidays')) return 'Holidays Calendar';
     if (path.startsWith('/attendance')) return 'Attendance Records';
     if (path.startsWith('/roles')) return 'Roles & Permissions';
+    if (path.startsWith('/profile')) return 'Profile';
     return 'CRM Portal';
   };
 
@@ -29,7 +59,7 @@ const DashboardLayout = () => {
         <div className="flex-1 flex flex-col h-full bg-white md:rounded-[24px] md:border md:border-slate-100/80 md:shadow-sm overflow-hidden">
           {/* Top Header Bar */}
           <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 z-10 shadow-sm flex-shrink-0">
-            
+
             {/* Left: Mobile Toggle & Page Title */}
             <div className="flex items-center gap-4">
               <button
@@ -65,11 +95,15 @@ const DashboardLayout = () => {
 
               {/* Quick Link to Profile/Dashboard */}
               <Link
-                to="/dashboard"
+                to="/profile"
                 className="flex items-center justify-center p-1 rounded-full border-2 border-transparent hover:border-indigo-100 transition-all duration-150"
               >
-                <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
-                  <User size={18} />
+                <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center overflow-hidden font-bold text-sm">
+                  {user?.profile_image ? (
+                    <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={18} />
+                  )}
                 </div>
               </Link>
             </div>

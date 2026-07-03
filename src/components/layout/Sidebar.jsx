@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   CircleDollarSign,
   Briefcase,
+  User,
   UserCheck,
   ClipboardList,
   CalendarDays,
@@ -46,7 +47,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       permissions: SIDEBAR_PERMISSIONS.EMPLOYEES,
     },
     {
-      name: 'All Departments',
+      name: 'Roles & Permission',
       path: '/roles',
       icon: Network,
       permissions: SIDEBAR_PERMISSIONS.ROLES,
@@ -96,6 +97,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: '/help',
       icon: HelpCircle,
     },
+    {
+      name: 'My Profile',
+      path: '/profile',
+      icon: User,
+    },
   ];
 
   const hasAccess = (item) => {
@@ -123,12 +129,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   };
 
   const itemClass = (item) => ({ isActive }) => {
-    let base = `flex items-center gap-4 transition-all duration-300 group relative text-sm font-medium `;
+    let base = `flex items-center transition-all duration-300 group relative text-sm font-medium rounded-xl `;
 
     if (isCollapsed) {
-      base += `justify-center py-2.5 mx-1 rounded-xl `;
+      base += `pl-[8px] pr-0 py-2.5 mx-1 `;
     } else {
-      base += `pl-6 pr-4 py-3.5 mx-2 rounded-xl `;
+      base += `pl-6 pr-4 py-3.5 mx-2 `;
     }
 
     if (isActive && !item.isMock) {
@@ -151,7 +157,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* Main Sidebar Card */}
       <div className="flex flex-col h-full bg-white border border-slate-100/80 rounded-[24px] shadow-sm overflow-hidden select-none">
         {/* Logo Header */}
-        <div className={`flex items-center py-6 transition-all duration-300 ${isCollapsed ? 'pl-2.5' : 'pl-5'} flex-shrink-0`}>
+        <div className={`flex items-center py-6 transition-all duration-300 ${isCollapsed ? 'pl-[10px]' : 'pl-5'} flex-shrink-0`}>
           <div className="flex items-center gap-3 overflow-hidden">
             <img src={logoImg} alt="WorkSphere Logo" className="w-8 h-8 flex-shrink-0" />
             <AnimatePresence>
@@ -180,10 +186,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 <button
                   key={itemIdx}
                   onClick={(e) => handleMockClick(e, item.name)}
-                  className={`w-full flex items-center gap-4 transition-all duration-300 group relative text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 ${isCollapsed ? 'justify-center py-2.5 mx-1 rounded-xl' : 'pl-6 pr-4 py-3.5 mx-2 rounded-xl'} cursor-pointer`}
+                  className={`w-full flex items-center transition-all duration-300 group relative text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl ${isCollapsed ? 'pl-[8px] pr-0 py-2.5 mx-1' : 'pl-6 pr-4 py-3.5 mx-2'} cursor-pointer`}
                   title={isCollapsed ? item.name : undefined}
                 >
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
                     <Icon size={20} className="transition-transform duration-200 group-hover:scale-105 text-slate-400 group-hover:text-slate-700" />
                   </div>
                   <AnimatePresence>
@@ -193,7 +199,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                         animate={{ opacity: 1, width: 'auto' }}
                         exit={{ opacity: 0, width: 0 }}
                         transition={{ duration: 0.2, ease: 'easeInOut' }}
-                        className="whitespace-nowrap overflow-hidden"
+                        className="ml-4 whitespace-nowrap overflow-hidden"
                       >
                         {item.name}
                       </motion.span>
@@ -218,7 +224,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               >
                 {({ isActive }) => (
                   <>
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
                       <Icon size={20} className="transition-transform duration-200 group-hover:scale-105" />
                     </div>
 
@@ -229,7 +235,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                           animate={{ opacity: 1, width: 'auto' }}
                           exit={{ opacity: 0, width: 0 }}
                           transition={{ duration: 0.2, ease: 'easeInOut' }}
-                          className="whitespace-nowrap overflow-hidden"
+                          className="ml-4 whitespace-nowrap overflow-hidden"
                         >
                           {item.name}
                         </motion.span>
@@ -253,7 +259,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         <div className={`transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'} border-t border-slate-100 bg-white flex-shrink-0`}>
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 transition-all duration-300 ${isCollapsed ? 'justify-center py-2.5' : 'pl-6 pr-4 py-3'} rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 text-rose-600 hover:text-rose-700 font-semibold text-sm shadow-sm active:scale-[0.98] cursor-pointer`}
+            className={`w-full flex items-center transition-all duration-300 ${isCollapsed ? 'pl-[9px] pr-0 py-2.5' : 'pl-6 pr-4 py-3'} rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 text-rose-600 hover:text-rose-700 font-semibold text-sm shadow-sm active:scale-[0.98] cursor-pointer`}
             title={isCollapsed ? 'Logout' : undefined}
           >
             <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
@@ -266,7 +272,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   animate={{ opacity: 1, width: 'auto' }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
-                  className="whitespace-nowrap overflow-hidden"
+                  className="ml-3.5 whitespace-nowrap overflow-hidden"
                 >
                   Logout
                 </motion.span>
