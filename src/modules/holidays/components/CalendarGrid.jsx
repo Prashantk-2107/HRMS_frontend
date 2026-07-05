@@ -71,11 +71,11 @@ const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDa
     let base = 'h-full min-h-[44px] w-full flex flex-col justify-between p-1 border rounded-xl transition-all duration-150 relative ';
 
     if (!item.isCurrentMonth) {
-      // Grayed out, non-clickable state for previous/next month days
-      base += 'text-slate-300 bg-slate-50/60 border-slate-100/30 pointer-events-none select-none ';
+      // Trailing days grayed out
+      base += 'text-slate-300 dark:text-slate-600 bg-slate-50/60 dark:bg-slate-950/15 border-slate-100/30 dark:border-slate-900/35 pointer-events-none select-none ';
     } else {
-      // Current month days get crisp border highlighting and standard pointer cursor
-      base += 'text-slate-700 font-semibold border-slate-200/85 hover:bg-slate-50/80 cursor-pointer ';
+      // Current month days
+      base += 'text-slate-700 dark:text-slate-300 font-semibold border-slate-200/85 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/80 cursor-pointer ';
     }
 
     if (isSelected && item.isCurrentMonth) {
@@ -84,21 +84,21 @@ const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDa
 
     if (item.isCurrentMonth) {
       if (isToday) {
-        return base + 'bg-blue-50/90 text-blue-700 border-blue-200 hover:bg-blue-100/80';
+        return base + 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/60 hover:bg-blue-100/80 dark:hover:bg-blue-950/60';
       }
 
       if (event) {
         if (event.type === 'attendance') {
-          return base + 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/80';
+          return base + 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40 hover:bg-emerald-100/80 dark:hover:bg-emerald-950/50';
         }
         if (event.type === 'holiday') {
-          return base + 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/80';
+          return base + 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900/40 hover:bg-purple-100/80 dark:hover:bg-purple-950/50';
         }
         if (event.type === 'leave') {
-          return base + 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/80';
+          return base + 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/40 hover:bg-rose-100/80 dark:hover:bg-rose-950/50';
         }
         if (event.type === 'meeting') {
-          return base + 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100/80';
+          return base + 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/40 hover:bg-amber-100/80 dark:hover:bg-amber-950/50';
         }
       }
     }
@@ -107,23 +107,23 @@ const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDa
   };
 
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col gap-4 h-full">
+    <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-4 h-full transition-colors duration-200">
       {/* Month Year Selector Controls */}
-      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-        <h3 className="font-bold text-slate-800 text-lg">
+      <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
+        <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">
           {monthNames[month]} {year}
         </h3>
 
         <div className="flex gap-1">
           <button
             onClick={prevMonth}
-            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/50 text-slate-600 cursor-pointer transition-all active:scale-95"
+            className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer transition-all active:scale-95"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={nextMonth}
-            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/50 text-slate-600 cursor-pointer transition-all active:scale-95"
+            className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer transition-all active:scale-95"
           >
             <ChevronRight size={16} />
           </button>

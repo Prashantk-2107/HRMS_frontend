@@ -206,21 +206,21 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
   });
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl border border-slate-100 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-3xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200 transition-colors duration-300">
         
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-2xl shrink-0">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/20 rounded-t-2xl shrink-0 transition-colors duration-200">
           <div>
-            <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-              <Shield className="text-indigo-600" size={20} />
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg flex items-center gap-2">
+              <Shield className="text-indigo-600 dark:text-indigo-400" size={20} />
               <span>Direct Employee Permissions</span>
             </h3>
-            <p className="text-xs text-slate-400">Grant or revoke specific permission overrides directly to an individual employee.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">Grant or revoke specific permission overrides directly to an individual employee.</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -231,10 +231,10 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
           
           {/* Employee Selection Dropdown / Selector */}
           <div className="flex flex-col gap-2 relative">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Select Employee</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Select Employee</label>
             <div className="relative">
               {employeesLoading ? (
-                <div className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-400">
+                <div className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-400">
                   <Loader2 size={16} className="animate-spin" />
                   <span>Loading employees list...</span>
                 </div>
@@ -251,13 +251,13 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
                         setSearchQuery(e.target.value);
                         setIsDropdownOpen(true);
                       }}
-                      className="w-full pl-10 pr-10 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-200"
+                      className="w-full pl-10 pr-10 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-all duration-200"
                     />
                     {searchQuery && (
                       <button
                         type="button"
                         onClick={handleClearSelection}
-                        className="absolute right-3.5 p-1 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                        className="absolute right-3.5 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-655 transition-colors cursor-pointer"
                         title="Clear selection"
                       >
                         <X size={14} />
@@ -268,7 +268,7 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
                   {isDropdownOpen && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={handleCloseDropdown} />
-                      <div className="absolute z-20 top-full mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1 flex flex-col">
+                      <div className="absolute z-20 top-full mt-1.5 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1 flex flex-col">
                         {filteredEmployees.length === 0 ? (
                           <div className="px-4 py-2.5 text-xs text-slate-400 italic">No employees found</div>
                         ) : (
@@ -281,14 +281,14 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
                                 onClick={() => handleSelectEmployee(emp)}
                                 className={`w-full flex flex-col px-4 py-2.5 text-xs text-left transition-colors ${
                                   isSelected
-                                    ? 'bg-indigo-50 text-indigo-700 font-semibold'
-                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-semibold'
+                                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100'
                                 }`}
                               >
                                 <span className="font-bold">
                                   {emp.first_name} {emp.last_name} {emp.empCode ? `[${emp.empCode}]` : ''}
                                 </span>
-                                <span className="text-[10px] text-slate-400 mt-0.5">
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                                   {emp.role?.name || 'No Role'} • {emp.email}
                                 </span>
                               </button>
@@ -304,20 +304,20 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
           </div>
 
           {!selectedEmpId ? (
-            <div className="flex flex-col items-center justify-center py-12 bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl text-center">
-              <User className="text-slate-300 mb-2.5" size={32} />
-              <span className="text-sm font-semibold text-slate-500">No Employee Selected</span>
-              <span className="text-xs text-slate-400 mt-1 max-w-xs">Please select an employee above to view their role permissions and configure overrides.</span>
+            <div className="flex flex-col items-center justify-center py-12 bg-slate-50/50 dark:bg-slate-950/10 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center">
+              <User className="text-slate-300 dark:text-slate-600 mb-2.5" size={32} />
+              <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">No Employee Selected</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs">Please select an employee above to view their role permissions and configure overrides.</span>
             </div>
           ) : empPermissionsLoading ? (
             /* Permissions loading skeleton */
             <div className="flex flex-col gap-6">
               {Array.from({ length: 2 }).map((_, idx) => (
                 <div key={idx} className="flex flex-col gap-3">
-                  <Skeleton className="h-4 w-28 bg-indigo-50" />
+                  <Skeleton className="h-4 w-28 bg-indigo-50 dark:bg-indigo-950/30" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {Array.from({ length: 4 }).map((_, innerIdx) => (
-                      <div key={innerIdx} className="p-3.5 border border-slate-100 rounded-xl flex items-center justify-between">
+                      <div key={innerIdx} className="p-3.5 border border-slate-100 dark:border-slate-800 rounded-xl flex items-center justify-between">
                         <div className="flex flex-col gap-1.5">
                           <Skeleton className="h-3.5 w-32" />
                           <Skeleton className="h-2 w-16" />
@@ -334,26 +334,25 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
             <div className="flex flex-col gap-6">
               
               {/* Employee Summary Card */}
-              <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-4 bg-slate-50 dark:bg-slate-950/15 border border-slate-200/60 dark:border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950 border border-indigo-100/50 dark:border-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">
                     {selectedEmployee?.first_name?.charAt(0)}{selectedEmployee?.last_name?.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 text-sm">
+                    <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">
                       {selectedEmployee?.first_name} {selectedEmployee?.last_name}
                     </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">{selectedEmployee?.email}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{selectedEmployee?.email}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs text-slate-600 font-semibold">
-                    Role: <span className="text-indigo-600 font-bold">{selectedEmployee?.role?.name || 'N/A'}</span>
+                <div className="flex flex-wrap items-center gap-2">                  <span className="px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                    Role: <span className="text-indigo-600 dark:text-indigo-400 font-bold">{selectedEmployee?.role?.name || 'N/A'}</span>
                   </span>
                   <span className={`px-2.5 py-1 border rounded-lg text-xs font-bold uppercase tracking-wider ${
                     selectedEmployee?.employee_status === 'active' 
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
-                      : 'bg-amber-50 border-amber-200 text-amber-700'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400' 
+                      : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-400'
                   }`}>
                     {selectedEmployee?.employee_status === 'active' ? 'Active' : 'Inactive'}
                   </span>
@@ -361,10 +360,10 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
               </div>
 
               {/* Information Alert */}
-              <div className="p-3.5 bg-indigo-50/50 border border-indigo-100 rounded-xl flex items-start gap-2.5">
+              <div className="p-3.5 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/60 rounded-xl flex items-start gap-2.5 transition-colors">
                 <AlertTriangle className="text-indigo-500 shrink-0 mt-0.5" size={16} />
-                <p className="text-[11px] text-slate-600 leading-relaxed">
-                  Overrides will take precedence over role permissions. A <span className="font-bold text-emerald-600">Granted Override</span> allows access for this user even if not permitted by their role. A <span className="font-bold text-rose-600">Revoked Override</span> blocks access even if permitted by their role.
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Overrides will take precedence over role permissions. A <span className="font-bold text-emerald-600 dark:text-emerald-400">Granted Override</span> allows access for this user even if not permitted by their role. A <span className="font-bold text-rose-600 dark:text-rose-400">Revoked Override</span> blocks access even if permitted by their role.
                 </p>
               </div>
 
@@ -374,7 +373,7 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
                   const perms = categories[catName];
                   return (
                     <div key={catName} className="flex flex-col gap-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 pb-1 border-b border-slate-100">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 pb-1 border-b border-slate-100 dark:border-slate-800">
                         {catName} Permissions
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -388,32 +387,32 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
                               key={perm.permission_id}
                               className={`p-3.5 border rounded-xl flex items-center justify-between gap-4 transition-all ${
                                 isEffective 
-                                  ? 'bg-white border-slate-200' 
-                                  : 'bg-slate-50/40 border-slate-100'
+                                  ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800' 
+                                  : 'bg-slate-50/40 dark:bg-slate-950/10 border-slate-100 dark:border-slate-850/60'
                               }`}
                             >
                               <div className="flex flex-col gap-1 min-w-0">
-                                <span className={`text-xs font-bold truncate ${isEffective ? 'text-slate-800' : 'text-slate-400 line-through'}`}>
+                                <span className={`text-xs font-bold truncate ${isEffective ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 dark:text-slate-550 line-through'}`}>
                                   {formatPermissionName(perm.name)}
                                 </span>
                                 <div className="flex flex-wrap items-center gap-1.5 mt-1">
                                   {isRoleBased && (
-                                    <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[9px] font-bold uppercase">
+                                    <span className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded text-[9px] font-bold uppercase">
                                       Role
                                     </span>
                                   )}
                                   {overrideVal === true && (
-                                    <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-bold uppercase">
+                                    <span className="px-1.5 py-0.5 bg-emerald-50 dark:bg-indigo-950/30 text-emerald-600 dark:text-emerald-400 rounded text-[9px] font-bold uppercase">
                                       Granted
                                     </span>
                                   )}
                                   {overrideVal === false && (
-                                    <span className="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded text-[9px] font-bold uppercase">
+                                    <span className="px-1.5 py-0.5 bg-rose-50 dark:bg-indigo-950/30 text-rose-600 dark:text-rose-400 rounded text-[9px] font-bold uppercase">
                                       Revoked
                                     </span>
                                   )}
                                   {!isRoleBased && overrideVal === undefined && (
-                                    <span className="px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded text-[9px] font-bold uppercase">
+                                    <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded text-[9px] font-bold uppercase">
                                       Default Off
                                     </span>
                                   )}
@@ -426,8 +425,8 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
                                 onClick={() => handleToggle(perm.permission_id)}
                                 className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-all duration-200 border shrink-0 ${
                                   isEffective 
-                                    ? 'bg-indigo-600 border-indigo-700 justify-end' 
-                                    : 'bg-slate-200 border-slate-300 justify-start'
+                                    ? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-700 dark:border-indigo-600 justify-end' 
+                                    : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 justify-start'
                                 } disabled:opacity-50`}
                               >
                                 <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
@@ -447,10 +446,10 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-slate-100 shrink-0 flex justify-end">
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 shrink-0 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm transition-colors cursor-pointer"
+            className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 font-semibold rounded-xl text-sm transition-colors cursor-pointer"
           >
             Close
           </button>
