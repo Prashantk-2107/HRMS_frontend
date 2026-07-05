@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserPlus, FileDown, Trash2, ShieldAlert, UserCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
+import api, { EMPLOYEE_ENDPOINTS, AUTH_ENDPOINTS } from '../../../services/api';
 import StatsCards from '../components/StatsCards';
 import EmployeeTable from '../components/EmployeeTable';
 import AddEmployeeModal from '../components/AddEmployeeModal';
@@ -110,6 +110,24 @@ const EmployeesPage = () => {
       toast.error(err.response?.data?.message || 'Failed to update status', { id: toastId });
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleResendSetupClick = async (email) => {
+    const toastId = toast.loading(`Resending invitation link to ${email}...`);
+    try {
+      const response = await api.post(AUTH_ENDPOINTS.RESEND_SETUP_LINK, {
+        email,
+        frontendUrl: window.location.origin
+      });
+      if (response.data?.success || response.status === 200) {
+        toast.success(`Invitation link resent to ${email} successfully!`, { id: toastId });
+      } else {
+        toast.error(response.data?.message || 'Failed to resend invitation link', { id: toastId });
+      }
+    } catch (err) {
+      console.error('Failed to resend invitation link:', err);
+      toast.error(err.response?.data?.message || 'Failed to resend invitation link', { id: toastId });
     }
   };
 
@@ -222,6 +240,7 @@ const EmployeesPage = () => {
         onViewClick={handleViewClick}
         onEditClick={handleEditClick}
         onStatusClick={handleStatusClick}
+        onResendSetupClick={handleResendSetupClick}
       />
 
       {/* Add Employee Modal */}

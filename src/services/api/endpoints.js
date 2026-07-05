@@ -7,6 +7,8 @@ export const AUTH_ENDPOINTS = {
   FORGOT_PASSWORD: '/auth/forget-password',
   VERIFY_OTP: '/auth/verify-otp',
   RESET_PASSWORD: '/auth/reset-password',
+  CREATE_PASSWORD: '/auth/create-password',
+  RESEND_SETUP_LINK: '/auth/resend-setup-link',
 };
 
 export const EMPLOYEE_ENDPOINTS = {

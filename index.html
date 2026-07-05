@@ -10,7 +10,7 @@
     (function () {
       try {
         const saved = localStorage.getItem('theme');
-        const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const theme = saved || 'light';
         if (theme === 'dark') {
           document.documentElement.classList.add('dark');
         } else {
@@ -21,6 +21,15 @@
       }
     })();
   </script>
+  <style>
+    /* Prevent flash of unstyled theme content on reload */
+    html {
+      background-color: #f8fafc; /* light theme fallback: slate-50 */
+    }
+    html.dark {
+      background-color: #020617; /* dark theme fallback: slate-950 */
+    }
+  </style>
 </head>
 
 <body>
