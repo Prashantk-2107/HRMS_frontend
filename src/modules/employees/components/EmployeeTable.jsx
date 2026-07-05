@@ -1,16 +1,17 @@
 import React from 'react';
-import { Search, Trash2, Eye, Pencil } from 'lucide-react';
+import { Search, Trash2, Eye, Pencil, Mail } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { usePermission } from '../../../hooks/usePermission';
 import { PERMISSIONS } from '../../../constants/permissions';
 
-const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick, onEditClick, onStatusClick }) => {
+const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick, onEditClick, onStatusClick, onResendSetupClick }) => {
   const { hasPermission } = usePermission();
   const canView = hasPermission(PERMISSIONS.EMP_VIEW_ANY);
   const canEdit = hasPermission(PERMISSIONS.EMP_UPDATE);
   const canDelete = hasPermission(PERMISSIONS.EMP_DELETE);
+  const canResend = hasPermission(PERMISSIONS.EMP_CREATE);
 
-  const showActionColumn = canView || canEdit || (canDelete && isDeleteMode);
+  const showActionColumn = canView || canEdit || (canDelete && isDeleteMode) || canResend;
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
       {/* Search header inside panel */}
@@ -127,6 +128,18 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
                             title="Edit Employee"
                           >
                             <Pencil size={14} />
+                          </button>
+                        )}
+                        {canResend && !emp.is_email_verified && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onResendSetupClick(emp.email);
+                            }}
+                            className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 border border-indigo-200 dark:border-indigo-500/50 transition-all duration-150 cursor-pointer active:scale-90"
+                            title="Resend Invite/Setup Link"
+                          >
+                            <Mail size={14} />
                           </button>
                         )}
                         {isDeleteMode && canDelete && (

@@ -10,7 +10,7 @@ const CalendarLegend = () => {
   return (
     <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-3 transition-colors duration-200">
       <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Calendar Legend</h4>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         {legendItems.map((item, idx) => (
           <div key={idx} className="flex items-center gap-2.5">
             <span className={`w-3.5 h-3.5 rounded-md border ${item.color} flex-shrink-0`} />

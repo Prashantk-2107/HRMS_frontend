@@ -4,6 +4,7 @@ import PublicRoute from '../guards/publicRoutes';
 import ProtectedRoute from '../guards/protectedRoutes';
 import LoginPage from '../../../modules/auth/pages/LoginPage';
 import ForgotPasswordPage from '../../../modules/auth/pages/ForgotPasswordPage';
+import CreatePasswordPage from '../../../modules/auth/pages/CreatePasswordPage';
 import DashboardPage from '../../../modules/dashboard/pages/DashboardPage';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import EmployeesPage from '../../../modules/employees/pages/EmployeesPage';
@@ -35,6 +36,10 @@ export const routes = [
       {
         path: '/forgot-password',
         element: <ForgotPasswordPage />
+      },
+      {
+        path: '/create-password',
+        element: <CreatePasswordPage />
       }
     ]
   },
