@@ -209,8 +209,8 @@ const HolidaysPage = () => {
 
       {/* Grid of holiday lists / layouts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        {/* Left Side: Calendar Grid */}
-        <div className="lg:col-span-2 h-full flex flex-col">
+        {/* Left Side: Calendar Grid & Legend */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
           <CalendarGrid
             currentDate={currentDate}
             setCurrentDate={setCurrentDate}
@@ -218,19 +218,17 @@ const HolidaysPage = () => {
             setSelectedDate={handleSelectDate}
             eventsMap={eventsMap}
           />
+          <CalendarLegend />
         </div>
 
         {/* Right Side: Month Stats */}
-        <div className="h-full flex flex-col">
+        <div className="flex flex-col">
           <MonthStats
             currentDate={currentDate}
             events={events}
           />
         </div>
       </div>
-
-      {/* Bottom Side: Legend */}
-      <CalendarLegend />
 
       {/* Corporate Holidays Table */}
       <HolidaysTable
