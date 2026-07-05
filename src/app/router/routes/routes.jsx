@@ -103,13 +103,8 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.DOCUMENTS} />,
-            children: [
-              {
-                path: '/documents',
-                element: <DocumentsPage />
-              }
-            ]
+            path: '/documents',
+            element: <DocumentsPage />
           },
           {
             path: '/apps',

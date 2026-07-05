@@ -160,12 +160,12 @@ const EmployeesPage = () => {
       {/* Upper header action area */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Employees Directory</h1>
-          <p className="text-sm text-slate-500">Manage, view, and add corporate staff members.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Employees Directory</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Manage, view, and add corporate staff members.</p>
         </div>
 
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-sm">
+          <button className="flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-sm">
             <FileDown size={16} />
             <span>Export</span>
           </button>
@@ -174,7 +174,7 @@ const EmployeesPage = () => {
               onClick={() => setIsDeleteMode(!isDeleteMode)}
               className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer active:scale-[0.98] ${isDeleteMode
                   ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/10'
-                  : 'border border-rose-200 bg-rose-50/20 hover:bg-rose-50 text-rose-600 hover:text-rose-700'
+                  : 'border border-rose-300 dark:border-rose-500/50 bg-rose-50/20 dark:bg-rose-950/10 hover:bg-rose-50 dark:hover:bg-rose-950/25 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300'
                 }`}
             >
               {isDeleteMode ? (
@@ -274,20 +274,20 @@ const EmployeesPage = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ type: 'spring', duration: 0.25 }}
-              className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 p-6 z-10 flex flex-col items-center text-center"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 z-10 flex flex-col items-center text-center transition-colors duration-200"
             >
               {/* Icon Container */}
-              <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
                 <Trash2 size={24} />
               </div>
 
               {/* Title & Desc */}
-              <h4 className="text-base font-bold text-slate-900 tracking-tight">
+              <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 Delete Employee?
               </h4>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                 Are you sure you want to delete the employee{' '}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
                   "{deleteConfirmEmployee.first_name} {deleteConfirmEmployee.last_name}"
                 </span>?
                 This action is permanent and cannot be undone.
@@ -298,7 +298,7 @@ const EmployeesPage = () => {
                 <button
                   disabled={isUpdating}
                   onClick={() => setDeleteConfirmEmployee(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-900"
                 >
                   Cancel
                 </button>
@@ -332,27 +332,27 @@ const EmployeesPage = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ type: 'spring', duration: 0.25 }}
-              className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 p-6 z-10 flex flex-col items-center text-center"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 z-10 flex flex-col items-center text-center transition-colors duration-200"
             >
               {/* Icon Container */}
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
                 statusConfirmEmployee.employee_status === 'active'
-                  ? 'bg-amber-50 text-amber-600'
-                  : 'bg-emerald-50 text-emerald-600'
+                  ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400'
+                  : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'
               }`}>
                 <UserCheck size={24} />
               </div>
 
               {/* Title & Desc */}
-              <h4 className="text-base font-bold text-slate-900 tracking-tight">
+              <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 Change Status?
               </h4>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                 Are you sure you want to change the status of{' '}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
                   "{statusConfirmEmployee.first_name} {statusConfirmEmployee.last_name}"
                 </span> to{' '}
-                <span className="font-semibold text-indigo-600">
+                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
                   {statusConfirmEmployee.employee_status === 'active' ? 'Inactive' : 'Active'}
                 </span>?
               </p>
@@ -362,7 +362,7 @@ const EmployeesPage = () => {
                 <button
                   disabled={isUpdating}
                   onClick={() => setStatusConfirmEmployee(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-900"
                 >
                   Cancel
                 </button>

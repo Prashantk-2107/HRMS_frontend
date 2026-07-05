@@ -28,26 +28,26 @@ const EventDetails = ({ selectedDate, event }) => {
   };
 
   const getEventCardStyle = () => {
-    if (!event) return 'border-slate-100 bg-slate-50/30';
+    if (!event) return 'border-slate-100 dark:border-slate-850 bg-slate-50/30 dark:bg-slate-950/10';
     switch (event.type) {
       case 'attendance':
-        return 'border-emerald-100 bg-emerald-50/20';
+        return 'border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/20 dark:bg-emerald-950/15';
       case 'holiday':
-        return 'border-purple-100 bg-purple-50/20';
+        return 'border-purple-100 dark:border-purple-900/30 bg-purple-50/20 dark:bg-purple-950/15';
       case 'leave':
-        return 'border-rose-100 bg-rose-50/20';
+        return 'border-rose-100 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/15';
       case 'meeting':
-        return 'border-amber-100 bg-amber-50/20';
+        return 'border-amber-100 dark:border-amber-900/30 bg-amber-50/20 dark:bg-amber-950/15';
       default:
-        return 'border-indigo-100 bg-indigo-50/20';
+        return 'border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/20 dark:bg-indigo-950/15';
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col gap-5 h-full min-h-[300px]">
-      <div className="border-b border-slate-100 pb-3 text-left">
-        <h4 className="font-bold text-slate-800 text-base">Date Details</h4>
-        <span className="text-xs text-slate-400 font-semibold block mt-1">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-5 h-full min-h-[300px] transition-colors duration-200">
+      <div className="border-b border-slate-100 dark:border-slate-800 pb-3 text-left transition-colors">
+        <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">Date Details</h4>
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold block mt-1">
           {formatDateDisplay(selectedDate)}
         </span>
       </div>
@@ -59,15 +59,19 @@ const EventDetails = ({ selectedDate, event }) => {
 
         {event ? (
           <div className="text-center">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border ${event.type === 'attendance' ? 'bg-emerald-100/50 text-emerald-700 border-emerald-200' :
-              event.type === 'holiday' ? 'bg-purple-100/50 text-purple-700 border-purple-200' :
-                event.type === 'leave' ? 'bg-rose-100/50 text-rose-700 border-rose-200' :
-                  'bg-amber-100/50 text-amber-700 border-amber-200'
-              }`}>
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border ${
+              event.type === 'attendance'
+                ? 'bg-emerald-100/50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40'
+                : event.type === 'holiday'
+                  ? 'bg-purple-100/50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900/40'
+                  : event.type === 'leave'
+                    ? 'bg-rose-100/50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/40'
+                    : 'bg-amber-100/50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/40'
+            }`}>
               {event.type}
             </span>
-            <h5 className="text-base font-extrabold text-slate-850">{event.label}</h5>
-            <p className="text-xs text-slate-500 mt-1">
+            <h5 className="text-base font-extrabold text-slate-800 dark:text-slate-100">{event.label}</h5>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
               {event.type === 'attendance' ? 'Standard corporate hours logged.' :
                 event.type === 'holiday' ? 'Paid gazetted holiday. Corporate offices closed.' :
                   event.type === 'leave' ? 'Approved employee time-off.' :
@@ -76,8 +80,8 @@ const EventDetails = ({ selectedDate, event }) => {
           </div>
         ) : (
           <div className="text-center">
-            <h5 className="text-sm font-bold text-slate-500">No Events Scheduled</h5>
-            <p className="text-xs text-slate-400 mt-1 max-w-[200px] mx-auto">
+            <h5 className="text-sm font-bold text-slate-500 dark:text-slate-400">No Events Scheduled</h5>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">
               This day is currently empty. Click "Add Holiday" to register a corporate holiday.
             </p>
           </div>

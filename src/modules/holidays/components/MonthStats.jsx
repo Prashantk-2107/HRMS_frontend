@@ -41,39 +41,39 @@ const MonthStats = ({ currentDate, events }) => {
       title: 'Total Present',
       value: presentCount,
       icon: CheckSquare,
-      color: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+      color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/40',
     },
     {
       title: 'Total Leaves',
       value: leaveCount,
       icon: FileText,
-      color: 'text-rose-600 bg-rose-50 border-rose-100',
+      color: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 border-rose-100 dark:border-rose-900/40',
     },
     {
       title: 'Total Holidays',
       value: holidayCount,
       icon: Coffee,
-      color: 'text-purple-600 bg-purple-50 border-purple-100',
+      color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/40',
     },
     {
       title: 'Total Meetings',
       value: meetingCount,
       icon: Users,
-      color: 'text-amber-600 bg-amber-50 border-amber-100',
+      color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40',
     },
     {
       title: 'Working Days',
       value: workingDays,
       icon: Calendar,
-      color: 'text-blue-600 bg-blue-50 border-blue-100',
+      color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/40',
     },
   ];
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col gap-5 h-full">
-      <div className="border-b border-slate-100 pb-3 text-left">
-        <h4 className="font-bold text-slate-800 text-base">Monthly Summary</h4>
-        <span className="text-xs text-slate-400 font-semibold block mt-1">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-5 h-full transition-colors duration-200">
+      <div className="border-b border-slate-100 dark:border-slate-800 pb-3 text-left">
+        <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">Monthly Summary</h4>
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold block mt-1">
           Stats for {monthNames[month]} {year}
         </span>
       </div>
@@ -84,15 +84,15 @@ const MonthStats = ({ currentDate, events }) => {
           return (
             <div
               key={idx}
-              className="flex justify-between items-center p-3.5 rounded-2xl border border-slate-50 hover:bg-slate-50/40 transition-colors"
+              className="flex justify-between items-center p-3.5 rounded-2xl border border-slate-50 dark:border-slate-800 hover:bg-slate-50/40 dark:hover:bg-slate-800/30 transition-all duration-150"
             >
               <div className="flex items-center gap-3">
                 <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${item.color}`}>
                   <Icon size={18} />
                 </div>
-                <span className="text-sm font-semibold text-slate-600">{item.title}</span>
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{item.title}</span>
               </div>
-              <span className="text-lg font-bold text-slate-800">{item.value}</span>
+              <span className="text-lg font-bold text-slate-800 dark:text-slate-100">{item.value}</span>
             </div>
           );
         })}

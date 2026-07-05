@@ -69,24 +69,24 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: Network,
       permissions: SIDEBAR_PERMISSIONS.ROLES,
     },
-    {
-      name: 'Attendance',
-      path: '/attendance',
-      icon: CalendarCheck,
-      permissions: SIDEBAR_PERMISSIONS.ATTENDANCE,
-    },
-    {
-      name: 'Payroll',
-      path: '/bank-accounts',
-      icon: CircleDollarSign,
-      permissions: SIDEBAR_PERMISSIONS.PAYROLL,
-    },
-    {
-      name: 'Leaves',
-      path: '/leaves',
-      icon: ClipboardList,
-      permissions: SIDEBAR_PERMISSIONS.LEAVES,
-    },
+    // {
+    //   name: 'Attendance',
+    //   path: '/attendance',
+    //   icon: CalendarCheck,
+    //   permissions: SIDEBAR_PERMISSIONS.ATTENDANCE,
+    // },
+    // {
+    //   name: 'Payroll',
+    //   path: '/bank-accounts',
+    //   icon: CircleDollarSign,
+    //   permissions: SIDEBAR_PERMISSIONS.PAYROLL,
+    // },
+    // {
+    //   name: 'Leaves',
+    //   path: '/leaves',
+    //   icon: ClipboardList,
+    //   permissions: SIDEBAR_PERMISSIONS.LEAVES,
+    // },
     {
       name: 'Calendar',
       path: '/holidays',
@@ -97,23 +97,22 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: 'Documents',
       path: '/documents',
       icon: Folder,
-      permissions: SIDEBAR_PERMISSIONS.DOCUMENTS,
     },
-    {
-      name: 'Apps & Integration',
-      path: '/apps',
-      icon: Grid,
-    },
-    {
-      name: 'Settings',
-      path: '/settings',
-      icon: Settings,
-    },
-    {
-      name: 'Help & Support',
-      path: '/help',
-      icon: HelpCircle,
-    },
+    // {
+    //   name: 'Apps & Integration',
+    //   path: '/apps',
+    //   icon: Grid,
+    // },
+    // {
+    //   name: 'Settings',
+    //   path: '/settings',
+    //   icon: Settings,
+    // },
+    // {
+    //   name: 'Help & Support',
+    //   path: '/help',
+    //   icon: HelpCircle,
+    // },
     {
       name: 'My Profile',
       path: '/profile',
@@ -155,9 +154,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     }
 
     if (isActive && !item.isMock) {
-      return base + `bg-[#F0EDFF]/80 text-[#7B5CF5] font-semibold`;
+      return base + `bg-[#F0EDFF]/80 dark:bg-indigo-950/40 text-[#7B5CF5] dark:text-indigo-400 font-semibold`;
     } else {
-      return base + `text-slate-500 hover:bg-slate-50 hover:text-slate-900`;
+      return base + `text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200`;
     }
   };
 
@@ -166,18 +165,18 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* Floating Circular Collapse Toggle Button outside the card container to prevent overflow clip */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="hidden md:flex items-center justify-center w-7 h-7 rounded-full bg-white border border-slate-200/80 hover:bg-slate-100 text-slate-400 hover:text-slate-700 hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer shadow-sm absolute top-[26px] -right-3.5 z-50"
+        className="hidden md:flex items-center justify-center w-7 h-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer shadow-sm absolute top-[26px] -right-3.5 z-50 transition-colors duration-200"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
 
       {/* Main Sidebar Card */}
-      <div className="flex flex-col h-full bg-white border border-slate-100/80 rounded-[24px] shadow-sm overflow-hidden select-none">
+      <div className="flex flex-col h-full bg-white dark:bg-slate-900 border border-slate-100/80 dark:border-slate-800/80 rounded-[24px] shadow-sm dark:shadow-indigo-950/10 overflow-hidden select-none transition-colors duration-300">
         {/* Logo Header */}
         <div className={`flex items-center py-6 transition-all duration-300 ${isCollapsed ? 'justify-center pr-[1.5px]' : 'pl-5'} flex-shrink-0`}>
           <div className="flex items-center gap-3 overflow-hidden">
             <img src={logoImg} alt="WorkSphere Logo" className="w-8 h-8 flex-shrink-0" />
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
               {!isCollapsed && (
                 <motion.span
                   initial={{ opacity: 0, width: 0 }}
@@ -200,57 +199,21 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             onScroll={checkScrollLimits}
             className={`flex-1 px-1 space-y-1.5 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'scrollbar-none' : 'custom-scrollbar'} pb-4`}
           >
-          {menuItems.filter(hasAccess).map((item, itemIdx) => {
-            const Icon = item.icon;
+            {menuItems.filter(hasAccess).map((item, itemIdx) => {
+              const Icon = item.icon;
 
-            if (item.isMock) {
-              return (
-                <button
-                  key={itemIdx}
-                  onClick={(e) => handleMockClick(e, item.name)}
-                  className={`w-full flex items-center transition-all duration-300 group relative text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl ${isCollapsed ? 'justify-center py-2.5 mx-2' : 'pl-6 pr-4 py-3.5 mx-2'} cursor-pointer`}
-                  title={isCollapsed ? item.name : undefined}
-                >
-                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
-                    <Icon size={20} className="transition-transform duration-200 group-hover:scale-105 text-slate-400 group-hover:text-slate-700" />
-                  </div>
-                  <AnimatePresence>
-                    {!isCollapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: 'auto' }}
-                        exit={{ opacity: 0, width: 0 }}
-                        transition={{ duration: 0.2, ease: 'easeInOut' }}
-                        className="ml-4 whitespace-nowrap overflow-hidden"
-                      >
-                        {item.name}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                  {isCollapsed && (
-                    <div className="absolute left-20 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-slate-800 shadow-xl pointer-events-none z-50 whitespace-nowrap">
-                      {item.name} (Coming Soon)
-                    </div>
-                  )}
-                </button>
-              );
-            }
-
-            return (
-              <NavLink
-                key={itemIdx}
-                to={item.path}
-                onClick={() => setIsMobileOpen(false)}
-                className={itemClass(item)}
-                title={isCollapsed ? item.name : undefined}
-              >
-                {({ isActive }) => (
-                  <>
+              if (item.isMock) {
+                return (
+                  <button
+                    key={itemIdx}
+                    onClick={(e) => handleMockClick(e, item.name)}
+                    className={`w-full flex items-center transition-all duration-300 group relative text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 rounded-xl ${isCollapsed ? 'justify-center py-2.5 mx-2' : 'pl-6 pr-4 py-3.5 mx-2'} cursor-pointer`}
+                    title={isCollapsed ? item.name : undefined}
+                  >
                     <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
-                      <Icon size={20} className="transition-transform duration-200 group-hover:scale-105" />
+                      <Icon size={20} className="transition-transform duration-200 group-hover:scale-105 text-slate-400 group-hover:text-slate-700" />
                     </div>
-
-                    <AnimatePresence>
+                    <AnimatePresence initial={false}>
                       {!isCollapsed && (
                         <motion.span
                           initial={{ opacity: 0, width: 0 }}
@@ -263,44 +226,78 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                         </motion.span>
                       )}
                     </AnimatePresence>
-
-                    {/* Tooltip for collapsed mode */}
                     {isCollapsed && (
                       <div className="absolute left-20 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-slate-800 shadow-xl pointer-events-none z-50 whitespace-nowrap">
-                        {item.name}
+                        {item.name} (Coming Soon)
                       </div>
                     )}
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
+                  </button>
+                );
+              }
 
-        {/* Scroll indicators (fade shadows) */}
-        <div
-          className={`absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
-            showTopIndicator ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-        <div
-          className={`absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
-            showBottomIndicator ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-      </div>
+              return (
+                <NavLink
+                  key={itemIdx}
+                  to={item.path}
+                  onClick={() => setIsMobileOpen(false)}
+                  className={itemClass(item)}
+                  title={isCollapsed ? item.name : undefined}
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                        <Icon size={20} className="transition-transform duration-200 group-hover:scale-105" />
+                      </div>
 
-      {/* Logout Button Footer */}
-        <div className={`transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'} border-t border-slate-100 bg-white flex-shrink-0`}>
+                      <AnimatePresence initial={false}>
+                        {!isCollapsed && (
+                          <motion.span
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: 'auto' }}
+                            exit={{ opacity: 0, width: 0 }}
+                            transition={{ duration: 0.2, ease: 'easeInOut' }}
+                            className="ml-4 whitespace-nowrap overflow-hidden"
+                          >
+                            {item.name}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Tooltip for collapsed mode */}
+                      {isCollapsed && (
+                        <div className="absolute left-20 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-slate-800 shadow-xl pointer-events-none z-50 whitespace-nowrap">
+                          {item.name}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </nav>
+
+          {/* Scroll indicators (fade shadows) */}
+          <div
+            className={`absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white dark:from-slate-900 to-transparent pointer-events-none z-10 transition-opacity duration-200 ${showTopIndicator ? 'opacity-100' : 'opacity-0'
+              }`}
+          />
+          <div
+            className={`absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none z-10 transition-opacity duration-200 ${showBottomIndicator ? 'opacity-100' : 'opacity-0'
+              }`}
+          />
+        </div>
+
+        {/* Logout Button Footer */}
+        <div className={`transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'} border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0 transition-colors duration-300`}>
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center transition-all duration-300 ${isCollapsed ? 'justify-center py-2.5' : 'pl-6 pr-4 py-3'} rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 text-rose-600 hover:text-rose-700 font-semibold text-sm shadow-sm active:scale-[0.98] cursor-pointer`}
+            className={`w-full flex items-center transition-all duration-300 ${isCollapsed ? 'justify-center py-2.5' : 'pl-6 pr-4 py-3'} rounded-xl border border-rose-100 dark:border-rose-950/30 bg-rose-50/50 dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-semibold text-sm shadow-sm active:scale-[0.98] cursor-pointer transition-colors duration-200`}
             title={isCollapsed ? 'Logout' : undefined}
           >
             <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
               <LogOut size={16} />
             </div>
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
               {!isCollapsed && (
                 <motion.span
                   initial={{ opacity: 0, width: 0 }}
@@ -323,7 +320,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     <>
       {/* Desktop Sidebar */}
       <motion.div
-        initial={false}
+        initial={isCollapsed ? 'collapsed' : 'expanded'}
         animate={isCollapsed ? 'collapsed' : 'expanded'}
         variants={sidebarVariants}
         className="hidden md:block h-screen sticky top-0 flex-shrink-0 z-20 py-4 pl-4 pr-2"

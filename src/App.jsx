@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from './store';
 import { router } from './app/router';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,13 +34,34 @@ function ToastLimitManager() {
   return null;
 }
 
+function AppContent() {
+  const { theme } = useTheme();
+
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster 
+        position="top-center" 
+        toastOptions={{
+          style: theme === 'dark' ? {
+            background: '#0f172a', // slate-900
+            color: '#f8fafc', // slate-50
+            border: '1px solid #1e293b', // slate-800
+          } : undefined
+        }}
+      />
+      <ToastLimitManager />
+    </>
+  );
+}
+
 function App() {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <Toaster position="top-center" />
-        <ToastLimitManager />
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
       </QueryClientProvider>
     </Provider>
   );

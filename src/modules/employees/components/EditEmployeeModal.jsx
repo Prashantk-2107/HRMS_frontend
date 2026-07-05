@@ -190,17 +190,17 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
 
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl border border-slate-100 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200 transition-colors duration-300">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-2xl shrink-0">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/20 rounded-t-2xl shrink-0 transition-colors duration-200">
           <div>
-            <h3 className="font-bold text-slate-800 text-lg">Edit Employee Profile</h3>
-            <p className="text-xs text-slate-400">Update employee details. Fields marked with * are required.</p>
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">Edit Employee Profile</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500">Update employee details. Fields marked with * are required.</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -211,7 +211,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
           <div className="p-6 flex flex-col gap-6 text-left overflow-y-auto">
             {/* Section 1 Skeleton: Personal Info */}
             <div>
-              <Skeleton className="h-4 w-32 mb-4 bg-indigo-50" />
+              <Skeleton className="h-4 w-32 mb-4 bg-indigo-50 dark:bg-indigo-950/30" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Array.from({ length: 4 }).map((_, idx) => (
                   <div key={idx} className="flex flex-col gap-2">
@@ -224,7 +224,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
 
             {/* Section 2 Skeleton: Employment Details */}
             <div>
-              <Skeleton className="h-4 w-36 mb-4 bg-indigo-50" />
+              <Skeleton className="h-4 w-36 mb-4 bg-indigo-50 dark:bg-indigo-950/30" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Array.from({ length: 6 }).map((_, idx) => (
                   <div key={idx} className={`flex flex-col gap-2 ${idx === 4 || idx === 5 ? 'sm:col-span-2' : ''}`}>
@@ -237,7 +237,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
 
             {/* Section 3 Skeleton: Additional Details */}
             <div>
-              <Skeleton className="h-4 w-48 mb-4 bg-indigo-50" />
+              <Skeleton className="h-4 w-48 mb-4 bg-indigo-50 dark:bg-indigo-950/30" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2 sm:col-span-2">
                   <Skeleton className="h-3.5 w-16" />
@@ -263,29 +263,31 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
         ) : (
           <form onSubmit={handleSubmit} className="p-6 overflow-y-auto flex flex-col gap-6 text-left">
             {/* Context Meta Card (Read-only System Info) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 border border-slate-200/60 rounded-2xl mb-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800 rounded-2xl mb-2 transition-colors">
               <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</span>
-                <span className="text-xs font-semibold text-slate-700 truncate" title={formData.email}>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Email Address</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate" title={formData.email}>
                   {formData.email || 'N/A'}
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</span>
-                <span className="text-xs font-bold text-indigo-600 truncate">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Role</span>
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 truncate">
                   {formData.role_name || 'N/A'}
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Joining Date</span>
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Joining Date</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   {formData.joining_date ? new Date(formData.joining_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status</span>
                 <span className={`inline-flex items-center w-fit px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                  formData.employee_status === 'active' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'
+                  formData.employee_status === 'active' 
+                    ? 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40' 
+                    : 'bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40'
                 }`}>
                   {formData.employee_status === 'active' ? 'Active' : 'Inactive'}
                 </span>
@@ -294,12 +296,12 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
 
             {/* Section: Personal Info */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3.5 pb-1 border-b border-slate-100">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3.5 pb-1 border-b border-slate-100 dark:border-slate-800">
                 Personal Information
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">First Name *</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">First Name *</label>
                   <input
                     type="text"
                     name="first_name"
@@ -307,11 +309,11 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     value={formData.first_name}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Last Name</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Last Name</label>
                   <input
                     type="text"
                     name="last_name"
@@ -319,19 +321,19 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     value={formData.last_name}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5 relative">
-                  <label className="text-xs font-semibold text-slate-600">Gender</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Gender</label>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => !submitting && setIsGenderDropdownOpen(!isGenderDropdownOpen)}
                       disabled={submitting}
-                      className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
                     >
-                      <span className={formData.gender ? "text-slate-800" : "text-slate-400"}>
+                      <span className={formData.gender ? "text-slate-800 dark:text-slate-200" : "text-slate-400 dark:text-slate-500"}>
                         {formData.gender
                           ? genderOptions.find(opt => opt.value === formData.gender)?.label
                           : 'Select gender...'
@@ -343,7 +345,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     {isGenderDropdownOpen && (
                       <>
                         <div className="fixed inset-0 z-10" onClick={() => setIsGenderDropdownOpen(false)} />
-                        <div className="absolute z-20 top-full mt-1.5 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1">
+                        <div className="absolute z-20 top-full mt-1.5 w-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1">
                           {genderOptions.map((opt) => {
                             const isSelected = opt.value === formData.gender;
                             return (
@@ -355,12 +357,12 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                                   setIsGenderDropdownOpen(false);
                                 }}
                                 className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left ${isSelected
-                                  ? 'bg-indigo-50 text-indigo-600 font-semibold'
-                                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                                  ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold'
+                                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100'
                                   }`}
                               >
                                 <span>{opt.label}</span>
-                                {isSelected && <Check size={14} className="text-indigo-600" />}
+                                {isSelected && <Check size={14} className="text-indigo-600 dark:text-indigo-400" />}
                               </button>
                             );
                           })}
@@ -370,14 +372,14 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Date of Birth</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Date of Birth</label>
                   <input
                     type="date"
                     name="date_of_birth"
                     value={formData.date_of_birth}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                   />
                 </div>
               </div>
@@ -385,12 +387,12 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
 
             {/* Section: Employment Info */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3.5 pb-1 border-b border-slate-100">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3.5 pb-1 border-b border-slate-100 dark:border-slate-800">
                 Employment Details
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Phone Number</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Phone Number</label>
                   <input
                     type="text"
                     name="phone_number"
@@ -402,19 +404,19 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                       setFormData((prev) => ({ ...prev, phone_number: val }));
                     }}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5 relative">
-                  <label className="text-xs font-semibold text-slate-600">Employment Type</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Employment Type</label>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => !submitting && setIsEmpTypeDropdownOpen(!isEmpTypeDropdownOpen)}
                       disabled={submitting}
-                      className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-all duration-200 cursor-pointer disabled:opacity-60 text-left"
                     >
-                      <span className={formData.employment_type ? "text-slate-800" : "text-slate-400"}>
+                      <span className={formData.employment_type ? "text-slate-800 dark:text-slate-200" : "text-slate-400 dark:text-slate-500"}>
                         {formData.employment_type
                           ? employmentTypeOptions.find(opt => opt.value === formData.employment_type)?.label
                           : 'Select type...'
@@ -426,7 +428,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     {isEmpTypeDropdownOpen && (
                       <>
                         <div className="fixed inset-0 z-10" onClick={() => setIsEmpTypeDropdownOpen(false)} />
-                        <div className="absolute z-20 top-full mt-1.5 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1">
+                        <div className="absolute z-20 top-full mt-1.5 w-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-150 py-1">
                           {employmentTypeOptions.map((opt) => {
                             const isSelected = opt.value === formData.employment_type;
                             return (
@@ -438,12 +440,12 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                                   setIsEmpTypeDropdownOpen(false);
                                 }}
                                 className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left ${isSelected
-                                  ? 'bg-indigo-50 text-indigo-600 font-semibold'
-                                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                                  ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold'
+                                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100'
                                   }`}
                               >
                                 <span>{opt.label}</span>
-                                {isSelected && <Check size={14} className="text-indigo-600" />}
+                                {isSelected && <Check size={14} className="text-indigo-600 dark:text-indigo-400" />}
                               </button>
                             );
                           })}
@@ -457,12 +459,12 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
 
             {/* Section: Additional Details */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3.5 pb-1 border-b border-slate-100">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3.5 pb-1 border-b border-slate-100 dark:border-slate-800">
                 Additional Details & Emergency Contacts
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <label className="text-xs font-semibold text-slate-600">Address</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Address</label>
                   <textarea
                     name="address"
                     rows={2}
@@ -470,11 +472,11 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     value={formData.address}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors resize-none"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors resize-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Emergency Contact Name</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Emergency Contact Name</label>
                   <input
                     type="text"
                     name="emergency_contact_name"
@@ -482,11 +484,11 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     value={formData.emergency_contact_name}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Emergency Contact Number</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">Emergency Contact Number</label>
                   <input
                     type="text"
                     name="emergency_contact_number"
@@ -494,7 +496,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                     value={formData.emergency_contact_number}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                    className="px-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                   />
                 </div>
               </div>
@@ -506,7 +508,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onSuccess, employeeId }) => {
                 type="button"
                 onClick={onClose}
                 disabled={submitting}
-                className="flex-1 py-2.5 border border-slate-200 text-slate-700 font-semibold rounded-xl text-sm hover:bg-slate-50 transition-colors cursor-pointer"
+                className="flex-1 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl text-sm hover:bg-slate-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 transition-colors cursor-pointer"
               >
                 Cancel
               </button>

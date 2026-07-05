@@ -25,14 +25,14 @@ const HolidaysTable = ({ holidays, onDeleteHoliday }) => {
   const sortedHolidays = [...holidays].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden text-left flex flex-col mt-6">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden text-left flex flex-col mt-6 transition-colors duration-200">
       {/* Title Header */}
-      <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-        <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
+      <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors">
+        <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-sm sm:text-base">
           <Calendar size={18} className="text-purple-500" />
           <span>Corporate Holidays List</span>
         </h3>
-        <span className="bg-purple-50 text-purple-700 text-xs font-bold px-3 py-1 rounded-full border border-purple-100">
+        <span className="bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 text-xs font-bold px-3 py-1 rounded-full border border-purple-100 dark:border-purple-900/60 transition-colors">
           {sortedHolidays.length} Registered Holidays
         </span>
       </div>
@@ -42,36 +42,36 @@ const HolidaysTable = ({ holidays, onDeleteHoliday }) => {
         {sortedHolidays.length > 0 ? (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Day</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Holiday Name</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Category</th>
+              <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80">
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Day</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Holiday Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Category</th>
                 {onDeleteHoliday && (
-                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Action</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {sortedHolidays.map((h, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/30 transition-colors">
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-700">
+                <tr key={idx} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                  <td className="px-6 py-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
                     {formatDateDisplay(h.date)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-500">
+                  <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                     {getDayOfWeek(h.date)}
                   </td>
-                  <td className="px-6 py-4 text-sm font-bold text-slate-800">
+                  <td className="px-6 py-4 text-sm font-bold text-slate-800 dark:text-slate-100">
                     {h.label}
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-500 capitalize">
+                  <td className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 capitalize">
                     {h.holidayType ? `${h.holidayType} Holiday` : 'National Holiday'}
                   </td>
                   {onDeleteHoliday && (
                     <td className="px-6 py-4 text-sm text-right">
                       <button
                         onClick={() => onDeleteHoliday(h.date)}
-                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-650 cursor-pointer transition-colors"
+                        className="p-1.5 rounded-lg text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-600 border border-rose-200 dark:border-rose-500/50 cursor-pointer transition-colors"
                         title="Delete Holiday"
                       >
                         <Trash2 size={16} />
@@ -84,7 +84,7 @@ const HolidaysTable = ({ holidays, onDeleteHoliday }) => {
           </table>
         ) : (
           <div className="p-10 text-center flex flex-col items-center justify-center">
-            <span className="text-slate-400 font-medium text-sm">No Holidays Registered</span>
+            <span className="text-slate-400 dark:text-slate-500 font-medium text-sm">No Holidays Registered</span>
           </div>
         )}
       </div>

@@ -139,7 +139,7 @@ const RolesPage = () => {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
           {Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-100/80 shadow-sm flex flex-col gap-6 text-left relative overflow-hidden">
+            <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100/80 dark:border-slate-800 shadow-sm flex flex-col gap-6 text-left relative overflow-hidden transition-colors duration-200">
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <Skeleton className="h-5 w-14 rounded-full" />
@@ -149,7 +149,7 @@ const RolesPage = () => {
                 <Skeleton className="h-3 w-full mt-3" />
                 <Skeleton className="h-3 w-4/5 mt-1.5" />
               </div>
-              <div className="border-t border-slate-50 pt-4 flex flex-col gap-4">
+              <div className="border-t border-slate-50 dark:border-slate-800/60 pt-4 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <Skeleton className="h-3.5 w-28" />
                   <Skeleton className="h-4 w-16 rounded-full" />

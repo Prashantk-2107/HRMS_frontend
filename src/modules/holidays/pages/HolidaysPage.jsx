@@ -180,8 +180,8 @@ const HolidaysPage = () => {
       {/* Header Panel */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Calendar</h1>
-          <p className="text-sm text-slate-500">View and manage corporate attendances, holidays, leaves, and team schedules.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Calendar</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">View and manage corporate attendances, holidays, leaves, and team schedules.</p>
         </div>
 
         <div className="flex gap-3">
@@ -189,7 +189,7 @@ const HolidaysPage = () => {
             <button
               onClick={handleMarkWeekends}
               disabled={bulkCreateMutation.isPending}
-              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer border border-slate-200 disabled:opacity-50"
+              className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] text-slate-700 dark:text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer border border-slate-200 dark:border-slate-700 disabled:opacity-50"
             >
               {bulkCreateMutation.isPending ? 'Marking...' : 'Mark Weekends'}
             </button>

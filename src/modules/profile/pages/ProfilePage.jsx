@@ -168,10 +168,10 @@ const ProfilePage = () => {
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6 text-left py-2 pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-5 transition-colors">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Profile</h1>
-          <p className="text-sm text-slate-500">Update your photo & personal details here...</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Profile</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Update your photo & personal details here...</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ const ProfilePage = () => {
             type="button"
             onClick={handleCancel}
             disabled={isSaving}
-            className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 bg-white dark:bg-slate-900"
           >
             Cancel
           </button>
@@ -203,24 +203,27 @@ const ProfilePage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Form Box */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100/80 shadow-sm p-6 sm:p-8 space-y-6">
-          <h2 className="text-base font-bold text-slate-800 border-b border-slate-50 pb-3 flex items-center gap-2">
-            <ClipboardCheck size={18} className="text-indigo-600" /> Personal Details
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100/80 dark:border-slate-800 shadow-sm p-6 sm:p-8 space-y-6 transition-colors duration-200">
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 border-b border-slate-50 dark:border-slate-800 pb-3 flex items-center gap-2 transition-colors">
+            <ClipboardCheck size={18} className="text-indigo-600 dark:text-indigo-400" /> Personal Details
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Row 1: First Name & Last Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">First Name *</label>
-                <div className={`flex items-center gap-2 bg-slate-50/50 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white ${errors.first_name ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' : 'border-slate-200/80 focus-within:border-indigo-500'
-                  }`}>
-                  <User size={16} className="text-slate-400 flex-shrink-0" />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">First Name *</label>
+                <div className={`flex items-center gap-2 bg-slate-50/50 dark:bg-slate-950/40 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white dark:focus-within:bg-slate-950 ${
+                  errors.first_name 
+                    ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' 
+                    : 'border-slate-200/80 dark:border-slate-800 focus-within:border-indigo-500'
+                }`}>
+                  <User size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <input
                     type="text"
                     disabled={isSaving}
                     placeholder="Enter first name"
-                    className="bg-transparent text-sm text-slate-800 outline-none w-full placeholder-slate-400 font-medium"
+                    className="bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none w-full placeholder-slate-400 dark:placeholder-slate-500 font-medium"
                     {...register('first_name', {
                       required: 'First name is required',
                       maxLength: { value: 100, message: 'First name cannot exceed 100 characters' }
@@ -233,15 +236,18 @@ const ProfilePage = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Last Name</label>
-                <div className={`flex items-center gap-2 bg-slate-50/50 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white ${errors.last_name ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' : 'border-slate-200/80 focus-within:border-indigo-500'
-                  }`}>
-                  <User size={16} className="text-slate-400 flex-shrink-0" />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Last Name</label>
+                <div className={`flex items-center gap-2 bg-slate-50/50 dark:bg-slate-950/40 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white dark:focus-within:bg-slate-950 ${
+                  errors.last_name 
+                    ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' 
+                    : 'border-slate-200/80 dark:border-slate-800 focus-within:border-indigo-500'
+                }`}>
+                  <User size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <input
                     type="text"
                     disabled={isSaving}
                     placeholder="Enter last name"
-                    className="bg-transparent text-sm text-slate-800 outline-none w-full placeholder-slate-400 font-medium"
+                    className="bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none w-full placeholder-slate-400 dark:placeholder-slate-500 font-medium"
                     {...register('last_name', {
                       maxLength: { value: 100, message: 'Last name cannot exceed 100 characters' }
                     })}
@@ -256,9 +262,9 @@ const ProfilePage = () => {
             {/* Row 2: Title / Role & Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Title / Role (Read-only)</label>
-                <div className="flex items-center gap-2 bg-slate-100 border border-slate-200/60 rounded-xl px-3 py-2.5 text-slate-500 select-none">
-                  <Shield size={16} className="text-slate-400 flex-shrink-0" />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Title / Role (Read-only)</label>
+                <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-500 dark:text-slate-400 select-none transition-colors duration-200">
+                  <Shield size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <span className="text-sm font-semibold capitalize">
                     {currentUser?.role?.name?.replace(/_/g, ' ') || 'Employee'}
                   </span>
@@ -266,15 +272,18 @@ const ProfilePage = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Phone Number *</label>
-                <div className={`flex items-center gap-2 bg-slate-50/50 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white ${errors.phone_number ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' : 'border-slate-200/80 focus-within:border-indigo-500'
-                  }`}>
-                  <Phone size={16} className="text-slate-400 flex-shrink-0" />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Phone Number *</label>
+                <div className={`flex items-center gap-2 bg-slate-50/50 dark:bg-slate-950/40 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white dark:focus-within:bg-slate-950 ${
+                  errors.phone_number 
+                    ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' 
+                    : 'border-slate-200/80 dark:border-slate-800 focus-within:border-indigo-500'
+                }`}>
+                  <Phone size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <input
                     type="text"
                     disabled={isSaving}
                     placeholder="10-digit mobile number"
-                    className="bg-transparent text-sm text-slate-800 outline-none w-full placeholder-slate-400 font-medium"
+                    className="bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none w-full placeholder-slate-400 dark:placeholder-slate-500 font-medium"
                     {...register('phone_number', {
                       required: 'Phone number is required',
                       pattern: {
@@ -292,14 +301,14 @@ const ProfilePage = () => {
 
             {/* Row 3: Email Address */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Email Address (Read-only)</label>
-              <div className="flex items-center justify-between gap-2 bg-slate-100 border border-slate-200/60 rounded-xl px-3 py-2.5 text-slate-500 select-none">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Email Address (Read-only)</label>
+              <div className="flex items-center justify-between gap-2 bg-slate-100 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-500 dark:text-slate-400 select-none transition-colors duration-200">
                 <div className="flex items-center gap-2">
-                  <Mail size={16} className="text-slate-400 flex-shrink-0" />
+                  <Mail size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <span className="text-sm font-medium">{currentUser?.email}</span>
                 </div>
                 {currentUser?.is_email_verified && (
-                  <span className="flex items-center gap-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
+                  <span className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
                     <CheckCircle2 size={10} className="text-emerald-500" /> Verified
                   </span>
                 )}
@@ -308,15 +317,18 @@ const ProfilePage = () => {
 
             {/* Row 4: Address */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Address</label>
-              <div className={`flex items-start gap-2 bg-slate-50/50 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white ${errors.address ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' : 'border-slate-200/80 focus-within:border-indigo-500'
-                }`}>
-                <MapPin size={16} className="text-slate-400 mt-0.5 flex-shrink-0" />
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Address</label>
+              <div className={`flex items-start gap-2 bg-slate-50/50 dark:bg-slate-950/40 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white dark:focus-within:bg-slate-950 ${
+                errors.address 
+                  ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' 
+                  : 'border-slate-200/80 dark:border-slate-800 focus-within:border-indigo-500'
+              }`}>
+                <MapPin size={16} className="text-slate-400 dark:text-slate-500 mt-0.5 flex-shrink-0" />
                 <textarea
                   disabled={isSaving}
                   rows={2}
                   placeholder="HQ Office, New Delhi"
-                  className="bg-transparent text-sm text-slate-800 outline-none w-full placeholder-slate-400 font-medium resize-none"
+                  className="bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none w-full placeholder-slate-400 dark:placeholder-slate-500 font-medium resize-none"
                   {...register('address', {
                     required: 'Address is required',
                     minLength: { value: 1, message: 'Address cannot be empty' }
@@ -331,15 +343,18 @@ const ProfilePage = () => {
             {/* Row 5: Emergency Contacts */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Emergency Contact Name</label>
-                <div className={`flex items-center gap-2 bg-slate-50/50 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white ${errors.emergency_contact_name ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' : 'border-slate-200/80 focus-within:border-indigo-500'
-                  }`}>
-                  <Contact size={16} className="text-slate-400 flex-shrink-0" />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Emergency Contact Name</label>
+                <div className={`flex items-center gap-2 bg-slate-50/50 dark:bg-slate-950/40 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white dark:focus-within:bg-slate-950 ${
+                  errors.emergency_contact_name 
+                    ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' 
+                    : 'border-slate-200/80 dark:border-slate-800 focus-within:border-indigo-500'
+                }`}>
+                  <Contact size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <input
                     type="text"
                     disabled={isSaving}
                     placeholder="Emergency contact name"
-                    className="bg-transparent text-sm text-slate-800 outline-none w-full placeholder-slate-400 font-medium"
+                    className="bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none w-full placeholder-slate-400 dark:placeholder-slate-500 font-medium"
                     {...register('emergency_contact_name', {
                       maxLength: { value: 255, message: 'Name cannot exceed 255 characters' }
                     })}
@@ -351,15 +366,18 @@ const ProfilePage = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Emergency Phone Number</label>
-                <div className={`flex items-center gap-2 bg-slate-50/50 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white ${errors.emergency_contact_number ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' : 'border-slate-200/80 focus-within:border-indigo-500'
-                  }`}>
-                  <Phone size={16} className="text-slate-400 flex-shrink-0" />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Emergency Phone Number</label>
+                <div className={`flex items-center gap-2 bg-slate-50/50 dark:bg-slate-950/40 border rounded-xl px-3 py-2.5 transition-all duration-200 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:bg-white dark:focus-within:bg-slate-950 ${
+                  errors.emergency_contact_number 
+                    ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500' 
+                    : 'border-slate-200/80 dark:border-slate-800 focus-within:border-indigo-500'
+                }`}>
+                  <Phone size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                   <input
                     type="text"
                     disabled={isSaving}
                     placeholder="Emergency mobile number"
-                    className="bg-transparent text-sm text-slate-800 outline-none w-full placeholder-slate-400 font-medium"
+                    className="bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none w-full placeholder-slate-400 dark:placeholder-slate-500 font-medium"
                     {...register('emergency_contact_number', {
                       validate: (val) => {
                         if (!val) return true;
@@ -379,18 +397,18 @@ const ProfilePage = () => {
         {/* Right Metadata/Image Box */}
         <div className="space-y-6 lg:col-span-1">
           {/* Profile Picture Card */}
-          <div className="bg-white rounded-3xl border border-slate-100/80 shadow-sm p-6 flex flex-col items-center">
-            <h3 className="text-sm font-bold text-slate-800 w-full pb-3 border-b border-slate-50 mb-5">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100/80 dark:border-slate-800 shadow-sm p-6 flex flex-col items-center transition-colors duration-200">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 w-full pb-3 border-b border-slate-50 dark:border-slate-800 mb-5 text-left">
               Profile Picture
             </h3>
 
             {/* Image Preview Container */}
             <div className="relative group">
-              <div className="w-28 h-28 rounded-full border-4 border-slate-100 bg-slate-50/50 flex items-center justify-center overflow-hidden mb-6 transition-all duration-200 group-hover:border-indigo-100">
+              <div className="w-28 h-28 rounded-full border-4 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 flex items-center justify-center overflow-hidden mb-6 transition-all duration-200 group-hover:border-indigo-100 dark:group-hover:border-indigo-900/60">
                 {profileImagePreview ? (
                   <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="text-indigo-600 font-black text-3xl select-none">
+                  <div className="text-indigo-600 dark:text-indigo-400 font-black text-3xl select-none">
                     {(watchFirstName[0] || '').toUpperCase()}
                     {(watchLastName[0] || '').toUpperCase()}
                   </div>
@@ -404,15 +422,16 @@ const ProfilePage = () => {
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`w-full border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 ${isDragging
-                  ? 'border-indigo-500 bg-indigo-50/40 scale-[1.02] shadow-inner'
-                  : 'border-slate-200 hover:border-indigo-300 bg-slate-50/20'
-                }`}
+              className={`w-full border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 ${
+                isDragging
+                  ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20 scale-[1.02] shadow-inner'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-indigo-300 bg-slate-50/20 dark:bg-slate-950/10'
+              }`}
             >
               <label className="flex flex-col items-center cursor-pointer gap-2">
                 <UploadCloud size={28} className="text-indigo-500" />
-                <span className="text-xs font-semibold text-slate-600">Drag a photo here</span>
-                <span className="text-[10px] text-slate-400 font-medium uppercase">or</span>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Drag a photo here</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase">or</span>
                 <span className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] uppercase tracking-wider px-3.5 py-2 rounded-xl transition-all shadow-sm">
                   Upload Photo
                 </span>
@@ -427,35 +446,35 @@ const ProfilePage = () => {
           </div>
 
           {/* System Properties Card (Read-only) */}
-          <div className="bg-white rounded-3xl border border-slate-100/80 shadow-sm p-6 space-y-4">
-            <h3 className="text-sm font-bold text-slate-800 pb-3 border-b border-slate-50 flex items-center gap-1.5">
-              <Building size={16} className="text-indigo-600" /> Job Details
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100/80 dark:border-slate-800 shadow-sm p-6 space-y-4 transition-colors duration-200">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 pb-3 border-b border-slate-50 dark:border-slate-800 flex items-center gap-1.5 text-left">
+              <Building size={16} className="text-indigo-600 dark:text-indigo-400" /> Job Details
             </h3>
 
             <div className="space-y-3.5 text-xs">
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-slate-400 font-bold uppercase tracking-wider">Employee Code</span>
-                <span className="text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{currentUser?.empCode}</span>
+                <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Employee Code</span>
+                <span className="text-slate-700 dark:text-slate-200 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">{currentUser?.empCode}</span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-slate-400 font-bold uppercase tracking-wider">Joining Date</span>
-                <span className="text-slate-700 font-semibold">
+                <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Joining Date</span>
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">
                   {currentUser?.joining_date ? new Date(currentUser.joining_date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-slate-400 font-bold uppercase tracking-wider">Employment Type</span>
-                <span className="text-slate-700 font-bold capitalize bg-indigo-50 text-indigo-700 border border-indigo-100/50 px-2 py-0.5 rounded-full text-[10px]">
+                <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Employment Type</span>
+                <span className="text-slate-700 dark:text-slate-300 font-bold capitalize bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-900/60 px-2 py-0.5 rounded-full text-[10px]">
                   {currentUser?.employment_type || 'permanent'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-slate-400 font-bold uppercase tracking-wider">Gender</span>
-                <span className="text-slate-700 font-semibold capitalize">{currentUser?.gender || 'male'}</span>
+                <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Gender</span>
+                <span className="text-slate-700 dark:text-slate-300 font-semibold capitalize">{currentUser?.gender || 'male'}</span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-slate-400 font-bold uppercase tracking-wider">Status</span>
-                <span className="flex items-center gap-1 text-emerald-600 font-bold uppercase tracking-wider text-[10px]">
+                <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Status</span>
+                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[10px]">
                   <Activity size={10} /> {currentUser?.employee_status || 'active'}
                 </span>
               </div>
