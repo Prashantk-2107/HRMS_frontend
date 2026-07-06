@@ -9,25 +9,17 @@
   <script>
     (function () {
       try {
-        const saved = localStorage.getItem('theme');
-        const theme = saved || 'light';
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        document.documentElement.classList.remove('dark');
       } catch (e) {
-        console.error('Failed to pre-initialize dark mode theme', e);
+        console.error('Failed to initialize light mode theme', e);
       }
     })();
   </script>
   <style>
     /* Prevent flash of unstyled theme content on reload */
     html {
-      background-color: #f8fafc; /* light theme fallback: slate-50 */
-    }
-    html.dark {
-      background-color: #020617; /* dark theme fallback: slate-950 */
+      background-color: #f8fafc;
+      /* light theme fallback: slate-50 */
     }
   </style>
 </head>

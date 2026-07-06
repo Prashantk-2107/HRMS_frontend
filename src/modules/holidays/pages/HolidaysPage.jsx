@@ -129,14 +129,18 @@ const HolidaysPage = () => {
   };
 
   // Bulk create weekend holidays mutation
-  const bulkCreateMutation = useMutation({
-    mutationFn: async (payloads) => {
-      const promises = payloads.map(p => api.post('/holiday/create-holiday', p));
-      await Promise.all(promises);
+  const markWeekendsMutation = useMutation({
+    mutationFn: async (payload) => {
+      const response = await api.post('/holiday/mark-weekends', payload);
+      return response.data?.data?.holidays || [];
     },
-    onSuccess: () => {
+    onSuccess: (holidays) => {
       queryClient.invalidateQueries({ queryKey: ['holidays'] });
-      toast.success('Weekend holidays registered successfully!');
+      if (holidays.length === 0) {
+        toast.success('All weekends in this month are already marked!');
+      } else {
+        toast.success(`${holidays.length} weekend holidays registered successfully!`);
+      }
     },
     onError: (err) => {
       const errorMsg = err.response?.data?.message || 'Failed to register weekend holidays!';
@@ -146,31 +150,8 @@ const HolidaysPage = () => {
 
   const handleMarkWeekends = () => {
     const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const weekendHolidays = [];
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const tempDate = new Date(year, month, d);
-      const dayOfWeek = tempDate.getDay(); // 0 = Sunday, 6 = Saturday
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        if (!eventsMap[dateStr]) {
-          weekendHolidays.push({
-            holiday_date: dateStr,
-            holiday_name: dayOfWeek === 6 ? 'Saturday' : 'Sunday',
-            holiday_type: 'company'
-          });
-        }
-      }
-    }
-
-    if (weekendHolidays.length === 0) {
-      toast.error('All weekends in this month are already marked as holidays!');
-      return;
-    }
-
-    bulkCreateMutation.mutate(weekendHolidays);
+    const month = currentDate.getMonth() + 1; // 1-based month
+    markWeekendsMutation.mutate({ year, month });
   };
 
   const selectedEvent = eventsMap[selectedDate];
@@ -188,10 +169,10 @@ const HolidaysPage = () => {
           <PermissionGuard requiredPermission={PERMISSIONS.HOLIDAY_MANAGE}>
             <button
               onClick={handleMarkWeekends}
-              disabled={bulkCreateMutation.isPending}
+              disabled={markWeekendsMutation.isPending}
               className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] text-slate-700 dark:text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer border border-slate-200 dark:border-slate-700 disabled:opacity-50"
             >
-              {bulkCreateMutation.isPending ? 'Marking...' : 'Mark Weekends'}
+              {markWeekendsMutation.isPending ? 'Marking...' : 'Mark Weekends'}
             </button>
           </PermissionGuard>
 
