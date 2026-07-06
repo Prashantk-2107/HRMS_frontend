@@ -1,6 +1,38 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDate, eventsMap }) => {
+const CalendarGrid = ({ currentDate, setCurrentDate, selectedDate, setSelectedDate, eventsMap, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-4 h-full transition-colors duration-200 animate-pulse">
+        {/* Skeleton Month Year Selector Controls */}
+        <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="flex gap-1">
+            <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800" />
+            <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800" />
+          </div>
+        </div>
+
+        {/* Skeleton Weekday Titles Grid */}
+        <div className="grid grid-cols-7 text-center gap-1.5 mt-2">
+          {Array.from({ length: 7 }).map((_, idx) => (
+            <div key={idx} className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md m-1" />
+          ))}
+        </div>
+
+        {/* Skeleton Day Cells Grid */}
+        <div className="flex-1 grid grid-cols-7 grid-rows-6 gap-1.5 mt-1">
+          {Array.from({ length: 42 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="min-h-[44px] w-full bg-slate-100 dark:bg-slate-950/20 border border-slate-100/50 dark:border-slate-800 rounded-xl"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
