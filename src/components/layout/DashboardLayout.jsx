@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { Menu, Bell, Search, User, Sun, Moon } from 'lucide-react';
+import { Menu, Bell, Search, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import api, { PERMISSION_ENDPOINTS } from '../../services/api';
 import { selectUser, setPermissions } from '../../store/slices/authSlice';
-import { useTheme } from '../../context/ThemeContext';
 
 const DashboardLayout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const syncUserPermissions = async () => {
@@ -88,39 +85,6 @@ const DashboardLayout = () => {
                 />
               </div>
 
-              {/* Theme Toggle Button */}
-              <button
-                onClick={toggleTheme}
-                className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 active:scale-95 border border-slate-100 dark:border-slate-800/80 transition-all duration-150 cursor-pointer relative flex items-center justify-center"
-                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
-                <div className="relative w-[18px] h-[18px] flex items-center justify-center">
-                  <motion.div
-                    initial={false}
-                    animate={{
-                      rotate: theme === 'dark' ? 180 : 0,
-                      scale: theme === 'dark' ? 0 : 1,
-                      opacity: theme === 'dark' ? 0 : 1,
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute"
-                  >
-                    <Moon size={18} />
-                  </motion.div>
-                  <motion.div
-                    initial={false}
-                    animate={{
-                      rotate: theme === 'dark' ? 0 : -180,
-                      scale: theme === 'dark' ? 1 : 0,
-                      opacity: theme === 'dark' ? 1 : 0,
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute"
-                  >
-                    <Sun size={18} />
-                  </motion.div>
-                </div>
-              </button>
 
               {/* Notification Icon Button */}
               <button className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 active:scale-95 border border-slate-100 dark:border-slate-800/80 transition-all duration-150 cursor-pointer relative">
