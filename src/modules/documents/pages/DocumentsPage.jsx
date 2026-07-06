@@ -267,7 +267,7 @@ const DocumentsPage = () => {
     }
 
     // Target employee ID falls back to self if not HR/admin
-    const targetEmpId = canUpload ? (uploadEmpId || currentUser?.emp_id) : currentUser?.emp_id;
+    const targetEmpId = (canUpload && activeTab === 'all-docs') ? (uploadEmpId || currentUser?.emp_id) : currentUser?.emp_id;
 
     if (!targetEmpId) {
       toast.error('Target employee is required.');
@@ -335,8 +335,8 @@ const DocumentsPage = () => {
           <p className="text-sm text-slate-500 dark:text-slate-400">Access corporate policies, contracts, and manage personal identity documents.</p>
         </div>
 
-        {/* Only show Upload button if user has permission */}
-        {canUpload && (
+        {/* Show Upload button if user has permission OR if they are on 'my-docs' tab */}
+        {(canUpload || activeTab === 'my-docs') && (
           <button
             onClick={() => {
               setUploadEmpId(currentUser?.emp_id);
@@ -748,8 +748,8 @@ const DocumentsPage = () => {
               </div>
 
               <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
-                {/* Employee Selector (HR/Admin only) */}
-                {canUpload ? (
+                {/* Employee Selector (HR/Admin only and only when on all-docs tab) */}
+                {canUpload && activeTab === 'all-docs' ? (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Employee *</label>
                     <select
