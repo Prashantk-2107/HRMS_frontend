@@ -24,12 +24,27 @@ const HolidaysPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  // Fetch holidays using TanStack Query
-  const { data: holidaysData } = useQuery({
-    queryKey: ['holidays'],
+  // Pagination state for holidays list table
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  // Fetch all holidays using TanStack Query (for calendar & monthly stats)
+  const { data: holidaysData, isLoading: isAllHolidaysLoading } = useQuery({
+    queryKey: ['holidays', 'all'],
     queryFn: async () => {
       const response = await api.get('/holiday/get-all-holidays');
       return response.data?.data?.holidays || [];
+    },
+  });
+
+  // Fetch paginated holidays for the list table
+  const { data: paginatedResponse, isLoading: isPaginatedLoading } = useQuery({
+    queryKey: ['holidays', 'paginated', page, limit],
+    queryFn: async () => {
+      const response = await api.get('/holiday/get-all-holidays', {
+        params: { page, limit },
+      });
+      return response.data?.data || { holidays: [], pagination: {} };
     },
   });
 
@@ -60,6 +75,31 @@ const HolidaysPage = () => {
   const holidaysList = useMemo(() => {
     return events.filter(e => e.type === 'holiday');
   }, [events]);
+
+  const paginatedHolidaysList = useMemo(() => {
+    if (!paginatedResponse?.holidays) return [];
+    return paginatedResponse.holidays.map(h => {
+      const formattedDate = h.holiday_date ? h.holiday_date.split('T')[0] : '';
+      return {
+        id: h.holiday_id,
+        date: formattedDate,
+        type: 'holiday',
+        label: h.holiday_name,
+        holidayType: h.holiday_type
+      };
+    });
+  }, [paginatedResponse]);
+
+  const paginationMeta = useMemo(() => {
+    return paginatedResponse?.pagination || {
+      currentPage: 1,
+      limit: 5,
+      totalItems: 0,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPreviousPage: false
+    };
+  }, [paginatedResponse]);
 
   const handleSelectDate = (dateStr) => {
     if (selectedDate === dateStr) {
@@ -102,6 +142,10 @@ const HolidaysPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['holidays'] });
       toast.success('Holiday deleted successfully!');
+      // Ensure we reset page if the page becomes empty
+      if (paginatedHolidaysList.length === 1 && page > 1) {
+        setPage(prev => prev - 1);
+      }
     },
     onError: (err) => {
       const errorMsg = err.response?.data?.message || 'Failed to delete holiday!';
@@ -198,6 +242,7 @@ const HolidaysPage = () => {
             selectedDate={selectedDate}
             setSelectedDate={handleSelectDate}
             eventsMap={eventsMap}
+            isLoading={isAllHolidaysLoading}
           />
           <CalendarLegend />
         </div>
@@ -207,14 +252,21 @@ const HolidaysPage = () => {
           <MonthStats
             currentDate={currentDate}
             events={events}
+            isLoading={isAllHolidaysLoading}
           />
         </div>
       </div>
 
       {/* Corporate Holidays Table */}
       <HolidaysTable
-        holidays={holidaysList}
+        holidays={paginatedHolidaysList}
         onDeleteHoliday={canManageHolidays ? handleDeleteHoliday : undefined}
+        pagination={paginationMeta}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
+        isLoading={isPaginatedLoading}
       />
 
       {/* Pop-up Modals */}

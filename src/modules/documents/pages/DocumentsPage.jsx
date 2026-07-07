@@ -1,11 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   Folder,
-  FileText,
   Upload,
   Download,
   Trash2,
@@ -18,10 +17,11 @@ import {
   Plus,
   Loader2,
   AlertTriangle,
-  User,
   X,
   ArrowUpDown,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import api from '../../../services/api';
 import { selectUser } from '../../../store/slices/authSlice';
@@ -87,15 +87,37 @@ const DocumentsPage = () => {
     }
   });
 
+  // Pagination states for all-documents
+  const [docsPage, setDocsPage] = useState(1);
+  const [docsLimit, setDocsLimit] = useState(10);
+
   // 2. Get all documents (only enabled if user has view permission)
-  const { data: allDocs = [], isLoading: allDocsLoading } = useQuery({
-    queryKey: ['all-documents'],
+  const { data: allDocsResponse, isLoading: allDocsLoading } = useQuery({
+    queryKey: ['all-documents', docsPage, docsLimit, searchQuery, statusFilter, typeFilter],
     queryFn: async () => {
-      const response = await api.get('/documents/all-documents');
-      return response.data?.data?.documents || [];
+      const response = await api.get('/documents/all-documents', {
+        params: {
+          page: docsPage,
+          limit: docsLimit,
+          search: searchQuery,
+          status: statusFilter,
+          type: typeFilter
+        }
+      });
+      return response.data?.data || { documents: [], pagination: {} };
     },
     enabled: !!canViewAll
   });
+
+  const allDocs = useMemo(() => allDocsResponse?.documents || [], [allDocsResponse]);
+  const paginationMeta = allDocsResponse?.pagination || {
+    currentPage: 1,
+    limit: 10,
+    totalItems: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
+  };
 
   // 3. Get employees (only enabled if user can upload documents)
   const { data: employees = [] } = useQuery({
@@ -215,30 +237,6 @@ const DocumentsPage = () => {
   const filteredAllDocs = useMemo(() => {
     let result = [...allDocs];
 
-    // Search query filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (doc) =>
-          doc.document_number?.toLowerCase().includes(q) ||
-          doc.document_name?.toLowerCase().includes(q) ||
-          doc.document_type?.toLowerCase().includes(q) ||
-          doc.employee?.first_name?.toLowerCase().includes(q) ||
-          doc.employee?.last_name?.toLowerCase().includes(q) ||
-          doc.employee?.empCode?.toLowerCase().includes(q)
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      result = result.filter((doc) => doc.verification_status === statusFilter);
-    }
-
-    // Type filter
-    if (typeFilter !== 'all') {
-      result = result.filter((doc) => doc.document_type === typeFilter);
-    }
-
     // Sorting
     result.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
@@ -247,7 +245,9 @@ const DocumentsPage = () => {
     });
 
     return result;
-  }, [allDocs, searchQuery, statusFilter, typeFilter, sortOrder]);
+  }, [allDocs, sortOrder]);
+
+
 
   // Clean form states
   const closeUploadModal = () => {
@@ -267,7 +267,7 @@ const DocumentsPage = () => {
     }
 
     // Target employee ID falls back to self if not HR/admin
-    const targetEmpId = canUpload ? (uploadEmpId || currentUser?.emp_id) : currentUser?.emp_id;
+    const targetEmpId = (canUpload && activeTab === 'all-docs') ? (uploadEmpId || currentUser?.emp_id) : currentUser?.emp_id;
 
     if (!targetEmpId) {
       toast.error('Target employee is required.');
@@ -335,8 +335,8 @@ const DocumentsPage = () => {
           <p className="text-sm text-slate-500 dark:text-slate-400">Access corporate policies, contracts, and manage personal identity documents.</p>
         </div>
 
-        {/* Only show Upload button if user has permission */}
-        {canUpload && (
+        {/* Show Upload button if user has permission OR if they are on 'my-docs' tab */}
+        {(canUpload || activeTab === 'my-docs') && (
           <button
             onClick={() => {
               setUploadEmpId(currentUser?.emp_id);
@@ -410,13 +410,12 @@ const DocumentsPage = () => {
                           <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">{type.label}</h3>
                           {userDoc ? (
                             <span
-                              className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                                userDoc.verification_status === 'verified'
+                              className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${userDoc.verification_status === 'verified'
                                   ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/40'
                                   : userDoc.verification_status === 'rejected'
                                     ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/40'
                                     : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/40'
-                              }`}
+                                }`}
                             >
                               {userDoc.verification_status === 'verified' && <CheckCircle2 size={10} />}
                               {userDoc.verification_status === 'rejected' && <XCircle size={10} />}
@@ -528,7 +527,7 @@ const DocumentsPage = () => {
                   type="text"
                   placeholder="Search by employee, code, doc type..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setDocsPage(1); }}
                   className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm font-medium focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-800 dark:text-slate-200 transition-all placeholder:text-slate-400 bg-slate-50/30 dark:bg-slate-950/40"
                 />
               </div>
@@ -538,7 +537,7 @@ const DocumentsPage = () => {
                   <Filter size={14} className="text-slate-400" />
                   <select
                     value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
+                    onChange={(e) => { setTypeFilter(e.target.value); setDocsPage(1); }}
                     className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent border-none outline-none cursor-pointer dark:bg-slate-900"
                   >
                     <option value="all" className="dark:bg-slate-900 dark:text-slate-100">All Document Types</option>
@@ -552,7 +551,7 @@ const DocumentsPage = () => {
                   <Clock size={14} className="text-slate-400" />
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    onChange={(e) => { setStatusFilter(e.target.value); setDocsPage(1); }}
                     className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent border-none outline-none cursor-pointer dark:bg-slate-900"
                   >
                     <option value="all" className="dark:bg-slate-900 dark:text-slate-100">All Verification Statuses</option>
@@ -574,9 +573,56 @@ const DocumentsPage = () => {
 
             {/* Document listings table */}
             {allDocsLoading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
-                <Loader2 className="animate-spin text-indigo-600" size={32} />
-                <span className="text-sm font-medium">Fetching all employee documents...</span>
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200 animate-pulse">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                        <th className="py-4 px-6 w-3/12 min-w-[180px]">Employee</th>
+                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Document Info</th>
+                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Uploaded Details</th>
+                        <th className="py-4 px-6 w-1/12 min-w-[100px]">Status</th>
+                        <th className="py-4 px-6 text-right w-2/12 min-w-[120px]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60">
+                      {Array.from({ length: docsLimit || 5 }).map((_, idx) => (
+                        <tr key={idx}>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800" />
+                              <div className="space-y-1.5">
+                                <div className="w-24 h-3 rounded bg-slate-200 dark:bg-slate-800" />
+                                <div className="w-32 h-2.5 rounded bg-slate-200 dark:bg-slate-800" />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="space-y-1.5">
+                              <div className="w-28 h-3 rounded bg-slate-200 dark:bg-slate-800" />
+                              <div className="w-16 h-2.5 rounded bg-slate-200 dark:bg-slate-800" />
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="space-y-1.5">
+                              <div className="w-20 h-3 rounded bg-slate-200 dark:bg-slate-800" />
+                              <div className="w-24 h-2.5 rounded bg-slate-200 dark:bg-slate-800" />
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="w-16 h-5 rounded-full bg-slate-200 dark:bg-slate-800" />
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex justify-end gap-2">
+                              <div className="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800" />
+                              <div className="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800" />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             ) : filteredAllDocs.length === 0 ? (
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-12 text-center flex flex-col items-center justify-center transition-colors">
@@ -590,11 +636,11 @@ const DocumentsPage = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <th className="py-4 px-6">Employee</th>
-                        <th className="py-4 px-6">Document Info</th>
-                        <th className="py-4 px-6">Uploaded Details</th>
-                        <th className="py-4 px-6">Status</th>
-                        <th className="py-4 px-6 text-right">Actions</th>
+                        <th className="py-4 px-6 w-3/12 min-w-[180px]">Employee</th>
+                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Document Info</th>
+                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Uploaded Details</th>
+                        <th className="py-4 px-6 w-1/12 min-w-[100px]">Status</th>
+                        <th className="py-4 px-6 text-right w-2/12 min-w-[120px]">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60 text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -618,7 +664,7 @@ const DocumentsPage = () => {
                                   <span className="font-semibold text-slate-800 dark:text-slate-100 block text-xs">
                                     {doc.employee?.first_name} {doc.employee?.last_name}
                                   </span>
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-bold uppercase">
+                                  <span className="text-[10px] text-slate-400 dark:text-slate-550 block font-bold uppercase">
                                     {doc.employee?.empCode || 'N/A'} • {doc.employee?.email}
                                   </span>
                                 </div>
@@ -646,7 +692,7 @@ const DocumentsPage = () => {
                                   })}
                                 </span>
                                 {doc.uploader && (
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
+                                  <span className="text-[10px] text-slate-400 dark:text-slate-550 block">
                                     By: {doc.uploader.first_name} {doc.uploader.last_name}
                                   </span>
                                 )}
@@ -655,13 +701,12 @@ const DocumentsPage = () => {
                             <td className="py-4 px-6">
                               <div className="flex flex-col items-start gap-1">
                                 <span
-                                  className={`flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                                    doc.verification_status === 'verified'
+                                  className={`flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${doc.verification_status === 'verified'
                                       ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/40'
                                       : doc.verification_status === 'rejected'
                                         ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/40'
                                         : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/40'
-                                  }`}
+                                    }`}
                                 >
                                   {doc.verification_status === 'verified' && <CheckCircle2 size={10} />}
                                   {doc.verification_status === 'rejected' && <XCircle size={10} />}
@@ -723,6 +768,74 @@ const DocumentsPage = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Premium Pagination Footer */}
+                {paginationMeta && paginationMeta.totalItems > 0 && (
+                  <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/20 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 transition-colors">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                      Showing <span className="font-bold text-slate-800 dark:text-slate-200">{Math.min((docsPage - 1) * docsLimit + 1, paginationMeta.totalItems)}</span> to{' '}
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{Math.min(docsPage * docsLimit, paginationMeta.totalItems)}</span> of{' '}
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{paginationMeta.totalItems}</span> documents
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Per Page</span>
+                        <select
+                          value={docsLimit}
+                          onChange={(e) => {
+                            setDocsLimit(Number(e.target.value));
+                            setDocsPage(1);
+                          }}
+                          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all cursor-pointer shadow-sm"
+                        >
+                          {[5, 10, 20, 50].map((size) => (
+                            <option key={size} value={size}>
+                              {size} rows
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setDocsPage(docsPage - 1)}
+                          disabled={!paginationMeta.hasPreviousPage}
+                          className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
+                          title="Previous Page"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+
+                        {Array.from({ length: paginationMeta.totalPages }, (_, index) => {
+                          const pageNum = index + 1;
+                          const isSelected = pageNum === docsPage;
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setDocsPage(pageNum)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${isSelected
+                                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/10'
+                                  : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
+                                }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+
+                        <button
+                          onClick={() => setDocsPage(docsPage + 1)}
+                          disabled={!paginationMeta.hasNextPage}
+                          className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
+                          title="Next Page"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>
@@ -748,8 +861,8 @@ const DocumentsPage = () => {
               </div>
 
               <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
-                {/* Employee Selector (HR/Admin only) */}
-                {canUpload ? (
+                {/* Employee Selector (HR/Admin only and only when on all-docs tab) */}
+                {canUpload && activeTab === 'all-docs' ? (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Employee *</label>
                     <select
@@ -823,11 +936,10 @@ const DocumentsPage = () => {
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-2xl p-5 text-center flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${
-                      isDragging
+                    className={`border-2 border-dashed rounded-2xl p-5 text-center flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${isDragging
                         ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20'
                         : 'border-slate-200 dark:border-slate-800 hover:border-indigo-300 bg-slate-50/30 dark:bg-slate-950/10'
-                    }`}
+                      }`}
                   >
                     <label className="flex flex-col items-center gap-1.5 w-full h-full cursor-pointer">
                       <FileSpreadsheet size={32} className="text-indigo-500 mb-1" />
@@ -949,11 +1061,10 @@ const DocumentsPage = () => {
                     <button
                       type="button"
                       onClick={() => setVerifyStatus('verified')}
-                      className={`py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        verifyStatus === 'verified'
+                      className={`py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${verifyStatus === 'verified'
                           ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-400 shadow-xs'
                           : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'
-                      }`}
+                        }`}
                     >
                       <CheckCircle2 size={14} />
                       <span>Approve / Verify</span>
@@ -961,11 +1072,10 @@ const DocumentsPage = () => {
                     <button
                       type="button"
                       onClick={() => setVerifyStatus('rejected')}
-                      className={`py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        verifyStatus === 'rejected'
+                      className={`py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${verifyStatus === 'rejected'
                           ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-400 shadow-xs'
                           : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'
-                      }`}
+                        }`}
                     >
                       <XCircle size={14} />
                       <span>Reject</span>

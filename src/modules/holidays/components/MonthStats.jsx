@@ -1,6 +1,32 @@
 import { CheckSquare, Calendar, Coffee, FileText, Users } from 'lucide-react';
 
-const MonthStats = ({ currentDate, events }) => {
+const MonthStats = ({ currentDate, events, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-5 h-full transition-colors duration-200 animate-pulse">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-3 text-left">
+          <div className="w-36 h-5 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="w-24 h-3 bg-slate-200 dark:bg-slate-800 rounded mt-2" />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="flex justify-between items-center p-3.5 rounded-2xl border border-slate-50 dark:border-slate-800"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800" />
+                <div className="w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="w-6 h-5 bg-slate-200 dark:bg-slate-800 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 

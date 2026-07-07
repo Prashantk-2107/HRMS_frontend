@@ -63,15 +63,6 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.PAYROLL} />,
-            children: [
-              {
-                path: '/bank-accounts',
-                element: <BankAccountsPage />
-              }
-            ]
-          },
-          {
             element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.HOLIDAYS} />,
             children: [
               {
@@ -110,6 +101,10 @@ export const routes = [
           {
             path: '/documents',
             element: <DocumentsPage />
+          },
+          {
+            path: '/bank-accounts',
+            element: <BankAccountsPage />
           },
           {
             path: '/apps',
