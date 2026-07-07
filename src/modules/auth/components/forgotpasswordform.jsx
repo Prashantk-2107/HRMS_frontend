@@ -59,6 +59,7 @@ const ForgotPasswordForm = () => {
   const handleEmailSubmit = async (formData) => {
     const { email } = formData;
     setLoading(true);
+    const toastId = toast.loading('Sending verification code...');
     try {
       // API call to request reset OTP
       const response = await api.post(AUTH_ENDPOINTS.SEND_OTP, { email, purpose: 'forget_password' });
@@ -71,23 +72,23 @@ const ForgotPasswordForm = () => {
         if (token) {
           setTempToken(token);
         }
-        toast.success('Verification code sent to your email.');
+        toast.success('Verification code sent to your email.', { id: toastId });
         setDirection(1);
         setStep(2);
       } else {
-        toast.error(response.data?.message || 'Failed to send verification code.');
+        toast.error(response.data?.message || 'Failed to send verification code.', { id: toastId });
       }
     } catch (error) {
       console.warn('API connection failed, activating fallback demo mode.', error);
       // Fallback for development/testing when backend endpoint is not yet ready
       if (error.response?.status === 404 || !error.response) {
-        toast.success('Verification code sent! (Demo Mode)');
+        toast.success('Verification code sent! (Demo Mode)', { id: toastId });
         setTempToken('demo-temp-token-uuid');
         console.log('Using demo tempToken: demo-temp-token-uuid');
         setDirection(1);
         setStep(2);
       } else {
-        toast.error(error.response?.data?.message || 'Something went wrong.');
+        toast.error(error.response?.data?.message || 'Something went wrong.', { id: toastId });
       }
     } finally {
       setLoading(false);
@@ -137,6 +138,7 @@ const ForgotPasswordForm = () => {
     }
 
     setLoading(true);
+    const toastId = toast.loading('Verifying OTP...');
     try {
       console.log("Otp is ", otpCode)
       console.log("tempToken is ", tempToken)
@@ -156,20 +158,20 @@ const ForgotPasswordForm = () => {
         if (token) {
           setTempToken(token);
         }
-        toast.success('OTP verified successfully!');
+        toast.success('OTP verified successfully!', { id: toastId });
         setDirection(1);
         setStep(3);
       } else {
-        toast.error(response.data?.message || 'Invalid verification code.');
+        toast.error(response.data?.message || 'Invalid verification code.', { id: toastId });
       }
     } catch (error) {
       console.warn('API verification failed, activating fallback demo mode.', error);
       if (error.response?.status === 404 || !error.response) {
-        toast.success('OTP verified! (Demo Mode)');
+        toast.success('OTP verified! (Demo Mode)', { id: toastId });
         setDirection(1);
         setStep(3);
       } else {
-        toast.error(error.response?.data?.message || 'Verification failed.');
+        toast.error(error.response?.data?.message || 'Verification failed.', { id: toastId });
       }
     } finally {
       setLoading(false);
@@ -180,6 +182,7 @@ const ForgotPasswordForm = () => {
   const handlePasswordSubmit = async (formData) => {
     const { newPassword } = formData;
     setLoading(true);
+    const toastId = toast.loading('Resetting password...');
     try {
       const response = await api.post(AUTH_ENDPOINTS.FORGOT_PASSWORD, {
         email: emailValue,
@@ -189,20 +192,20 @@ const ForgotPasswordForm = () => {
       console.log('Reset Password API Response:', response.data);
 
       if (response.data?.success) {
-        toast.success('Password changed successfully!');
+        toast.success('Password changed successfully!', { id: toastId });
         setDirection(1);
         setStep(4);
       } else {
-        toast.error(response.data?.message || 'Failed to change password.');
+        toast.error(response.data?.message || 'Failed to change password.', { id: toastId });
       }
     } catch (error) {
       console.warn('API reset failed, activating fallback demo mode.', error);
       if (error.response?.status === 404 || !error.response) {
-        toast.success('Password changed! (Demo Mode)');
+        toast.success('Password changed! (Demo Mode)', { id: toastId });
         setDirection(1);
         setStep(4);
       } else {
-        toast.error(error.response?.data?.message || 'Failed to update password.');
+        toast.error(error.response?.data?.message || 'Failed to update password.', { id: toastId });
       }
     } finally {
       setLoading(false);

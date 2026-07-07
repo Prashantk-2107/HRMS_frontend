@@ -61,13 +61,17 @@ const BankAccountsPage = () => {
       const response = await api.post(BANK_DETAILS_ENDPOINTS.ADD_MY, payload);
       return response.data;
     },
-    onSuccess: () => {
-      toast.success('Bank details linked successfully!');
+    onMutate: () => {
+      const toastId = toast.loading('Linking bank details...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success('Bank details linked successfully!', { id: context.toastId });
       refetch();
       closeAddModal();
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to link bank details');
+    onError: (err, variables, context) => {
+      toast.error(err.response?.data?.message || 'Failed to link bank details', { id: context.toastId });
     }
   });
 
@@ -77,13 +81,17 @@ const BankAccountsPage = () => {
       const response = await api.patch(BANK_DETAILS_ENDPOINTS.UPDATE_MY(id), payload);
       return response.data;
     },
-    onSuccess: () => {
-      toast.success('Bank details updated successfully!');
+    onMutate: () => {
+      const toastId = toast.loading('Updating bank details...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success('Bank details updated successfully!', { id: context.toastId });
       refetch();
       closeEditModal();
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to update bank details');
+    onError: (err, variables, context) => {
+      toast.error(err.response?.data?.message || 'Failed to update bank details', { id: context.toastId });
     }
   });
 
@@ -93,12 +101,16 @@ const BankAccountsPage = () => {
       const response = await api.delete(`/bank-details/delete-bank-details/${id}`);
       return response.data;
     },
-    onSuccess: () => {
-      toast.success('Bank account removed successfully!');
+    onMutate: () => {
+      const toastId = toast.loading('Removing bank account...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success('Bank account removed successfully!', { id: context.toastId });
       refetch();
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to remove bank account');
+    onError: (err, variables, context) => {
+      toast.error(err.response?.data?.message || 'Failed to remove bank account', { id: context.toastId });
     }
   });
 

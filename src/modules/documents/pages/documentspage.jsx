@@ -140,15 +140,19 @@ const DocumentsPage = () => {
       });
       return response.data;
     },
-    onSuccess: (data) => {
-      toast.success(data?.message || 'Document uploaded successfully!');
+    onMutate: () => {
+      const toastId = toast.loading('Uploading document...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success(data?.message || 'Document uploaded successfully!', { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ['my-documents'] });
       queryClient.invalidateQueries({ queryKey: ['all-documents'] });
       closeUploadModal();
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
       const errorMsg = err.response?.data?.message || 'Upload failed. Please try again.';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: context.toastId });
     }
   });
 
@@ -161,17 +165,21 @@ const DocumentsPage = () => {
       });
       return response.data;
     },
-    onSuccess: (data) => {
-      toast.success(data?.message || 'Verification status updated successfully!');
+    onMutate: () => {
+      const toastId = toast.loading('Updating verification status...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success(data?.message || 'Verification status updated successfully!', { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ['all-documents'] });
       queryClient.invalidateQueries({ queryKey: ['my-documents'] });
       setIsVerifyOpen(false);
       setSelectedDocToVerify(null);
       setRejectionReason('');
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
       const errorMsg = err.response?.data?.message || 'Failed to update verification status.';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: context.toastId });
     }
   });
 
@@ -181,15 +189,19 @@ const DocumentsPage = () => {
       const response = await api.delete(`/documents/delete/${document_id}`);
       return response.data;
     },
-    onSuccess: (data) => {
-      toast.success(data?.message || 'Document deleted successfully!');
+    onMutate: () => {
+      const toastId = toast.loading('Deleting document...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success(data?.message || 'Document deleted successfully!', { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ['all-documents'] });
       queryClient.invalidateQueries({ queryKey: ['my-documents'] });
       setDocToDelete(null);
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
       const errorMsg = err.response?.data?.message || 'Failed to delete document.';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: context.toastId });
     }
   });
 

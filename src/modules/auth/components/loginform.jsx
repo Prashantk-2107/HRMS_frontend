@@ -23,6 +23,7 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data) => {
+    const toastId = toast.loading('Logging in...');
     try {
       const response = await api.post(AUTH_ENDPOINTS.LOGIN, {
         email: data.identifier,
@@ -62,14 +63,14 @@ const LoginForm = () => {
           console.error('Failed to fetch permissions upon login:', permError);
         }
 
-        toast.success('Logged in successfully!');
+        toast.success('Logged in successfully!', { id: toastId });
         navigate('/dashboard');
       } else {
-        toast.error(response?.data?.message || 'Login failed');
+        toast.error(response?.data?.message || 'Login failed', { id: toastId });
       }
     } catch (error) {
       console.error('Login Error:', error);
-      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.');
+      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.', { id: toastId });
     }
   };
 

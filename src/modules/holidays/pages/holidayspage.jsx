@@ -116,9 +116,13 @@ const HolidaysPage = () => {
       const response = await api.post('/holiday/create-holiday', payload);
       return response.data?.data;
     },
-    onSuccess: (data) => {
+    onMutate: () => {
+      const toastId = toast.loading('Adding holiday...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['holidays'] });
-      toast.success('Holiday added successfully!');
+      toast.success('Holiday added successfully!', { id: context.toastId });
 
       const holiday = data?.holiday || data;
       if (holiday?.holiday_date) {
@@ -128,9 +132,9 @@ const HolidaysPage = () => {
       }
       setIsDetailsOpen(true); // Open event details popup
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
       const errorMsg = err.response?.data?.message || 'Failed to add holiday!';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: context.toastId });
     }
   });
 
@@ -139,17 +143,21 @@ const HolidaysPage = () => {
     mutationFn: async (holidayId) => {
       await api.delete(`/holiday/delete-holiday/${holidayId}`);
     },
-    onSuccess: () => {
+    onMutate: () => {
+      const toastId = toast.loading('Deleting holiday...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['holidays'] });
-      toast.success('Holiday deleted successfully!');
+      toast.success('Holiday deleted successfully!', { id: context.toastId });
       // Ensure we reset page if the page becomes empty
       if (paginatedHolidaysList.length === 1 && page > 1) {
         setPage(prev => prev - 1);
       }
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
       const errorMsg = err.response?.data?.message || 'Failed to delete holiday!';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: context.toastId });
     }
   });
 
@@ -178,17 +186,21 @@ const HolidaysPage = () => {
       const response = await api.post('/holiday/mark-weekends', payload);
       return response.data?.data?.holidays || [];
     },
-    onSuccess: (holidays) => {
+    onMutate: () => {
+      const toastId = toast.loading('Registering weekend holidays...');
+      return { toastId };
+    },
+    onSuccess: (holidays, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['holidays'] });
       if (holidays.length === 0) {
-        toast.success('All weekends in this month are already marked!');
+        toast.success('All weekends in this month are already marked!', { id: context.toastId });
       } else {
-        toast.success(`${holidays.length} weekend holidays registered successfully!`);
+        toast.success(`${holidays.length} weekend holidays registered successfully!`, { id: context.toastId });
       }
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
       const errorMsg = err.response?.data?.message || 'Failed to register weekend holidays!';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: context.toastId });
     }
   });
 

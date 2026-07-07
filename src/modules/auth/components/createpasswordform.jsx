@@ -35,6 +35,7 @@ const CreatePasswordForm = () => {
     }
 
     setIsSubmitting(true);
+    const toastId = toast.loading('Setting up your password...');
     try {
       const response = await api.post(AUTH_ENDPOINTS.CREATE_PASSWORD, {
         email,
@@ -43,14 +44,14 @@ const CreatePasswordForm = () => {
       });
 
       if (response.data.success || response.status === 200) {
-        toast.success('Password set up successfully! You can now log in.');
+        toast.success('Password set up successfully! You can now log in.', { id: toastId });
         navigate('/login');
       } else {
-        toast.error(response.data?.message || 'Failed to set up password');
+        toast.error(response.data?.message || 'Failed to set up password', { id: toastId });
       }
     } catch (error) {
       console.error('Password Setup Error:', error);
-      toast.error(error.response?.data?.message || 'Failed to set up password. Link may be invalid or expired.');
+      toast.error(error.response?.data?.message || 'Failed to set up password. Link may be invalid or expired.', { id: toastId });
     } finally {
       setIsSubmitting(false);
     }

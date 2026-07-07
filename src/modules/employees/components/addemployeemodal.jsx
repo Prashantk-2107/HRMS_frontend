@@ -123,6 +123,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
 
     try {
       setSubmitting(true);
+      const toastId = toast.loading('Creating employee profile...');
 
       const payload = {
         email: formData.email.trim().toLowerCase(),
@@ -142,13 +143,13 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
 
       const response = await api.post(EMPLOYEE_ENDPOINTS.CREATE, payload);
       if (response.status === 201 || response.status === 200) {
-        toast.success(response.data?.message || 'Employee created successfully');
+        toast.success(response.data?.message || 'Employee created successfully', { id: toastId });
         onSuccess();
         onClose();
       }
     } catch (err) {
       console.error('Error creating employee:', err);
-      toast.error(err.response?.data?.message || 'Failed to create employee. Please try again.');
+      toast.error(err.response?.data?.message || 'Failed to create employee. Please try again.', { id: toastId });
     } finally {
       setSubmitting(false);
     }
