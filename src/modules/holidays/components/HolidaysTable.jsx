@@ -66,12 +66,12 @@ const HolidaysTable = ({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80">
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Day</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Holiday Name</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider w-3/12 min-w-[160px]">Date</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider w-2/12 min-w-[100px]">Day</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider w-4/12 min-w-[180px]">Holiday Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider w-2/12 min-w-[120px]">Category</th>
                 {onDeleteHoliday && (
-                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Action</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider text-right w-1/12 min-w-[80px]">Action</th>
                 )}
               </tr>
             </thead>
@@ -154,12 +154,12 @@ const HolidaysTable = ({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80">
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Day</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Holiday Name</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-3/12 min-w-[160px]">Date</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-2/12 min-w-[100px]">Day</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-4/12 min-w-[180px]">Holiday Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-2/12 min-w-[120px]">Category</th>
                 {onDeleteHoliday && (
-                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider text-right w-1/12 min-w-[80px]">Action</th>
                 )}
               </tr>
             </thead>

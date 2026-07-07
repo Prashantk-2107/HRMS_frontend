@@ -35,3 +35,9 @@ export const ROLE_ENDPOINTS = {
   CREATE: '/role/create-role',
   DELETE: (roleId) => `/role/delete-role/${roleId}`,
 };
+
+export const BANK_DETAILS_ENDPOINTS = {
+  GET_MY: '/bank-details/my-bank-details',
+  ADD_MY: '/bank-details/add-my-bank-details',
+  UPDATE_MY: (id) => `/bank-details/update-my-bank-details/${id}`,
+};

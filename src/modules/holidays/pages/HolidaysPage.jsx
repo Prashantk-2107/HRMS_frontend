@@ -26,7 +26,7 @@ const HolidaysPage = () => {
 
   // Pagination state for holidays list table
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(10);
 
   // Fetch all holidays using TanStack Query (for calendar & monthly stats)
   const { data: holidaysData, isLoading: isAllHolidaysLoading } = useQuery({

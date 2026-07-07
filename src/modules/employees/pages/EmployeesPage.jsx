@@ -21,8 +21,10 @@ const EmployeesPage = () => {
     PERMISSIONS.EMP_UPDATE,
     PERMISSIONS.EMP_DELETE
   ]);
+  const [allEmployees, setAllEmployees] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,22 +37,56 @@ const EmployeesPage = () => {
   const [selectedEditEmployeeId, setSelectedEditEmployeeId] = useState(null);
   const [statusConfirmEmployee, setStatusConfirmEmployee] = useState(null);
 
-  const fetchEmployees = async () => {
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [paginationMeta, setPaginationMeta] = useState({
+    currentPage: 1,
+    limit: 10,
+    totalItems: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
+  const fetchAllEmployees = async () => {
     try {
-      setLoading(true);
-      setError(null);
       const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
       if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
-        setEmployees(response.data.data.employees);
-      } else {
-        setEmployees([]);
+        setAllEmployees(response.data.data.employees);
       }
     } catch (err) {
-      console.error('Error fetching employees:', err);
-      setError(err.response?.data?.message || 'Failed to fetch employees. Please try again.');
+      console.error('Error fetching all employees:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPaginatedEmployees = async (currentPage = page, currentLimit = limit, searchVal = searchTerm) => {
+    try {
+      setIsTableLoading(true);
+      setError(null);
+      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST, {
+        params: { page: currentPage, limit: currentLimit, search: searchVal },
+      });
+      if (response.data && response.data.data) {
+        setEmployees(response.data.data.employees || []);
+        if (response.data.data.pagination) {
+          setPaginationMeta(response.data.data.pagination);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching paginated employees:', err);
+      setError(err.response?.data?.message || 'Failed to fetch employees. Please try again.');
+    } finally {
+      setIsTableLoading(false);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    setLoading(true);
+    await Promise.all([fetchAllEmployees(), fetchPaginatedEmployees(page, limit, searchTerm)]);
+    setLoading(false);
   };
 
   const handleDeleteClick = (emp) => {
@@ -132,34 +168,27 @@ const EmployeesPage = () => {
   };
 
   useEffect(() => {
-    fetchEmployees();
+    fetchAllEmployees();
   }, []);
 
-  // Sort by empCode alphanumeric ascending, then filter based on search term
-  const sortedAndFilteredEmployees = [...employees]
-    .sort((a, b) => {
-      const codeA = a.empCode || '';
-      const codeB = b.empCode || '';
-      return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
-    })
-    .filter((emp) => {
-      const term = searchTerm.toLowerCase();
-      const fullName = `${emp.first_name || ''} ${emp.last_name || ''}`.toLowerCase();
-      const id = (emp.empCode || emp.emp_id || '').toLowerCase();
-      const role = (emp.role?.name || '').toLowerCase();
-      const email = (emp.email || '').toLowerCase();
-      return (
-        fullName.includes(term) ||
-        id.includes(term) ||
-        role.includes(term) ||
-        email.includes(term)
-      );
-    });
+  useEffect(() => {
+    fetchPaginatedEmployees(page, limit, searchTerm);
+  }, [page, limit]);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setPage(1);
+      fetchPaginatedEmployees(1, limit, searchTerm);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  const sortedAndFilteredEmployees = employees;
 
   // Calculate stats dynamically
-  const totalStaff = employees.length;
-  const activeStaff = employees.filter((emp) => emp.employee_status === 'active').length;
-  const inactiveStaff = employees.filter((emp) => emp.employee_status === 'in_active').length;
+  const totalStaff = allEmployees.length;
+  const activeStaff = allEmployees.filter((emp) => emp.employee_status === 'active').length;
+  const inactiveStaff = allEmployees.filter((emp) => emp.employee_status === 'in_active').length;
 
   if (!canView) {
     return (
@@ -230,7 +259,7 @@ const EmployeesPage = () => {
 
       {/* Staff Roster Table */}
       <EmployeeTable
-        loading={loading}
+        loading={loading || isTableLoading}
         error={error}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -241,6 +270,11 @@ const EmployeesPage = () => {
         onEditClick={handleEditClick}
         onStatusClick={handleStatusClick}
         onResendSetupClick={handleResendSetupClick}
+        pagination={paginationMeta}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
       />
 
       {/* Add Employee Modal */}

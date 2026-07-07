@@ -75,12 +75,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     //   icon: CalendarCheck,
     //   permissions: SIDEBAR_PERMISSIONS.ATTENDANCE,
     // },
-    // {
-    //   name: 'Payroll',
-    //   path: '/bank-accounts',
-    //   icon: CircleDollarSign,
-    //   permissions: SIDEBAR_PERMISSIONS.PAYROLL,
-    // },
+    {
+      name: 'Bank Details',
+      path: '/bank-accounts',
+      icon: CircleDollarSign,
+    },
     // {
     //   name: 'Leaves',
     //   path: '/leaves',

@@ -1,10 +1,27 @@
 import React from 'react';
-import { Search, Trash2, Eye, Pencil, Mail } from 'lucide-react';
+import { Search, Trash2, Eye, Pencil, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { usePermission } from '../../../hooks/usePermission';
 import { PERMISSIONS } from '../../../constants/permissions';
 
-const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, isDeleteMode, onDeleteClick, onViewClick, onEditClick, onStatusClick, onResendSetupClick }) => {
+const EmployeeTable = ({
+  loading,
+  error,
+  searchTerm,
+  setSearchTerm,
+  employees,
+  isDeleteMode,
+  onDeleteClick,
+  onViewClick,
+  onEditClick,
+  onStatusClick,
+  onResendSetupClick,
+  pagination,
+  page,
+  limit,
+  onPageChange,
+  onLimitChange,
+}) => {
   const { hasPermission } = usePermission();
   const canView = hasPermission(PERMISSIONS.EMP_VIEW_ANY);
   const canEdit = hasPermission(PERMISSIONS.EMP_UPDATE);
@@ -12,6 +29,46 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
   const canResend = hasPermission(PERMISSIONS.EMP_CREATE);
 
   const showActionColumn = canView || canEdit || (canDelete && isDeleteMode) || canResend;
+
+  const getPageNumbers = () => {
+    if (!pagination) return [];
+    const totalPages = pagination.totalPages;
+    const currentPage = page;
+    const pageLimit = 5;
+
+    if (totalPages <= pageLimit) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages = [];
+    pages.push(1);
+
+    let start = Math.max(2, currentPage - 1);
+    let end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (currentPage <= 3) {
+      end = 4;
+    } else if (currentPage >= totalPages - 2) {
+      start = totalPages - 3;
+    }
+
+    if (start > 2) {
+      pages.push('...');
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < totalPages - 1) {
+      pages.push('...');
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  };
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
       {/* Search header inside panel */}
@@ -34,19 +91,19 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80">
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-1/12 min-w-[80px]">ID</th>
+              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-3/12 min-w-[150px]">Name</th>
+              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-3/12 min-w-[180px]">Email</th>
+              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-2/12 min-w-[120px]">Role</th>
+              <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider w-1/12 min-w-[100px]">Status</th>
               {showActionColumn && (
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider text-right w-2/12 min-w-[120px]">Actions</th>
               )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
             {loading ? (
-              Array.from({ length: 4 }).map((_, idx) => (
+              Array.from({ length: limit || 5 }).map((_, idx) => (
                 <tr key={idx} className="animate-pulse">
                   <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div></td>
                   <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32"></div></td>
@@ -163,6 +220,88 @@ const EmployeeTable = ({ loading, error, searchTerm, setSearchTerm, employees, i
           </tbody>
         </table>
       </div>
+
+      {/* Premium Pagination Footer */}
+      {pagination && pagination.totalItems > 0 && (
+        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/20 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 transition-colors">
+          {/* Items range message */}
+          <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+            Showing <span className="font-bold text-slate-800 dark:text-slate-200">{Math.min((page - 1) * limit + 1, pagination.totalItems)}</span> to{' '}
+            <span className="font-bold text-slate-800 dark:text-slate-200">{Math.min(page * limit, pagination.totalItems)}</span> of{' '}
+            <span className="font-bold text-slate-800 dark:text-slate-200">{pagination.totalItems}</span> employees
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            {/* Limit selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Per Page</span>
+              <select
+                value={limit}
+                onChange={(e) => {
+                  onLimitChange(Number(e.target.value));
+                  onPageChange(1); // Reset to page 1
+                }}
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all cursor-pointer shadow-sm"
+              >
+                {[5, 10, 20, 50].map((size) => (
+                  <option key={size} value={size}>
+                    {size} rows
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Page buttons */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onPageChange(page - 1)}
+                disabled={!pagination.hasPreviousPage}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
+                title="Previous Page"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              {/* Generate Page Number Buttons */}
+              {getPageNumbers().map((pageNum, index) => {
+                if (pageNum === '...') {
+                  return (
+                    <span
+                      key={`ellipsis-${index}`}
+                      className="px-2 py-1.5 text-xs font-semibold text-slate-400 dark:text-slate-500 select-none"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+                const isSelected = pageNum === page;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => onPageChange(pageNum)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? 'bg-purple-600 text-white shadow-md shadow-purple-600/10'
+                        : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => onPageChange(page + 1)}
+                disabled={!pagination.hasNextPage}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
+                title="Next Page"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
