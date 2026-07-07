@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const apiInstance = axios.create({
-  baseURL: "https://worksphere-backend-36t4.onrender.com/api/v1",
+  baseURL: import.meta.env.VITE_API_URL || "https://worksphere-backend-36t4.onrender.com/api/v1",
   headers: {
     'Content-Type': 'application/json',
   },
