@@ -1,10 +1,9 @@
-import React from 'react';
-import CreatePasswordForm from '../components/CreatePasswordForm';
-import AuthSlider from '../components/AuthSlider';
-import AuthHeader from '../components/AuthHeader';
-import AuthFooter from '../components/AuthFooter';
+import ForgotPasswordForm from '../components/forgotpasswordform';
+import AuthSlider from '../components/authslider';
+import AuthHeader from '../components/authheader';
+import AuthFooter from '../components/authfooter';
 
-const CreatePasswordPage = () => {
+const ForgotPasswordPage = () => {
   return (
     <div className="flex flex-col lg:flex-row lg:h-screen w-full bg-white font-sans text-gray-800 lg:overflow-hidden">
 
@@ -13,7 +12,7 @@ const CreatePasswordPage = () => {
         <AuthHeader />
 
         <main className="flex-1 flex items-center justify-center py-4">
-          <CreatePasswordForm />
+          <ForgotPasswordForm />
         </main>
 
         <AuthFooter />
@@ -27,4 +26,4 @@ const CreatePasswordPage = () => {
   );
 };
 
-export default CreatePasswordPage;
+export default ForgotPasswordPage;

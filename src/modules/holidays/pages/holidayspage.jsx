@@ -3,15 +3,15 @@ import { Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../services/api';
-import CalendarGrid from '../components/CalendarGrid';
-import CalendarLegend from '../components/CalendarLegend';
-import MonthStats from '../components/MonthStats';
-import AddHolidayModal from '../components/AddHolidayModal';
-import EventDetailsPopup from '../components/EventDetailsPopup';
-import HolidaysTable from '../components/HolidaysTable';
-import PermissionGuard from '../../../components/common/PermissionGuard';
+import CalendarGrid from '../components/calendargrid';
+import CalendarLegend from '../components/calendarlegend';
+import MonthStats from '../components/monthstats';
+import AddHolidayModal from '../components/addholidaymodal';
+import EventDetailsPopup from '../components/eventdetailspopup';
+import HolidaysTable from '../components/holidaystable';
+import PermissionGuard from '../../../components/common/permissionguard';
 import { PERMISSIONS } from '../../../constants/permissions';
-import { usePermission } from '../../../hooks/usePermission';
+import { usePermission } from '../../../hooks/usepermission';
 
 const HolidaysPage = () => {
   const queryClient = useQueryClient();

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { store } from '../../store';
-import { logout, setTokens } from '../../store/slices/authSlice.js';
+import { logout, setTokens } from '../../store/slices/authslice.js';
 import { AUTH_ENDPOINTS } from './endpoints.js';
 
 let isRefreshing = false;

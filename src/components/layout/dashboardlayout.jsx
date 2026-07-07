@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { Menu, Bell, Search, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import Sidebar from './Sidebar';
+import Sidebar from './sidebar';
 import api, { PERMISSION_ENDPOINTS } from '../../services/api';
-import { selectUser, setPermissions } from '../../store/slices/authSlice';
+import { selectUser, setPermissions } from '../../store/slices/authslice';
 
 const DashboardLayout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);

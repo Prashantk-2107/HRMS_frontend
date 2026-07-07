@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { selectPermissions, selectRole } from '../store/slices/authSlice';
+import { selectPermissions, selectRole } from '../store/slices/authslice';
 
 export const usePermission = () => {
   const userPermissions = useSelector(selectPermissions) || [];

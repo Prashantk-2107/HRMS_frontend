@@ -19,7 +19,7 @@ import {
   Clock
 } from 'lucide-react';
 import api, { BANK_DETAILS_ENDPOINTS } from '../../../services/api';
-import { usePermission } from '../../../hooks/usePermission';
+import { usePermission } from '../../../hooks/usepermission';
 import { PERMISSIONS } from '../../../constants/permissions';
 
 const BankAccountsPage = () => {

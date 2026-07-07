@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Search, UserCheck, ShieldAlert, User, Shield, AlertTriangle } from 'lucide-react';
 import api, { EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
-import Skeleton from '../../../components/ui/Skeleton';
+import Skeleton from '../../../components/ui/skeleton';
 
 const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
   const [employees, setEmployees] = useState([]);

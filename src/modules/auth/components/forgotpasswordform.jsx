@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api, { AUTH_ENDPOINTS } from '../../../services/api';
-import Input from '../../../components/ui/Input';
+import Input from '../../../components/ui/input';
 
 const ForgotPasswordForm = () => {
   const navigate = useNavigate();

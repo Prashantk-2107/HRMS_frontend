@@ -3,14 +3,14 @@ import { UserPlus, FileDown, Trash2, ShieldAlert, UserCheck } from 'lucide-react
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { EMPLOYEE_ENDPOINTS, AUTH_ENDPOINTS } from '../../../services/api';
-import StatsCards from '../components/StatsCards';
-import EmployeeTable from '../components/EmployeeTable';
-import AddEmployeeModal from '../components/AddEmployeeModal';
-import ViewEmployeeModal from '../components/ViewEmployeeModal';
-import EditEmployeeModal from '../components/EditEmployeeModal';
-import PermissionGuard from '../../../components/common/PermissionGuard';
+import StatsCards from '../components/statscards';
+import EmployeeTable from '../components/employeetable';
+import AddEmployeeModal from '../components/addemployeemodal';
+import ViewEmployeeModal from '../components/viewemployeemodal';
+import EditEmployeeModal from '../components/editemployeemodal';
+import PermissionGuard from '../../../components/common/permissionguard';
 import { PERMISSIONS } from '../../../constants/permissions';
-import { usePermission } from '../../../hooks/usePermission';
+import { usePermission } from '../../../hooks/usepermission';
 
 const EmployeesPage = () => {
   const { hasPermission } = usePermission();

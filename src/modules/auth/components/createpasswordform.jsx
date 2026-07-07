@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Lock, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Input from '../../../components/ui/Input';
+import Input from '../../../components/ui/input';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import api, { AUTH_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';

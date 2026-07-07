@@ -24,8 +24,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import api from '../../../services/api';
-import { selectUser } from '../../../store/slices/authSlice';
-import { usePermission } from '../../../hooks/usePermission';
+import { selectUser } from '../../../store/slices/authslice';
+import { usePermission } from '../../../hooks/usepermission';
 import { PERMISSIONS } from '../../../constants/permissions';
 
 const DOCUMENT_TYPES = [

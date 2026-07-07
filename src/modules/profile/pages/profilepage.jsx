@@ -7,7 +7,7 @@ import {
   Shield, Activity, Contact, CheckCircle2, UploadCloud,
   ClipboardCheck
 } from 'lucide-react';
-import { selectUser, updateUser } from '../../../store/slices/authSlice';
+import { selectUser, updateUser } from '../../../store/slices/authslice';
 import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
 
 const ProfilePage = () => {

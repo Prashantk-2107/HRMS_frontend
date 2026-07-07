@@ -1,5 +1,5 @@
 import { Plus, Trash2, ShieldAlert, UserCheck, Download, Import } from 'lucide-react';
-import PermissionGuard from '../../../components/common/PermissionGuard';
+import PermissionGuard from '../../../components/common/permissionguard';
 import { PERMISSIONS } from '../../../constants/permissions';
 
 const RolesHeader = ({ onCreateClick, onDeleteModeToggle, isDeleteMode, onAssignClick, onExportClick, onDirectPermissionsClick }) => {
