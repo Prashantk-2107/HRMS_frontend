@@ -1,9 +1,10 @@
-import ForgotPasswordForm from '../components/ForgotPasswordForm';
-import AuthSlider from '../components/AuthSlider';
-import AuthHeader from '../components/AuthHeader';
-import AuthFooter from '../components/AuthFooter';
+import React from 'react';
+import LoginForm from '../components/loginform';
+import AuthSlider from '../components/authslider';
+import AuthHeader from '../components/authheader';
+import AuthFooter from '../components/authfooter';
 
-const ForgotPasswordPage = () => {
+const LoginPage = () => {
   return (
     <div className="flex flex-col lg:flex-row lg:h-screen w-full bg-white font-sans text-gray-800 lg:overflow-hidden">
 
@@ -12,7 +13,7 @@ const ForgotPasswordPage = () => {
         <AuthHeader />
 
         <main className="flex-1 flex items-center justify-center py-4">
-          <ForgotPasswordForm />
+          <LoginForm />
         </main>
 
         <AuthFooter />
@@ -26,4 +27,4 @@ const ForgotPasswordPage = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default LoginPage;

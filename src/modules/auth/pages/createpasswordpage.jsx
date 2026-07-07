@@ -1,10 +1,10 @@
 import React from 'react';
-import LoginForm from '../components/LoginForm';
-import AuthSlider from '../components/AuthSlider';
-import AuthHeader from '../components/AuthHeader';
-import AuthFooter from '../components/AuthFooter';
+import CreatePasswordForm from '../components/createpasswordform';
+import AuthSlider from '../components/authslider';
+import AuthHeader from '../components/authheader';
+import AuthFooter from '../components/authfooter';
 
-const LoginPage = () => {
+const CreatePasswordPage = () => {
   return (
     <div className="flex flex-col lg:flex-row lg:h-screen w-full bg-white font-sans text-gray-800 lg:overflow-hidden">
 
@@ -13,7 +13,7 @@ const LoginPage = () => {
         <AuthHeader />
 
         <main className="flex-1 flex items-center justify-center py-4">
-          <LoginForm />
+          <CreatePasswordForm />
         </main>
 
         <AuthFooter />
@@ -27,4 +27,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default CreatePasswordPage;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectAuth, logout } from '../../../store/slices/authSlice.js';
+import { selectAuth, logout } from '../../../store/slices/authslice.js';
 
 const DashboardPage = () => {
   const dispatch = useDispatch();

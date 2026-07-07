@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import IMG from "../../../assets/icons/WorkSphere.png"
+import IMG from "../../../assets/icons/worksphere.png"
 
 const AuthHeader = () => {
   return (

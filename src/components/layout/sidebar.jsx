@@ -22,9 +22,9 @@ import {
   ChevronRight,
   LogOut
 } from 'lucide-react';
-import { selectAuth, logout } from '../../store/slices/authSlice';
-import logoImg from '../../assets/icons/WorkSphere.png';
-import { usePermission } from '../../hooks/usePermission';
+import { selectAuth, logout } from '../../store/slices/authslice';
+import logoImg from '../../assets/icons/worksphere.png';
+import { usePermission } from '../../hooks/usepermission';
 import { SIDEBAR_PERMISSIONS } from '../../constants/permissions';
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {

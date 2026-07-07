@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, Trash2, Eye, Pencil, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { usePermission } from '../../../hooks/usePermission';
+import { usePermission } from '../../../hooks/usepermission';
 import { PERMISSIONS } from '../../../constants/permissions';
 
 const EmployeeTable = ({

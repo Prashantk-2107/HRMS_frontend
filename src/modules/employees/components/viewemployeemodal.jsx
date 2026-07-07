@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, User, Mail, Phone, Calendar, MapPin, Building, Heart, Tag, Landmark, Plus, Pencil, Trash2 } from 'lucide-react';
 import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
-import Skeleton from '../../../components/ui/Skeleton';
-import { usePermission } from '../../../hooks/usePermission';
+import Skeleton from '../../../components/ui/skeleton';
+import { usePermission } from '../../../hooks/usepermission';
 import { PERMISSIONS } from '../../../constants/permissions';
 
 const ViewEmployeeModal = ({ isOpen, onClose, employeeId }) => {

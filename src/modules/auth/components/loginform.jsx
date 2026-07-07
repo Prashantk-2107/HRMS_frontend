@@ -1,11 +1,11 @@
 import { useForm } from 'react-hook-form';
 import { Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Input from '../../../components/ui/Input';
+import Input from '../../../components/ui/input';
 import { useNavigate, Link } from 'react-router-dom';
 import api, { AUTH_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 import { useDispatch } from 'react-redux';
-import { login, setPermissions } from '../../../store/slices/authSlice';
+import { login, setPermissions } from '../../../store/slices/authslice';
 import toast from 'react-hot-toast';
 
 const LoginForm = () => {
