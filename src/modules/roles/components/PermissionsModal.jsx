@@ -6,12 +6,10 @@ const PermissionsModal = ({ isOpen, onClose, role, allPermissions, onTogglePermi
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmData, setConfirmData] = useState(null);
 
-  if (!isOpen || !role) return null;
-
   // Filter permissions based on search query
-  const filteredPermissions = allPermissions.filter(p =>
+  const filteredPermissions = (role && allPermissions) ? allPermissions.filter(p =>
     p.name.toLowerCase().replace(/_/g, ' ').includes(searchQuery.toLowerCase())
-  );
+  ) : [];
 
   const isGranted = (permissionName) => {
     return role?.permissions?.some(p => p.name === permissionName);
@@ -31,7 +29,7 @@ const PermissionsModal = ({ isOpen, onClose, role, allPermissions, onTogglePermi
   return (
     <>
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && role && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
             <motion.div

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Search, UserCheck, ShieldAlert, User, Shield, AlertTriangle } from 'lucide-react';
 import api, { EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
@@ -77,36 +78,38 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
     fetchEmpPermissions(selectedEmpId, false);
   }, [selectedEmpId]);
 
-  if (!isOpen) return null;
-
   // Convert arrays to sets for O(1) lookups
-  const roleIds = new Set(rolePermissions.map(p => p.permission_id));
-  const effectiveIds = new Set(effectivePermissions.map(p => p.permission_id));
+  const roleIds = useMemo(() => isOpen ? new Set(rolePermissions.map(p => p.permission_id)) : new Set(), [isOpen, rolePermissions]);
+  const effectiveIds = useMemo(() => isOpen ? new Set(effectivePermissions.map(p => p.permission_id)) : new Set(), [isOpen, effectivePermissions]);
   
   // Create override map: permission_id -> isGranted
-  const overrides = new Map(extraPermissions.map(p => [p.permission_id, p.isGranted]));
+  const overrides = useMemo(() => isOpen ? new Map(extraPermissions.map(p => [p.permission_id, p.isGranted])) : new Map(), [isOpen, extraPermissions]);
 
-  const selectedEmployee = employees.find(e => e.emp_id === selectedEmpId);
+  const selectedEmployee = useMemo(() => isOpen ? employees.find(e => e.emp_id === selectedEmpId) : null, [isOpen, employees, selectedEmpId]);
 
   // Group all available system permissions by module category
-  const categories = {};
-  allPermissions.forEach(perm => {
-    // Determine category based on prefix, e.g. "emp:create" -> "Employee"
-    const prefix = perm.name.split(':')[0];
-    let catName = 'General';
-    if (prefix === 'emp') catName = 'Employee';
-    else if (prefix === 'role') catName = 'Role';
-    else if (prefix === 'permission') catName = 'Permissions';
-    else if (prefix === 'holiday') catName = 'Holidays';
-    else if (prefix === 'attendance') catName = 'Attendance';
-    else if (prefix === 'leave') catName = 'Leaves';
-    else if (prefix === 'document') catName = 'Documents';
-    
-    if (!categories[catName]) {
-      categories[catName] = [];
-    }
-    categories[catName].push(perm);
-  });
+  const categories = useMemo(() => {
+    if (!isOpen || !allPermissions) return {};
+    const cats = {};
+    allPermissions.forEach(perm => {
+      // Determine category based on prefix, e.g. "emp:create" -> "Employee"
+      const prefix = perm.name.split(':')[0];
+      let catName = 'General';
+      if (prefix === 'emp') catName = 'Employee';
+      else if (prefix === 'role') catName = 'Role';
+      else if (prefix === 'permission') catName = 'Permissions';
+      else if (prefix === 'holiday') catName = 'Holidays';
+      else if (prefix === 'attendance') catName = 'Attendance';
+      else if (prefix === 'leave') catName = 'Leaves';
+      else if (prefix === 'document') catName = 'Documents';
+      
+      if (!cats[catName]) {
+        cats[catName] = [];
+      }
+      cats[catName].push(perm);
+    });
+    return cats;
+  }, [isOpen, allPermissions]);
 
   const handleToggle = async (permissionId) => {
     if (!selectedEmpId || isToggling) return;
@@ -206,8 +209,26 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
   });
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-3xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200 transition-colors duration-300">
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: 'spring', duration: 0.3 }}
+            className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-3xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh] z-10 transition-colors duration-300"
+          >
         
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/20 rounded-t-2xl shrink-0 transition-colors duration-200">
@@ -455,8 +476,10 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
           </button>
         </div>
 
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 

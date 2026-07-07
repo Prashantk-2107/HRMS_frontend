@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, ChevronDown, Check } from 'lucide-react';
 import api, { ROLE_ENDPOINTS, EMPLOYEE_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
@@ -74,7 +75,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
     fetchRoles();
   }, [isOpen]);
 
-  if (!isOpen) return null;
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -153,11 +154,31 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const selectedRole = roles.find((r) => r.role_id === formData.role_id);
+  const selectedRole = useMemo(() => {
+    return isOpen ? roles.find((r) => r.role_id === formData.role_id) : null;
+  }, [isOpen, roles, formData.role_id]);
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200 transition-colors duration-300">
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: 'spring', duration: 0.3 }}
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh] transition-colors duration-300 z-10"
+          >
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/20 rounded-t-2xl shrink-0 transition-colors duration-200">
           <div>
@@ -485,8 +506,10 @@ const AddEmployeeModal = ({ isOpen, onClose, onSuccess }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
