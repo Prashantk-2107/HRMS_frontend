@@ -40,6 +40,7 @@ const BankAccountsPage = () => {
     account_type: 'savings'
   });
   const [formErrors, setFormErrors] = useState({});
+  const [deleteConfirmAccountId, setDeleteConfirmAccountId] = useState(null);
 
   // Transactions Search & filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -181,10 +182,10 @@ const BankAccountsPage = () => {
     });
   };
 
-  const handleDeleteAccount = (id) => {
-    if (window.confirm('Are you sure you want to remove this bank account?')) {
-      deleteAccountMutation.mutate(id);
-    }
+  const handleConfirmDeleteAccount = () => {
+    if (!deleteConfirmAccountId) return;
+    deleteAccountMutation.mutate(deleteConfirmAccountId);
+    setDeleteConfirmAccountId(null);
   };
 
   // Mock Payout Transactions mapping to linked accounts
@@ -462,7 +463,7 @@ const BankAccountsPage = () => {
 
                             {canManageBank && (
                               <button
-                                onClick={() => handleDeleteAccount(account.emp_bank_id)}
+                               onClick={() => setDeleteConfirmAccountId(account.emp_bank_id)}
                                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400 border border-rose-100/50 dark:border-rose-900/30 transition-all font-bold cursor-pointer"
                               >
                                 <Trash2 size={12} />
@@ -888,6 +889,60 @@ const BankAccountsPage = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Themed Bank Account Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirmAccountId && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeleteConfirmAccountId(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
+            />
+
+            {/* Confirmation Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: 'spring', duration: 0.25 }}
+              className="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 z-10 flex flex-col items-center text-center transition-colors"
+            >
+              {/* Icon Container */}
+              <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-955 text-rose-600 flex items-center justify-center mb-4">
+                <Trash2 size={24} />
+              </div>
+
+              {/* Title & Desc */}
+              <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Remove Bank Account?
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                Are you sure you want to remove this bank account? This action is permanent and cannot be undone.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 w-full mt-6">
+                <button
+                  onClick={() => setDeleteConfirmAccountId(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 bg-white dark:bg-slate-900"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDeleteAccount}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 shadow-sm shadow-rose-600/10"
+                >
+                  Confirm Delete
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
