@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, ChevronDown } from 'lucide-react';
 
 const AddHolidayModal = ({ isOpen, onClose, onAddHoliday }) => {
@@ -13,8 +14,6 @@ const AddHolidayModal = ({ isOpen, onClose, onAddHoliday }) => {
     { value: 'company', label: 'Company Holiday' },
   ];
 
-  if (!isOpen) return null;
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!date || !name.trim()) return;
@@ -26,8 +25,26 @@ const AddHolidayModal = ({ isOpen, onClose, onAddHoliday }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-visible animate-scale-up transition-colors duration-250">
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: 'spring', duration: 0.3 }}
+            className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-visible transition-colors duration-250 z-10"
+          >
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
@@ -139,8 +156,10 @@ const AddHolidayModal = ({ isOpen, onClose, onAddHoliday }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 

@@ -1,8 +1,7 @@
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, CheckSquare, Coffee, FileText, Users } from 'lucide-react';
 
 const EventDetailsPopup = ({ isOpen, onClose, dateStr, event }) => {
-  if (!isOpen) return null;
-
   const formatDateDisplay = (dateStr) => {
     try {
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -39,21 +38,33 @@ const EventDetailsPopup = ({ isOpen, onClose, dateStr, event }) => {
       case 'leave':
         return 'border-rose-100 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/15';
       case 'meeting':
-        return 'border-amber-100 dark:border-amber-900/30 bg-amber-50/20 dark:bg-amber-950/15';
+        return 'border-amber-100 dark:border-amber-900/30 bg-amber-50/20 dark:bg-amber-955 bg-amber-50/20 dark:bg-amber-955/15';
       default:
         return 'border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/20 dark:bg-indigo-950/15';
     }
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up transition-colors duration-250"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: 'spring', duration: 0.3 }}
+            className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden transition-colors duration-250 z-10"
+          >
         {/* Header */}
         <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 dark:border-slate-850">
           <div className="text-left">
@@ -115,8 +126,10 @@ const EventDetailsPopup = ({ isOpen, onClose, dateStr, event }) => {
             Close Details
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 

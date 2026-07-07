@@ -7,7 +7,7 @@ const CreateRoleModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
 
-  if (!isOpen) return null;
+
 
   const handleSubmit = (e) => {
     e.preventDefault();

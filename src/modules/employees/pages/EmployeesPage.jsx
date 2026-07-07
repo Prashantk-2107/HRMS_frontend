@@ -278,35 +278,29 @@ const EmployeesPage = () => {
       />
 
       {/* Add Employee Modal */}
-      {isAddModalOpen && (
-        <AddEmployeeModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          onSuccess={fetchEmployees}
-        />
-      )}
+      <AddEmployeeModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchEmployees}
+      />
 
       {/* View Employee Details Modal */}
-      {isViewModalOpen && (
-        <ViewEmployeeModal
-          isOpen={isViewModalOpen}
-          onClose={() => setIsViewModalOpen(false)}
-          employeeId={selectedViewEmployeeId}
-        />
-      )}
+      <ViewEmployeeModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        employeeId={selectedViewEmployeeId}
+      />
 
       {/* Edit Employee Modal */}
-      {isEditModalOpen && (
-        <EditEmployeeModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedEditEmployeeId(null);
-          }}
-          onSuccess={fetchEmployees}
-          employeeId={selectedEditEmployeeId}
-        />
-      )}
+      <EditEmployeeModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedEditEmployeeId(null);
+        }}
+        onSuccess={fetchEmployees}
+        employeeId={selectedEditEmployeeId}
+      />
 
       {/* Themed Delete Confirmation Modal */}
       <AnimatePresence>

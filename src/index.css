@@ -2,6 +2,20 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-scale-up: scale-up 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-up {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+}
+
 @utility custom-scrollbar {
   /* Standard overflow behavior */
   overflow-y: auto !important;

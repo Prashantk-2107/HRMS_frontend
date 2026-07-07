@@ -255,13 +255,11 @@ const RolesPage = () => {
       </AnimatePresence>
 
       {/* Employee Permissions Modal */}
-      {isEmpPermissionsModalOpen && (
-        <EmployeePermissionsModal
-          isOpen={isEmpPermissionsModalOpen}
-          onClose={() => setIsEmpPermissionsModalOpen(false)}
-          allPermissions={allPermissions}
-        />
-      )}
+      <EmployeePermissionsModal
+        isOpen={isEmpPermissionsModalOpen}
+        onClose={() => setIsEmpPermissionsModalOpen(false)}
+        allPermissions={allPermissions}
+      />
     </div>
   );
 };
