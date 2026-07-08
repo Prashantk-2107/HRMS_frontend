@@ -1,5 +1,3 @@
-import React from 'react';
-import { LogOut, Calendar, Clock } from 'lucide-react';
 
 const LeavesPage = () => {
   return (

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { UserPlus, FileDown, Trash2, ShieldAlert, UserCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { EMPLOYEE_ENDPOINTS, AUTH_ENDPOINTS } from '../../../services/api';
 import StatsCards from '../components/statscards';
 import EmployeeTable from '../components/employeetable';
@@ -14,6 +15,8 @@ import { usePermission } from '../../../hooks/usepermission';
 
 const EmployeesPage = () => {
   const { hasPermission } = usePermission();
+  const queryClient = useQueryClient();
+
   const canView = hasPermission([
     PERMISSIONS.EMP_GET_ALL,
     PERMISSIONS.EMP_VIEW_ANY,
@@ -21,12 +24,9 @@ const EmployeesPage = () => {
     PERMISSIONS.EMP_UPDATE,
     PERMISSIONS.EMP_DELETE
   ]);
-  const [allEmployees, setAllEmployees] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isTableLoading, setIsTableLoading] = useState(false);
-  const [error, setError] = useState(null);
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState(null);
@@ -40,54 +40,119 @@ const EmployeesPage = () => {
   // Pagination states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [paginationMeta, setPaginationMeta] = useState({
+
+  // Debounce search term
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPage(1); // Reset page to 1 on search change
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  // Query: Fetch all employees for stats card computation
+  const { data: allEmployees = [], isLoading: isAllLoading } = useQuery({
+    queryKey: ['employees', 'all'],
+    queryFn: async () => {
+      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
+      return response.data?.data?.employees || [];
+    },
+    enabled: canView,
+  });
+
+  // Query: Fetch paginated/searched employees list
+  const { data: paginatedData, isLoading: isTableLoading, error: queryError } = useQuery({
+    queryKey: ['employees', 'paginated', page, limit, debouncedSearchTerm],
+    queryFn: async () => {
+      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST, {
+        params: { page, limit, search: debouncedSearchTerm },
+      });
+      return response.data?.data || { employees: [], pagination: {} };
+    },
+    enabled: canView,
+  });
+
+  const employees = paginatedData?.employees || [];
+  const paginationMeta = paginatedData?.pagination || {
     currentPage: 1,
     limit: 10,
     totalItems: 0,
     totalPages: 0,
     hasNextPage: false,
     hasPreviousPage: false,
+  };
+
+  // Mutation: Delete Employee
+  const deleteMutation = useMutation({
+    mutationFn: async (empId) => {
+      await api.delete(EMPLOYEE_ENDPOINTS.DELETE(empId));
+    },
+    onMutate: () => {
+      setIsUpdating(true);
+      const toastId = toast.loading('Deleting employee...');
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      toast.success('Employee deleted successfully!', { id: context.toastId });
+      setDeleteConfirmEmployee(null);
+    },
+    onError: (err, variables, context) => {
+      console.error('Failed to delete employee:', err);
+      toast.error(err.response?.data?.message || 'Failed to delete employee', { id: context.toastId });
+    },
+    onSettled: () => {
+      setIsUpdating(false);
+    }
   });
 
-  const fetchAllEmployees = async () => {
-    try {
-      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
-      if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
-        setAllEmployees(response.data.data.employees);
-      }
-    } catch (err) {
-      console.error('Error fetching all employees:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPaginatedEmployees = async (currentPage = page, currentLimit = limit, searchVal = searchTerm) => {
-    try {
-      setIsTableLoading(true);
-      setError(null);
-      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST, {
-        params: { page: currentPage, limit: currentLimit, search: searchVal },
+  // Mutation: Update Employee Status
+  const statusMutation = useMutation({
+    mutationFn: async ({ empId, status }) => {
+      await api.patch(EMPLOYEE_ENDPOINTS.SET_STATUS, {
+        emp_id: empId,
+        status,
       });
-      if (response.data && response.data.data) {
-        setEmployees(response.data.data.employees || []);
-        if (response.data.data.pagination) {
-          setPaginationMeta(response.data.data.pagination);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching paginated employees:', err);
-      setError(err.response?.data?.message || 'Failed to fetch employees. Please try again.');
-    } finally {
-      setIsTableLoading(false);
+    },
+    onMutate: ({ name }) => {
+      setIsUpdating(true);
+      const toastId = toast.loading(`Updating status for "${name}"...`);
+      return { toastId };
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      toast.success(`Employee status updated to ${variables.statusLabel}!`, { id: context.toastId });
+      setStatusConfirmEmployee(null);
+    },
+    onError: (err, variables, context) => {
+      console.error('Failed to update status:', err);
+      toast.error(err.response?.data?.message || 'Failed to update status', { id: context.toastId });
+    },
+    onSettled: () => {
+      setIsUpdating(false);
     }
-  };
+  });
 
-  const fetchEmployees = async () => {
-    setLoading(true);
-    await Promise.all([fetchAllEmployees(), fetchPaginatedEmployees(page, limit, searchTerm)]);
-    setLoading(false);
-  };
+  // Mutation: Resend Setup invitation Link
+  const resendSetupMutation = useMutation({
+    mutationFn: async (email) => {
+      await api.post(AUTH_ENDPOINTS.RESEND_SETUP_LINK, {
+        email,
+        frontendUrl: window.location.origin
+      });
+    },
+    onMutate: (email) => {
+      const toastId = toast.loading(`Resending invitation link to ${email}...`);
+      return { toastId };
+    },
+    onSuccess: (data, email, context) => {
+      toast.success(`Invitation link resent to ${email} successfully!`, { id: context.toastId });
+    },
+    onError: (err, email, context) => {
+      console.error('Failed to resend invitation link:', err);
+      toast.error(err.response?.data?.message || 'Failed to resend invitation link', { id: context.toastId });
+    }
+  });
 
   const handleDeleteClick = (emp) => {
     setDeleteConfirmEmployee(emp);
@@ -103,89 +168,32 @@ const EmployeesPage = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleConfirmDeleteSubmit = async () => {
+  const handleConfirmDeleteSubmit = () => {
     if (!deleteConfirmEmployee) return;
-
-    setIsUpdating(true);
-    const toastId = toast.loading(`Deleting employee "${deleteConfirmEmployee.first_name} ${deleteConfirmEmployee.last_name}"...`);
-    try {
-      await api.delete(EMPLOYEE_ENDPOINTS.DELETE(deleteConfirmEmployee.emp_id));
-      toast.success('Employee deleted successfully!', { id: toastId });
-      setDeleteConfirmEmployee(null);
-      fetchEmployees();
-    } catch (err) {
-      console.error('Failed to delete employee:', err);
-      toast.error(err.response?.data?.message || 'Failed to delete employee', { id: toastId });
-    } finally {
-      setIsUpdating(false);
-    }
+    deleteMutation.mutate(deleteConfirmEmployee.emp_id);
   };
 
   const handleStatusClick = (emp) => {
     setStatusConfirmEmployee(emp);
   };
 
-  const handleConfirmStatusSubmit = async () => {
+  const handleConfirmStatusSubmit = () => {
     if (!statusConfirmEmployee) return;
-
-    setIsUpdating(true);
     const nextStatus = statusConfirmEmployee.employee_status === 'active' ? 'in_active' : 'active';
     const nextStatusLabel = nextStatus === 'active' ? 'Active' : 'Inactive';
-    const toastId = toast.loading(`Updating status for "${statusConfirmEmployee.first_name} ${statusConfirmEmployee.last_name}"...`);
-
-    try {
-      await api.patch(EMPLOYEE_ENDPOINTS.SET_STATUS, {
-        emp_id: statusConfirmEmployee.emp_id,
-        status: nextStatus,
-      });
-      toast.success(`Employee status updated to ${nextStatusLabel}!`, { id: toastId });
-      setStatusConfirmEmployee(null);
-      fetchEmployees();
-    } catch (err) {
-      console.error('Failed to update employee status:', err);
-      toast.error(err.response?.data?.message || 'Failed to update status', { id: toastId });
-    } finally {
-      setIsUpdating(false);
-    }
+    statusMutation.mutate({
+      empId: statusConfirmEmployee.emp_id,
+      status: nextStatus,
+      name: `${statusConfirmEmployee.first_name} ${statusConfirmEmployee.last_name}`,
+      statusLabel: nextStatusLabel,
+    });
   };
 
-  const handleResendSetupClick = async (email) => {
-    const toastId = toast.loading(`Resending invitation link to ${email}...`);
-    try {
-      const response = await api.post(AUTH_ENDPOINTS.RESEND_SETUP_LINK, {
-        email,
-        frontendUrl: window.location.origin
-      });
-      if (response.data?.success || response.status === 200) {
-        toast.success(`Invitation link resent to ${email} successfully!`, { id: toastId });
-      } else {
-        toast.error(response.data?.message || 'Failed to resend invitation link', { id: toastId });
-      }
-    } catch (err) {
-      console.error('Failed to resend invitation link:', err);
-      toast.error(err.response?.data?.message || 'Failed to resend invitation link', { id: toastId });
-    }
+  const handleResendSetupClick = (email) => {
+    resendSetupMutation.mutate(email);
   };
 
-  useEffect(() => {
-    fetchAllEmployees();
-  }, []);
-
-  useEffect(() => {
-    fetchPaginatedEmployees(page, limit, searchTerm);
-  }, [page, limit]);
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      setPage(1);
-      fetchPaginatedEmployees(1, limit, searchTerm);
-    }, 400);
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
-
-  const sortedAndFilteredEmployees = employees;
-
-  // Calculate stats dynamically
+  // Calculate stats dynamically from allEmployees
   const totalStaff = allEmployees.length;
   const activeStaff = allEmployees.filter((emp) => emp.employee_status === 'active').length;
   const inactiveStaff = allEmployees.filter((emp) => emp.employee_status === 'in_active').length;
@@ -201,6 +209,8 @@ const EmployeesPage = () => {
       </div>
     );
   }
+
+  const errMessage = queryError ? (queryError.response?.data?.message || 'Failed to fetch employees') : null;
 
   return (
     <div className="flex flex-col gap-6 text-left">
@@ -251,7 +261,7 @@ const EmployeesPage = () => {
 
       {/* Quick Stats Cards */}
       <StatsCards
-        loading={loading}
+        loading={isAllLoading}
         totalStaff={totalStaff}
         activeStaff={activeStaff}
         inactiveStaff={inactiveStaff}
@@ -259,11 +269,11 @@ const EmployeesPage = () => {
 
       {/* Staff Roster Table */}
       <EmployeeTable
-        loading={loading || isTableLoading}
-        error={error}
+        loading={isTableLoading}
+        error={errMessage}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        employees={sortedAndFilteredEmployees}
+        employees={employees}
         isDeleteMode={isDeleteMode}
         onDeleteClick={handleDeleteClick}
         onViewClick={handleViewClick}
@@ -281,7 +291,7 @@ const EmployeesPage = () => {
       <AddEmployeeModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={fetchEmployees}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
       />
 
       {/* View Employee Details Modal */}
@@ -298,7 +308,7 @@ const EmployeesPage = () => {
           setIsEditModalOpen(false);
           setSelectedEditEmployeeId(null);
         }}
-        onSuccess={fetchEmployees}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
         employeeId={selectedEditEmployeeId}
       />
 

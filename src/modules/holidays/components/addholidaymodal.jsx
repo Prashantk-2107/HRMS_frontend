@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, ChevronDown } from 'lucide-react';
+import { X, Calendar } from 'lucide-react';
+import Select from '../../../components/ui/select';
 
 const AddHolidayModal = ({ isOpen, onClose, onAddHoliday }) => {
   const [date, setDate] = useState('');
   const [name, setName] = useState('');
   const [category, setCategory] = useState('national');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const categories = [
     { value: 'national', label: 'National Holiday' },
@@ -86,58 +86,13 @@ const AddHolidayModal = ({ isOpen, onClose, onAddHoliday }) => {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 text-left relative">
-            <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Holiday Category</label>
-
-            {/* Custom Select Trigger Button */}
-            <button
-              type="button"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-all w-full flex items-center justify-between cursor-pointer"
-            >
-              <span>
-                {categories.find(c => c.value === category)?.label || 'National Holiday'}
-              </span>
-              <ChevronDown
-                size={16}
-                className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {/* Custom Dropdown Menu */}
-            {isDropdownOpen && (
-              <>
-                {/* Backdrop overlay for closing dropdown */}
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setIsDropdownOpen(false)}
-                />
-
-                <div className="absolute top-[105%] left-0 right-0 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl z-20 py-1.5 animate-fade-in">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.value}
-                      type="button"
-                      onClick={() => {
-                        setCategory(cat.value);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors cursor-pointer flex items-center justify-between ${
-                        category === cat.value
-                          ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-55 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      <span>{cat.label}</span>
-                      {category === cat.value && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          <Select
+            label="Holiday Category"
+            value={category}
+            options={categories}
+            onChange={(val) => setCategory(val)}
+            placeholder="Select Category"
+          />
 
           {/* Footer Action Buttons */}
           <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">

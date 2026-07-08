@@ -1,4 +1,3 @@
-import React from 'react';
 import LoginForm from '../components/loginform';
 import AuthSlider from '../components/authslider';
 import AuthHeader from '../components/authheader';

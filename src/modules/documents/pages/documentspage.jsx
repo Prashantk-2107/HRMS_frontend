@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
-  Folder,
   Upload,
   Download,
   Trash2,
@@ -18,26 +17,15 @@ import {
   Loader2,
   AlertTriangle,
   X,
-  ArrowUpDown,
-  FileSpreadsheet,
-  ChevronLeft,
-  ChevronRight
+  ArrowUpDown
 } from 'lucide-react';
 import api from '../../../services/api';
 import { selectUser } from '../../../store/slices/authslice';
 import { usePermission } from '../../../hooks/usepermission';
 import { PERMISSIONS } from '../../../constants/permissions';
-
-const DOCUMENT_TYPES = [
-  { key: 'aadhar', label: 'Aadhar Card', description: 'National identity proof (UIDAI).' },
-  { key: 'pan', label: 'PAN Card', description: 'Tax identity card (Income Tax Dept).' },
-  { key: 'passport', label: 'Passport', description: 'International travel identity proof.' },
-  { key: 'driving_license', label: 'Driving License', description: 'State driving permissions.' },
-  { key: 'degree', label: 'Degree Certificate', description: 'Educational graduation credential.' },
-  { key: 'experience_letter', label: 'Experience Letter', description: 'Relieving letter from past employers.' },
-  { key: 'offer_letter', label: 'Offer Letter', description: 'Signed company appointment contract.' },
-  { key: 'other', label: 'Other Document', description: 'Miscellaneous corporate/education credential.' }
-];
+import UploadDocumentModal from '../components/uploaddocumentmodal';
+import DocumentsTable from '../components/documentstable';
+import { DOCUMENT_TYPES } from '../constants/documenttypes';
 
 const DocumentsPage = () => {
   const queryClient = useQueryClient();
@@ -63,10 +51,6 @@ const DocumentsPage = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [uploadEmpId, setUploadEmpId] = useState('');
   const [uploadDocType, setUploadDocType] = useState('aadhar');
-  const [uploadDocName, setUploadDocName] = useState('');
-  const [uploadDocNumber, setUploadDocNumber] = useState('');
-  const [uploadFile, setUploadFile] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   // Verification Modal State
   const [isVerifyOpen, setIsVerifyOpen] = useState(false);
@@ -129,32 +113,7 @@ const DocumentsPage = () => {
     enabled: !!canUpload
   });
 
-  // Mutations
-  // 1. Upload Mutation
-  const uploadMutation = useMutation({
-    mutationFn: async (formData) => {
-      const response = await api.post('/documents/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      return response.data;
-    },
-    onMutate: () => {
-      const toastId = toast.loading('Uploading document...');
-      return { toastId };
-    },
-    onSuccess: (data, variables, context) => {
-      toast.success(data?.message || 'Document uploaded successfully!', { id: context.toastId });
-      queryClient.invalidateQueries({ queryKey: ['my-documents'] });
-      queryClient.invalidateQueries({ queryKey: ['all-documents'] });
-      closeUploadModal();
-    },
-    onError: (err, variables, context) => {
-      const errorMsg = err.response?.data?.message || 'Upload failed. Please try again.';
-      toast.error(errorMsg, { id: context.toastId });
-    }
-  });
+
 
   // 2. Verify Mutation
   const verifyMutation = useMutation({
@@ -266,36 +225,6 @@ const DocumentsPage = () => {
     setIsUploadOpen(false);
     setUploadEmpId('');
     setUploadDocType('aadhar');
-    setUploadDocName('');
-    setUploadDocNumber('');
-    setUploadFile(null);
-  };
-
-  const handleUploadSubmit = (e) => {
-    e.preventDefault();
-    if (!uploadFile) {
-      toast.error('Please select a file to upload.');
-      return;
-    }
-
-    // Target employee ID falls back to self if not HR/admin
-    const targetEmpId = (canUpload && activeTab === 'all-docs') ? (uploadEmpId || currentUser?.emp_id) : currentUser?.emp_id;
-
-    if (!targetEmpId) {
-      toast.error('Target employee is required.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('emp_id', targetEmpId);
-    formData.append('document_type', uploadDocType);
-    formData.append('document_name', uploadDocName.trim() || DOCUMENT_TYPES.find(d => d.key === uploadDocType)?.label);
-    if (uploadDocNumber.trim()) {
-      formData.append('document_number', uploadDocNumber.trim());
-    }
-    formData.append('document', uploadFile);
-
-    uploadMutation.mutate(formData);
   };
 
   const handleVerifySubmit = (e) => {
@@ -311,31 +240,6 @@ const DocumentsPage = () => {
       status: verifyStatus,
       rejection_reason: verifyStatus === 'rejected' ? rejectionReason : undefined
     });
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      setUploadFile(file);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUploadFile(file);
-    }
   };
 
   return (
@@ -584,431 +488,36 @@ const DocumentsPage = () => {
             </div>
 
             {/* Document listings table */}
-            {allDocsLoading ? (
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200 animate-pulse">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <th className="py-4 px-6 w-3/12 min-w-[180px]">Employee</th>
-                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Document Info</th>
-                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Uploaded Details</th>
-                        <th className="py-4 px-6 w-1/12 min-w-[100px]">Status</th>
-                        <th className="py-4 px-6 text-right w-2/12 min-w-[120px]">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60">
-                      {Array.from({ length: docsLimit || 5 }).map((_, idx) => (
-                        <tr key={idx}>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800" />
-                              <div className="space-y-1.5">
-                                <div className="w-24 h-3 rounded bg-slate-200 dark:bg-slate-800" />
-                                <div className="w-32 h-2.5 rounded bg-slate-200 dark:bg-slate-800" />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="space-y-1.5">
-                              <div className="w-28 h-3 rounded bg-slate-200 dark:bg-slate-800" />
-                              <div className="w-16 h-2.5 rounded bg-slate-200 dark:bg-slate-800" />
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="space-y-1.5">
-                              <div className="w-20 h-3 rounded bg-slate-200 dark:bg-slate-800" />
-                              <div className="w-24 h-2.5 rounded bg-slate-200 dark:bg-slate-800" />
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="w-16 h-5 rounded-full bg-slate-200 dark:bg-slate-800" />
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex justify-end gap-2">
-                              <div className="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800" />
-                              <div className="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800" />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : filteredAllDocs.length === 0 ? (
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-12 text-center flex flex-col items-center justify-center transition-colors">
-                <Folder className="text-slate-300 dark:text-slate-600 mb-4" size={48} />
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">No documents found</h3>
-                <p className="text-sm text-slate-400 dark:text-slate-550 max-w-sm">No employee documents match your current filter parameters or search terms.</p>
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800/80 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <th className="py-4 px-6 w-3/12 min-w-[180px]">Employee</th>
-                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Document Info</th>
-                        <th className="py-4 px-6 w-3/12 min-w-[160px]">Uploaded Details</th>
-                        <th className="py-4 px-6 w-1/12 min-w-[100px]">Status</th>
-                        <th className="py-4 px-6 text-right w-2/12 min-w-[120px]">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60 text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {filteredAllDocs.map((doc) => {
-                        const docTypeObj = DOCUMENT_TYPES.find(t => t.key === doc.document_type);
-                        return (
-                          <tr key={doc.document_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td className="py-4 px-6">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100/50 dark:border-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs select-none">
-                                  {doc.employee?.profile_image ? (
-                                    <img src={doc.employee.profile_image} className="w-full h-full object-cover rounded-full" />
-                                  ) : (
-                                    <span>
-                                      {(doc.employee?.first_name?.[0] || '').toUpperCase()}
-                                      {(doc.employee?.last_name?.[0] || '').toUpperCase()}
-                                    </span>
-                                  )}
-                                </div>
-                                <div>
-                                  <span className="font-semibold text-slate-800 dark:text-slate-100 block text-xs">
-                                    {doc.employee?.first_name} {doc.employee?.last_name}
-                                  </span>
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-550 block font-bold uppercase">
-                                    {doc.employee?.empCode || 'N/A'} • {doc.employee?.email}
-                                  </span>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div>
-                                <span className="font-semibold text-slate-800 dark:text-slate-100 block text-xs">
-                                  {docTypeObj?.label || doc.document_type}
-                                </span>
-                                {doc.document_number && (
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold">
-                                    Num: {doc.document_number}
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div>
-                                <span className="text-slate-600 dark:text-slate-300 block text-xs">
-                                  {new Date(doc.created_at).toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
-                                </span>
-                                {doc.uploader && (
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-550 block">
-                                    By: {doc.uploader.first_name} {doc.uploader.last_name}
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div className="flex flex-col items-start gap-1">
-                                <span
-                                  className={`flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${doc.verification_status === 'verified'
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/40'
-                                      : doc.verification_status === 'rejected'
-                                        ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/40'
-                                        : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/40'
-                                    }`}
-                                >
-                                  {doc.verification_status === 'verified' && <CheckCircle2 size={10} />}
-                                  {doc.verification_status === 'rejected' && <XCircle size={10} />}
-                                  {doc.verification_status === 'pending' && <Clock size={10} />}
-                                  <span className="capitalize">{doc.verification_status}</span>
-                                </span>
-                                {doc.verification_status === 'rejected' && doc.rejection_reason && (
-                                  <span className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold max-w-[200px] truncate" title={doc.rejection_reason}>
-                                    Reason: {doc.rejection_reason}
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6 text-right">
-                              <div className="flex items-center justify-end gap-1.5">
-                                <button
-                                  onClick={() => window.open(doc.file_url, '_blank')}
-                                  title="View File"
-                                  className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 border border-slate-200/60 dark:border-slate-700 transition-all duration-150 cursor-pointer active:scale-90"
-                                >
-                                  <Eye size={14} />
-                                </button>
-                                <button
-                                  onClick={() => handleDownload(doc.document_id, doc.document_name, doc.document_type)}
-                                  title="Download File"
-                                  className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 border border-slate-200/60 dark:border-slate-700 transition-all duration-150 cursor-pointer active:scale-90"
-                                >
-                                  <Download size={14} />
-                                </button>
-
-                                {canVerify && doc.verification_status === 'pending' && (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedDocToVerify(doc);
-                                      setVerifyStatus('verified');
-                                      setIsVerifyOpen(true);
-                                    }}
-                                    title="Verify Document"
-                                    className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 transition-all duration-150 cursor-pointer active:scale-90"
-                                  >
-                                    <CheckCircle2 size={14} />
-                                  </button>
-                                )}
-
-                                {canDelete && (
-                                  <button
-                                    onClick={() => setDocToDelete(doc)}
-                                    title="Delete Document"
-                                    className="p-2 bg-rose-50/10 dark:bg-rose-950/5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:text-rose-700 border border-rose-200 dark:border-rose-500/50 rounded-xl transition-all cursor-pointer"
-                                  >
-                                    <Trash2 size={15} />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Premium Pagination Footer */}
-                {paginationMeta && paginationMeta.totalItems > 0 && (
-                  <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/20 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 transition-colors">
-                    <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                      Showing <span className="font-bold text-slate-800 dark:text-slate-200">{Math.min((docsPage - 1) * docsLimit + 1, paginationMeta.totalItems)}</span> to{' '}
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{Math.min(docsPage * docsLimit, paginationMeta.totalItems)}</span> of{' '}
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{paginationMeta.totalItems}</span> documents
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Per Page</span>
-                        <select
-                          value={docsLimit}
-                          onChange={(e) => {
-                            setDocsLimit(Number(e.target.value));
-                            setDocsPage(1);
-                          }}
-                          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all cursor-pointer shadow-sm"
-                        >
-                          {[5, 10, 20, 50].map((size) => (
-                            <option key={size} value={size}>
-                              {size} rows
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => setDocsPage(docsPage - 1)}
-                          disabled={!paginationMeta.hasPreviousPage}
-                          className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
-                          title="Previous Page"
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-
-                        {Array.from({ length: paginationMeta.totalPages }, (_, index) => {
-                          const pageNum = index + 1;
-                          const isSelected = pageNum === docsPage;
-                          return (
-                            <button
-                              key={pageNum}
-                              onClick={() => setDocsPage(pageNum)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${isSelected
-                                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/10'
-                                  : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
-                                }`}
-                            >
-                              {pageNum}
-                            </button>
-                          );
-                        })}
-
-                        <button
-                          onClick={() => setDocsPage(docsPage + 1)}
-                          disabled={!paginationMeta.hasNextPage}
-                          className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
-                          title="Next Page"
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            <DocumentsTable
+              documents={filteredAllDocs}
+              canVerify={canVerify}
+              canDelete={canDelete}
+              allDocsLoading={allDocsLoading}
+              handleDownload={handleDownload}
+              setSelectedDocToVerify={setSelectedDocToVerify}
+              setVerifyStatus={setVerifyStatus}
+              setIsVerifyOpen={setIsVerifyOpen}
+              setDocToDelete={setDocToDelete}
+              paginationMeta={paginationMeta}
+              docsPage={docsPage}
+              docsLimit={docsLimit}
+              setDocsPage={setDocsPage}
+              setDocsLimit={setDocsLimit}
+            />
           </motion.div>
         )}
       </AnimatePresence>      {/* Modal: Upload Document */}
-      <AnimatePresence>
-        {isUploadOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl max-w-lg w-full overflow-hidden transition-colors duration-200"
-            >
-              <div className="flex justify-between items-center px-6 py-5 border-b border-slate-50 dark:border-slate-800">
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">Upload Document</h3>
-                <button
-                  onClick={closeUploadModal}
-                  className="p-1 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
-                {/* Employee Selector (HR/Admin only and only when on all-docs tab) */}
-                {canUpload && activeTab === 'all-docs' ? (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Employee *</label>
-                    <select
-                      value={uploadEmpId}
-                      onChange={(e) => setUploadEmpId(e.target.value)}
-                      required
-                      className="w-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2.5 outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all dark:bg-slate-900"
-                    >
-                      <option value="" className="dark:bg-slate-900 dark:text-slate-150">Select Employee...</option>
-                      {employees.map((emp) => (
-                        <option key={emp.emp_id} value={emp.emp_id} className="dark:bg-slate-900 dark:text-slate-150">
-                          {emp.first_name} {emp.last_name} ({emp.empCode})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Employee</label>
-                    <div className="w-full bg-slate-100 dark:bg-slate-950/30 border border-slate-200/60 dark:border-slate-800 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-500 dark:text-slate-400">
-                      {currentUser?.first_name} {currentUser?.last_name} ({currentUser?.empCode})
-                    </div>
-                  </div>
-                )}
-
-                {/* Document Type Selector */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Document Type *</label>
-                  <select
-                    value={uploadDocType}
-                    onChange={(e) => setUploadDocType(e.target.value)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2.5 outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all dark:bg-slate-900"
-                  >
-                    {DOCUMENT_TYPES.map((t) => (
-                      <option key={t.key} value={t.key} className="dark:bg-slate-900 dark:text-slate-150">
-                        {t.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Document Number */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Document Number / ID</label>
-                  <input
-                    type="text"
-                    placeholder="Enter document number (optional)"
-                    value={uploadDocNumber}
-                    onChange={(e) => setUploadDocNumber(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2.5 outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all placeholder:text-slate-400"
-                  />
-                </div>
-
-                {/* Custom Document Name */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Document Display Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Prashant Aadhaar Card (optional)"
-                    value={uploadDocName}
-                    onChange={(e) => setUploadDocName(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2.5 outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all placeholder:text-slate-400"
-                  />
-                </div>
-
-                {/* File Upload Area */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Attach File *</label>
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-2xl p-5 text-center flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${isDragging
-                        ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-indigo-300 bg-slate-50/30 dark:bg-slate-950/10'
-                      }`}
-                  >
-                    <label className="flex flex-col items-center gap-1.5 w-full h-full cursor-pointer">
-                      <FileSpreadsheet size={32} className="text-indigo-500 mb-1" />
-                      {uploadFile ? (
-                        <div className="space-y-1">
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 block max-w-[250px] truncate">
-                            {uploadFile.name}
-                          </span>
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold">
-                            {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Drag & drop files or click here</span>
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Max limit: 5MB</span>
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        onChange={handleFileChange}
-                        accept="image/*,application/pdf,.doc,.docx"
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                {/* Footer Buttons */}
-                <div className="flex justify-end gap-3 pt-3 border-t border-slate-50 dark:border-slate-800">
-                  <button
-                    type="button"
-                    onClick={closeUploadModal}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-sm transition-all cursor-pointer bg-white dark:bg-slate-900"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={uploadMutation.isPending}
-                    className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-all cursor-pointer shadow-sm shadow-indigo-600/10 flex items-center gap-1.5 disabled:opacity-60"
-                  >
-                    {uploadMutation.isPending ? (
-                      <>
-                        <Loader2 className="animate-spin" size={14} />
-                        <span>Uploading...</span>
-                      </>
-                    ) : (
-                      <span>Upload</span>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>      {/* Modal: Verify Document */}
+      {/* Upload Modal Component */}
+      <UploadDocumentModal
+        isOpen={isUploadOpen}
+        onClose={closeUploadModal}
+        currentUser={currentUser}
+        canUpload={canUpload}
+        activeTab={activeTab}
+        employees={employees}
+        initialDocType={uploadDocType}
+        initialEmpId={uploadEmpId}
+      />      {/* Modal: Verify Document */}
       <AnimatePresence>
         {isVerifyOpen && selectedDocToVerify && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">

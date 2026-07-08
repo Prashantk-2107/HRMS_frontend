@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { Menu, Bell, Search, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,7 +34,7 @@ const DashboardLayout = () => {
     };
 
     syncUserPermissions();
-  }, [location.pathname, user?.emp_id, dispatch]);
+  }, [user?.emp_id, dispatch]);
 
   // Simple helper to derive page title from current path
   const getPageTitle = () => {

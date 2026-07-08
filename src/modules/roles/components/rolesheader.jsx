@@ -1,4 +1,4 @@
-import { Plus, Trash2, ShieldAlert, UserCheck, Download, Import } from 'lucide-react';
+import { Plus, Trash2, ShieldAlert, UserCheck, Import } from 'lucide-react';
 import PermissionGuard from '../../../components/common/permissionguard';
 import { PERMISSIONS } from '../../../constants/permissions';
 

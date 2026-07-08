@@ -1,5 +1,3 @@
-import React from 'react';
-import { HelpCircle } from 'lucide-react';
 
 const HelpPage = () => {
   return (

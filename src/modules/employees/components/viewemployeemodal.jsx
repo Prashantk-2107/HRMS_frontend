@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, User, Mail, Phone, Calendar, MapPin, Building, Heart, Tag, Landmark, Plus, Pencil, Trash2 } from 'lucide-react';
+import { X, Loader2, User, Mail, Phone, Calendar, MapPin, Building, Heart, Tag, Landmark } from 'lucide-react';
 import api, { EMPLOYEE_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
 import Skeleton from '../../../components/ui/skeleton';
@@ -37,8 +37,9 @@ const ViewEmployeeModal = ({ isOpen, onClose, employeeId }) => {
 
   useEffect(() => {
     if (isOpen && employeeId && canManageBank) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      fetchBankDetails();
+      Promise.resolve().then(() => {
+        fetchBankDetails();
+      });
     }
   }, [isOpen, employeeId, canManageBank, fetchBankDetails]);
 
