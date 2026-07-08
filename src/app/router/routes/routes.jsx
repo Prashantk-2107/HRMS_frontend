@@ -1,25 +1,30 @@
-import React from 'react';
+import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import PublicRoute from '../guards/publicroutes';
 import ProtectedRoute from '../guards/protectedroutes';
-import LoginPage from '../../../modules/auth/pages/loginpage';
-import ForgotPasswordPage from '../../../modules/auth/pages/forgotpasswordpage';
-import CreatePasswordPage from '../../../modules/auth/pages/createpasswordpage';
-import DashboardPage from '../../../modules/dashboard/pages/dashboardpage';
-import DashboardLayout from '../../../components/layout/dashboardlayout';
-import EmployeesPage from '../../../modules/employees/pages/employeespage';
-import BankAccountsPage from '../../../modules/bank-accounts/pages/bankaccountspage';
-import HolidaysPage from '../../../modules/holidays/pages/holidayspage';
-import AttendancePage from '../../../modules/attendance/pages/attendancepage';
-import RolesPage from '../../../modules/roles/pages/rolespage';
-import LeavesPage from '../../../modules/leaves/pages/leavespage';
-import DocumentsPage from '../../../modules/documents/pages/documentspage';
-import AppsPage from '../../../modules/apps/pages/appspage';
-import SettingsPage from '../../../modules/settings/pages/settingspage';
-import HelpPage from '../../../modules/help/pages/helppage';
-import ProfilePage from '../../../modules/profile/pages/profilepage';
 import PermissionRoute from '../guards/permissionroutes';
 import { SIDEBAR_PERMISSIONS } from '../../../constants/permissions';
+import { withSuspense } from '../../../components/common/pageloader';
+
+// DashboardLayout is structural and is loaded immediately
+import DashboardLayout from '../../../components/layout/dashboardlayout';
+
+// Lazy load actual pages
+const LoginPage = lazy(() => import('../../../modules/auth/pages/loginpage'));
+const ForgotPasswordPage = lazy(() => import('../../../modules/auth/pages/forgotpasswordpage'));
+const CreatePasswordPage = lazy(() => import('../../../modules/auth/pages/createpasswordpage'));
+const DashboardPage = lazy(() => import('../../../modules/dashboard/pages/dashboardpage'));
+const EmployeesPage = lazy(() => import('../../../modules/employees/pages/employeespage'));
+const BankAccountsPage = lazy(() => import('../../../modules/bank-accounts/pages/bankaccountspage'));
+const HolidaysPage = lazy(() => import('../../../modules/holidays/pages/holidayspage'));
+const AttendancePage = lazy(() => import('../../../modules/attendance/pages/attendancepage'));
+const RolesPage = lazy(() => import('../../../modules/roles/pages/rolespage'));
+const LeavesPage = lazy(() => import('../../../modules/leaves/pages/leavespage'));
+const DocumentsPage = lazy(() => import('../../../modules/documents/pages/documentspage'));
+const AppsPage = lazy(() => import('../../../modules/apps/pages/appspage'));
+const SettingsPage = lazy(() => import('../../../modules/settings/pages/settingspage'));
+const HelpPage = lazy(() => import('../../../modules/help/pages/helppage'));
+const ProfilePage = lazy(() => import('../../../modules/profile/pages/profilepage'));
 
 export const routes = [
   {
@@ -31,15 +36,15 @@ export const routes = [
     children: [
       {
         path: '/login',
-        element: <LoginPage />
+        element: withSuspense(LoginPage, true)
       },
       {
         path: '/forgot-password',
-        element: <ForgotPasswordPage />
+        element: withSuspense(ForgotPasswordPage, true)
       },
       {
         path: '/create-password',
-        element: <CreatePasswordPage />
+        element: withSuspense(CreatePasswordPage, true)
       }
     ]
   },
@@ -51,14 +56,14 @@ export const routes = [
         children: [
           {
             path: '/dashboard',
-            element: <DashboardPage />
+            element: withSuspense(DashboardPage)
           },
           {
             element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.EMPLOYEES} />,
             children: [
               {
                 path: '/employees',
-                element: <EmployeesPage />
+                element: withSuspense(EmployeesPage)
               }
             ]
           },
@@ -67,7 +72,7 @@ export const routes = [
             children: [
               {
                 path: '/holidays',
-                element: <HolidaysPage />
+                element: withSuspense(HolidaysPage)
               }
             ]
           },
@@ -76,7 +81,7 @@ export const routes = [
             children: [
               {
                 path: '/attendance',
-                element: <AttendancePage />
+                element: withSuspense(AttendancePage)
               }
             ]
           },
@@ -85,7 +90,7 @@ export const routes = [
             children: [
               {
                 path: '/roles',
-                element: <RolesPage />
+                element: withSuspense(RolesPage)
               }
             ]
           },
@@ -94,33 +99,33 @@ export const routes = [
             children: [
               {
                 path: '/leaves',
-                element: <LeavesPage />
+                element: withSuspense(LeavesPage)
               }
             ]
           },
           {
             path: '/documents',
-            element: <DocumentsPage />
+            element: withSuspense(DocumentsPage)
           },
           {
             path: '/bank-accounts',
-            element: <BankAccountsPage />
+            element: withSuspense(BankAccountsPage)
           },
           {
             path: '/apps',
-            element: <AppsPage />
+            element: withSuspense(AppsPage)
           },
           {
             path: '/profile',
-            element: <ProfilePage />
+            element: withSuspense(ProfilePage)
           },
           {
             path: '/settings',
-            element: <SettingsPage />
+            element: withSuspense(SettingsPage)
           },
           {
             path: '/help',
-            element: <HelpPage />
+            element: withSuspense(HelpPage)
           }
         ]
       }

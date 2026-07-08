@@ -7,17 +7,10 @@ import {
   LayoutGrid,
   Users,
   Network,
-  CalendarCheck,
   CircleDollarSign,
-  Briefcase,
   User,
-  UserCheck,
-  ClipboardList,
   CalendarDays,
   Folder,
-  Grid,
-  Settings,
-  HelpCircle,
   ChevronLeft,
   ChevronRight,
   LogOut
@@ -242,33 +235,28 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   className={itemClass(item)}
                   title={isCollapsed ? item.name : undefined}
                 >
-                  {({ isActive }) => (
-                    <>
-                      <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
-                        <Icon size={20} className="transition-transform duration-200 group-hover:scale-105" />
-                      </div>
+                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                    <Icon size={20} className="transition-transform duration-200 group-hover:scale-105" />
+                  </div>
 
-                      <AnimatePresence initial={false}>
-                        {!isCollapsed && (
-                          <motion.span
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: 'auto' }}
-                            exit={{ opacity: 0, width: 0 }}
-                            transition={{ duration: 0.2, ease: 'easeInOut' }}
-                            className="ml-4 whitespace-nowrap overflow-hidden"
-                          >
-                            {item.name}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-
-                      {/* Tooltip for collapsed mode */}
-                      {isCollapsed && (
-                        <div className="absolute left-20 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-slate-800 shadow-xl pointer-events-none z-50 whitespace-nowrap">
-                          {item.name}
-                        </div>
-                      )}
-                    </>
+                  <AnimatePresence initial={false}>
+                    {!isCollapsed && (
+                      <motion.span
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: 'auto' }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        className="ml-4 whitespace-nowrap overflow-hidden"
+                      >
+                        {item.name}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  
+                  {isCollapsed && (
+                    <div className="absolute left-20 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-slate-800 shadow-xl pointer-events-none z-50 whitespace-nowrap">
+                      {item.name}
+                    </div>
                   )}
                 </NavLink>
               );

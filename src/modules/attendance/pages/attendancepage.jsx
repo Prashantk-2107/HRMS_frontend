@@ -1,4 +1,3 @@
-import React from 'react';
 import { Clock, Play, UserCheck, CalendarDays } from 'lucide-react';
 
 const AttendancePage = () => {

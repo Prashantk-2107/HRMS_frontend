@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, Search, UserCheck, ShieldAlert, User, Shield, AlertTriangle } from 'lucide-react';
+import { X, Loader2, Search, User, Shield, AlertTriangle } from 'lucide-react';
 import api, { EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS } from '../../../services/api';
 import toast from 'react-hot-toast';
 import Skeleton from '../../../components/ui/skeleton';
@@ -43,18 +43,22 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
 
   useEffect(() => {
     if (!isOpen) {
-      setSelectedEmpId('');
-      setSearchQuery('');
-      setIsDropdownOpen(false);
+      Promise.resolve().then(() => {
+        setSelectedEmpId('');
+        setSearchQuery('');
+        setIsDropdownOpen(false);
+      });
     }
   }, [isOpen]);
 
   // Fetch employee permissions when selection changes
   const fetchEmpPermissions = async (empId, silent = false) => {
     if (!empId) {
-      setRolePermissions([]);
-      setExtraPermissions([]);
-      setEffectivePermissions([]);
+      Promise.resolve().then(() => {
+        setRolePermissions([]);
+        setExtraPermissions([]);
+        setEffectivePermissions([]);
+      });
       return;
     }
 
@@ -75,7 +79,11 @@ const EmployeePermissionsModal = ({ isOpen, onClose, allPermissions }) => {
   };
 
   useEffect(() => {
-    fetchEmpPermissions(selectedEmpId, false);
+    if (selectedEmpId) {
+      Promise.resolve().then(() => {
+        fetchEmpPermissions(selectedEmpId, false);
+      });
+    }
   }, [selectedEmpId]);
 
   // Convert arrays to sets for O(1) lookups

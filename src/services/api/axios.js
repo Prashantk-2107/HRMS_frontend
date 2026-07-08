@@ -1,8 +1,13 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const baseURL = import.meta.env.VITE_API_URL;
+if (!baseURL) {
+  console.warn("WARNING: VITE_API_URL is not defined in the environment variables. API requests may fail or fall back incorrectly.");
+}
+
 const apiInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://worksphere-backend-36t4.onrender.com/api/v1",
+  baseURL: baseURL || '/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },

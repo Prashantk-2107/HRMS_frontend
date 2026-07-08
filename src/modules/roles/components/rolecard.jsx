@@ -1,4 +1,3 @@
-import React from 'react';
 import { ShieldCheck, Trash2 } from 'lucide-react';
 import PermissionGuard from '../../../components/common/permissionguard';
 import { PERMISSIONS } from '../../../constants/permissions';

@@ -1,4 +1,3 @@
-import React from 'react';
 import CreatePasswordForm from '../components/createpasswordform';
 import AuthSlider from '../components/authslider';
 import AuthHeader from '../components/authheader';
