@@ -10,6 +10,7 @@ import {
   CircleDollarSign,
   User,
   CalendarDays,
+  CalendarCheck,
   Folder,
   ChevronLeft,
   ChevronRight,
@@ -62,12 +63,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: Network,
       permissions: SIDEBAR_PERMISSIONS.ROLES,
     },
-    // {
-    //   name: 'Attendance',
-    //   path: '/attendance',
-    //   icon: CalendarCheck,
-    //   permissions: SIDEBAR_PERMISSIONS.ATTENDANCE,
-    // },
+    {
+      name: 'Attendance',
+      path: '/attendance',
+      icon: CalendarCheck,
+    },
     {
       name: 'Bank Details',
       path: '/bank-accounts',

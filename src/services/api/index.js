@@ -1,6 +1,6 @@
 import apiInstance from './axios.js';
 import { setupInterceptors } from './interceptor.js';
-import { AUTH_ENDPOINTS, EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS, ROLE_ENDPOINTS, BANK_DETAILS_ENDPOINTS } from './endpoints.js';
+import { AUTH_ENDPOINTS, EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS, ROLE_ENDPOINTS, BANK_DETAILS_ENDPOINTS, ATTENDANCE_ENDPOINTS } from './endpoints.js';
 
 setupInterceptors(apiInstance);
 
@@ -12,5 +12,5 @@ const api = {
   delete: (url, config = {}) => apiInstance.delete(url, config),
 };
 
-export { AUTH_ENDPOINTS, EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS, ROLE_ENDPOINTS, BANK_DETAILS_ENDPOINTS };
+export { AUTH_ENDPOINTS, EMPLOYEE_ENDPOINTS, PERMISSION_ENDPOINTS, ROLE_ENDPOINTS, BANK_DETAILS_ENDPOINTS, ATTENDANCE_ENDPOINTS };
 export default api;

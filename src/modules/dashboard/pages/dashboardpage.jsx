@@ -1,119 +1,265 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { selectAuth, logout } from '../../../store/slices/authslice.js';
+import { useState, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import { BarChart3, TrendingUp } from 'lucide-react';
+
+import api, {
+  ATTENDANCE_ENDPOINTS,
+  EMPLOYEE_ENDPOINTS
+} from '../../../services/api';
+import { selectAuth } from '../../../store/slices/authslice.js';
+import { usePermission } from '../../../hooks/usepermission';
+import { PERMISSIONS } from '../../../constants/permissions';
+
+// Import newly refactored modular components
+import WelcomeBanner from '../components/welcomebanner';
+import StatsCards from '../components/statscards';
+import ClockWidget from '../components/clockwidget';
+import WorkHoursChart from '../components/workhourschart';
+import QuickActions from '../components/quickactions';
+import Announcements from '../components/announcements';
 
 const DashboardPage = () => {
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  const { hasPermission } = usePermission();
+
   const {
     user,
-    accessToken,
-    refreshToken,
-    permissions,
-    role,
-    isAuthenticated,
-    isLoading
+    role
   } = useSelector(selectAuth);
 
+  const canViewEmployees = hasPermission([
+    PERMISSIONS.EMP_GET_ALL,
+    PERMISSIONS.EMP_VIEW_ANY
+  ]);
+
+  // State for greeting and client-side clock
+  const [greeting, setGreeting] = useState('Welcome');
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Greeting & Clock Timer
+  useEffect(() => {
+    const updateTimeAndGreeting = () => {
+      const now = new Date();
+      setCurrentTime(now);
+      const hrs = now.getHours();
+      if (hrs < 12) setGreeting('Good Morning');
+      else if (hrs < 17) setGreeting('Good Afternoon');
+      else setGreeting('Good Evening');
+    };
+
+    updateTimeAndGreeting();
+    const interval = setInterval(updateTimeAndGreeting, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 1. Fetch Today's Attendance Check-in status
+  const {
+    data: todayAttendance,
+    isLoading: isTodayAttendanceLoading
+  } = useQuery({
+    queryKey: ['attendance', 'today'],
+    queryFn: async () => {
+      const response = await api.get(ATTENDANCE_ENDPOINTS.GET_TODAY);
+      return response.data?.data?.attendance || null;
+    }
+  });
+
+  // 2. Fetch Employee roster stats (if permitted)
+  const {
+    data: allEmployees = [],
+    isLoading: isEmployeesLoading
+  } = useQuery({
+    queryKey: ['employees', 'all'],
+    queryFn: async () => {
+      const response = await api.get(EMPLOYEE_ENDPOINTS.LIST);
+      return response.data?.data?.employees || [];
+    },
+    enabled: canViewEmployees,
+    retry: false
+  });
+
+  // 3. Fetch Holiday events list
+  const {
+    data: holidaysData = [],
+    isLoading: isHolidaysLoading
+  } = useQuery({
+    queryKey: ['holidays', 'all'],
+    queryFn: async () => {
+      const response = await api.get('/holiday/get-all-holidays');
+      return response.data?.data?.holidays || [];
+    },
+    retry: false
+  });
+
+  // 4. Fetch personal summary logs to feed the weekly chart
+  const {
+    data: summaryData,
+    isLoading: isSummaryLoading
+  } = useQuery({
+    queryKey: ['attendance', 'summary'],
+    queryFn: async () => {
+      const response = await api.get(ATTENDANCE_ENDPOINTS.GET_MY_SUMMARY);
+      return response.data?.data?.summary || { logs: [], statistics: {} };
+    }
+  });
+
+  // Mutations for Attendance logging
+  const checkInMutation = useMutation({
+    mutationFn: async () => {
+      const response = await api.post(ATTENDANCE_ENDPOINTS.CHECK_IN);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || 'Successfully checked in!');
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+    },
+    onError: (error) => {
+      const msg = error.response?.data?.message || 'Check-in failed. Please try again.';
+      toast.error(msg);
+    }
+  });
+
+  const checkOutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await api.post(ATTENDANCE_ENDPOINTS.CHECK_OUT);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || 'Successfully checked out!');
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+    },
+    onError: (error) => {
+      const msg = error.response?.data?.message || 'Check-out failed. Please try again.';
+      toast.error(msg);
+    }
+  });
+
+  const isClockMutating = checkInMutation.isPending || checkOutMutation.isPending;
+
+  // Process next upcoming holiday
+  const nextHoliday = useMemo(() => {
+    if (!holidaysData || holidaysData.length === 0) return null;
+    const now = new Date();
+    // Reset hours to start of day
+    now.setHours(0, 0, 0, 0);
+
+    const upcoming = holidaysData
+      .filter(h => h.holiday_date && new Date(h.holiday_date) >= now)
+      .sort((a, b) => new Date(a.holiday_date) - new Date(b.holiday_date));
+    return upcoming[0] || null;
+  }, [holidaysData]);
+
+  // Process live check-in timer if checked in
+  const isCheckedIn = !!todayAttendance && !todayAttendance.check_out;
+  const isCheckedOut = !!todayAttendance && !!todayAttendance.check_out;
+
+  const [activeDuration, setActiveDuration] = useState('');
+
+  useEffect(() => {
+    if (!isCheckedIn || !todayAttendance?.check_in) {
+      setActiveDuration('');
+      return;
+    }
+
+    const calculateDuration = () => {
+      const diffMs = new Date() - new Date(todayAttendance.check_in);
+      const totalSecs = Math.floor(diffMs / 1000);
+      const hrs = Math.floor(totalSecs / 3600);
+      const mins = Math.floor((totalSecs % 3600) / 60);
+      const secs = totalSecs % 60;
+      setActiveDuration(
+        `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      );
+    };
+
+    calculateDuration();
+    const interval = setInterval(calculateDuration, 1000);
+    return () => clearInterval(interval);
+  }, [isCheckedIn, todayAttendance?.check_in]);
+
+  // Format today's date nicely for the calendar card
+  const formattedTodayDate = useMemo(() => {
+    return currentTime.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }, [currentTime]);
+
+  const handleCheckIn = () => {
+    checkInMutation.mutate();
+  };
+
+  const handleCheckOut = () => {
+    checkOutMutation.mutate();
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
-      <div className="max-w-4xl mx-auto flex flex-col gap-6">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/20 p-2 sm:p-6 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto flex flex-col gap-6">
 
-        <header className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm transition-colors duration-200">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Dashboard</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Redux Store Viewer</p>
-          </div>
-          <button
-            onClick={() => dispatch(logout())}
-            className="bg-red-550 hover:bg-red-600 active:scale-[0.98] text-white font-medium text-sm py-2 px-4 rounded-lg transition-all duration-200 cursor-pointer shadow-sm"
-            style={{ backgroundColor: '#ef4444' }}
-          >
-            Logout
-          </button>
-        </header>
+        {/* 1. WELCOME BANNER SECTION */}
+        <WelcomeBanner
+          user={user}
+          greeting={greeting}
+          currentTime={currentTime}
+          formattedTodayDate={formattedTodayDate}
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-4 text-left transition-colors duration-200">
-            <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">User Information</h2>
-            {user ? (
-              <div className="flex flex-col gap-2">
-                <div>
-                  <span className="text-xs text-slate-400 dark:text-slate-500 block">Name</span>
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.first_name + ' ' + user.last_name || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="text-xs text-slate-400 dark:text-slate-500 block">Email</span>
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.email || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="text-xs text-slate-400 dark:text-slate-500 block">Raw User Object</span>
-                  <pre className="text-xs bg-slate-50 dark:bg-slate-950 p-3 rounded-lg overflow-x-auto text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 mt-1 max-h-40">
-                    {JSON.stringify(user, null, 2)}
-                  </pre>
-                </div>
-              </div>
-            ) : (
-              <span className="text-sm text-slate-500">No user data stored.</span>
-            )}
-          </div>
+        {/* 2. LIVE DYNAMIC STATS GRID */}
+        <StatsCards
+          canViewEmployees={canViewEmployees}
+          isEmployeesLoading={isEmployeesLoading}
+          employeesCount={allEmployees.length}
+          isTodayAttendanceLoading={isTodayAttendanceLoading}
+          isCheckedIn={isCheckedIn}
+          isCheckedOut={isCheckedOut}
+          isHolidaysLoading={isHolidaysLoading}
+          nextHoliday={nextHoliday}
+          role={role}
+        />
 
-          <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-4 text-left transition-colors duration-200">
-            <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Session Details</h2>
-            <div className="flex flex-col gap-2">
+        {/* 3. CLOCK-IN WIDGET AND SVG CHARTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <ClockWidget
+            todayAttendance={todayAttendance}
+            isCheckedIn={isCheckedIn}
+            isCheckedOut={isCheckedOut}
+            activeDuration={activeDuration}
+            onCheckIn={handleCheckIn}
+            onCheckOut={handleCheckOut}
+            isClockMutating={isClockMutating}
+          />
+
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex flex-col justify-between lg:col-span-2 relative">
+            <div className="flex justify-between items-center mb-4">
               <div>
-                <span className="text-xs text-slate-400 dark:text-slate-500 block">Authentication Status</span>
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold mt-1 
-                  ${isAuthenticated ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400'}`}>
-                  {isAuthenticated ? 'Authenticated' : 'Guest'}
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <BarChart3 size={18} className="text-indigo-500" />
+                  <span>Working Hours Activity</span>
+                </h3>
+                <span className="text-xs text-slate-400 dark:text-slate-555 block mt-1">
+                  Analysis of daily hours recorded in logs.
                 </span>
               </div>
-              <div>
-                <span className="text-xs text-slate-400 dark:text-slate-500 block">Loading Status</span>
-                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{isLoading ? 'Loading' : 'Idle'}</span>
-              </div>
-              <div>
-                <span className="text-xs text-slate-400 dark:text-slate-500 block">Access Token</span>
-                <span className="text-xs font-mono break-all text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 p-2 rounded border border-slate-100 dark:border-slate-800 block mt-1">
-                  {accessToken || 'None'}
-                </span>
-              </div>
-              <div>
-                <span className="text-xs text-slate-400 dark:text-slate-500 block">Refresh Token</span>
-                <span className="text-xs font-mono break-all text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 p-2 rounded border border-slate-100 dark:border-slate-800 block mt-1">
-                  {refreshToken || 'None'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-4 text-left transition-colors duration-200">
-          <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Roles & Permissions</h2>
-          <div className="flex flex-col gap-3">
-            <div>
-              <span className="text-xs text-slate-400 dark:text-slate-500 block">User Role</span>
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                {role && typeof role === 'object' ? (role.name || role.title || JSON.stringify(role)) : (role || 'No role assigned')}
+              <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold px-2 py-1 rounded-md border border-indigo-100 dark:border-indigo-900/60 flex items-center gap-1">
+                <TrendingUp size={10} />
+                <span>Last 7 Days</span>
               </span>
             </div>
-            <div>
-              <span className="text-xs text-slate-400 dark:text-slate-500 block">Permissions Array</span>
-              {permissions && permissions.length > 0 ? (
-                <div className="flex flex-wrap gap-2 mt-1.5">
-                  {permissions.map((permission, index) => (
-                    <span
-                      key={index}
-                      className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 text-xs font-medium px-2.5 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-900/60"
-                    >
-                      {permission && typeof permission === 'object' ? (permission.name || permission.title || JSON.stringify(permission)) : permission}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-xs text-slate-500 italic block mt-1">No permissions listed</span>
-              )}
-            </div>
+
+            <WorkHoursChart logs={summaryData?.logs} loading={isSummaryLoading} />
           </div>
         </div>
+
+        {/* 4. QUICK ACTIONS SECTION (Extensible Layout) */}
+        <QuickActions canViewEmployees={canViewEmployees} />
+
+        {/* 5. DENSE BOTTOM LAYOUT (Announcements & Corporate Notes) */}
+        <Announcements />
 
       </div>
     </div>

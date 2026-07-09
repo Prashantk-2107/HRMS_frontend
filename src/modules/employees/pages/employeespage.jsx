@@ -221,7 +221,7 @@ const EmployeesPage = () => {
           <p className="text-sm text-slate-500 dark:text-slate-400">Manage, view, and add corporate staff members.</p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button className="flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-sm">
             <FileDown size={16} />
             <span>Export</span>

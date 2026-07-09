@@ -77,13 +77,8 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.ATTENDANCE} />,
-            children: [
-              {
-                path: '/attendance',
-                element: withSuspense(AttendancePage)
-              }
-            ]
+            path: '/attendance',
+            element: withSuspense(AttendancePage)
           },
           {
             element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.ROLES} />,

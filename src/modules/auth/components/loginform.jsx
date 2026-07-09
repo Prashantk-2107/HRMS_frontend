@@ -29,7 +29,7 @@ const LoginForm = () => {
         email: data.identifier,
         password: data.password
       });
-      console.log('Login Response:', response.data);
+      // console.log('Login Response:', response.data);
       if (response.data.success) {
         dispatch(login({
           user: response?.data?.data?.employee,
@@ -38,12 +38,12 @@ const LoginForm = () => {
           accessToken: response?.data?.data?.accessToken,
           refreshToken: response?.data?.data?.refreshToken,
         }));
-
+        toast.success('Logged in successfully!', { id: toastId });
         try {
           const empId = response?.data?.data?.employee?.emp_id;
           if (empId) {
             const permResponse = await api.get(PERMISSION_ENDPOINTS.GET_USER_PERMISSIONS(empId));
-            console.log('Get User Permissions Response:', permResponse.data);
+            // console.log('Get User Permissions Response:', permResponse.data);
 
             if (permResponse.data.success) {
               const rawPermissions = permResponse.data.data?.effectivePermissions || [];
@@ -53,7 +53,7 @@ const LoginForm = () => {
                 ? rawPermissions.map(p => (p && typeof p === 'object' ? (p.name || p.codename || p.permission || p.title || JSON.stringify(p)) : p))
                 : [];
 
-              console.log('Processed Permissions:', processedPermissions);
+              // console.log('Processed Permissions:', processedPermissions);
               dispatch(setPermissions(processedPermissions));
             }
           } else {
@@ -62,8 +62,6 @@ const LoginForm = () => {
         } catch (permError) {
           console.error('Failed to fetch permissions upon login:', permError);
         }
-
-        toast.success('Logged in successfully!', { id: toastId });
         navigate('/dashboard');
       } else {
         toast.error(response?.data?.message || 'Login failed', { id: toastId });
