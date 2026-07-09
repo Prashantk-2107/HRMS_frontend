@@ -90,13 +90,8 @@ export const routes = [
             ]
           },
           {
-            element: <PermissionRoute requiredPermissions={SIDEBAR_PERMISSIONS.LEAVES} />,
-            children: [
-              {
-                path: '/leaves',
-                element: withSuspense(LeavesPage)
-              }
-            ]
+            path: '/leaves',
+            element: withSuspense(LeavesPage)
           },
           {
             path: '/documents',
