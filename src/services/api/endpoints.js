@@ -56,3 +56,11 @@ export const ATTENDANCE_ENDPOINTS = {
   GET_MONTHLY_REPORT: '/attendance/admin/monthly-report',
   GET_ANALYTICS: '/attendance/admin/analytics',
 };
+
+export const LEAVE_ENDPOINTS = {
+  SUBMIT: '/leaves/request',
+  GET_MY: '/leaves/my',
+  GET_PENDING: '/leaves/pending',
+  APPROVE: (id) => `/leaves/${id}/approve`,
+  REJECT: (id) => `/leaves/${id}/reject`,
+};

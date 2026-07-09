@@ -14,7 +14,8 @@ import {
   Folder,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  ClipboardList
 } from 'lucide-react';
 import { selectAuth, logout } from '../../store/slices/authslice';
 import logoImg from '../../assets/icons/worksphere.png';
@@ -73,12 +74,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: '/bank-accounts',
       icon: CircleDollarSign,
     },
-    // {
-    //   name: 'Leaves',
-    //   path: '/leaves',
-    //   icon: ClipboardList,
-    //   permissions: SIDEBAR_PERMISSIONS.LEAVES,
-    // },
+    {
+      name: 'Leaves',
+      path: '/leaves',
+      icon: ClipboardList,
+    },
     {
       name: 'Calendar',
       path: '/holidays',
