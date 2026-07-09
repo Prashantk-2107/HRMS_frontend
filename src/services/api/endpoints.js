@@ -41,3 +41,18 @@ export const BANK_DETAILS_ENDPOINTS = {
   ADD_MY: '/bank-details/add-my-bank-details',
   UPDATE_MY: (id) => `/bank-details/update-my-bank-details/${id}`,
 };
+
+export const ATTENDANCE_ENDPOINTS = {
+  CHECK_IN: '/attendance/check-in',
+  CHECK_OUT: '/attendance/check-out',
+  GET_TODAY: '/attendance/today',
+  GET_MY_SUMMARY: '/attendance/my-summary',
+  REGULARIZE: '/attendance/regularize',
+  GET_MY_REGULARIZATIONS: '/attendance/regularizations/my',
+  GET_PENDING_REGULARIZATIONS: '/attendance/regularizations/pending',
+  APPROVE_REGULARIZATION: (id) => `/attendance/regularizations/${id}/approve`,
+  REJECT_REGULARIZATION: (id) => `/attendance/regularizations/${id}/reject`,
+  GET_TODAY_DASHBOARD: '/attendance/admin/today-dashboard',
+  GET_MONTHLY_REPORT: '/attendance/admin/monthly-report',
+  GET_ANALYTICS: '/attendance/admin/analytics',
+};
