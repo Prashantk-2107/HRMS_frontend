@@ -928,7 +928,7 @@ const BankAccountsPage = () => {
               className="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 z-10 flex flex-col items-center text-center transition-colors"
             >
               {/* Icon Container */}
-              <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-955 text-rose-600 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/20 text-rose-600 flex items-center justify-center mb-4">
                 <Trash2 size={24} />
               </div>
 

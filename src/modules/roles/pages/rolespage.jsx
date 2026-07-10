@@ -215,20 +215,20 @@ const RolesPage = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ type: 'spring', duration: 0.25 }}
-              className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 p-6 z-10 flex flex-col items-center text-center"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 z-10 flex flex-col items-center text-center transition-colors duration-200"
             >
               {/* Icon Container */}
-              <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
                 <Trash2 size={24} />
               </div>
 
               {/* Title & Desc */}
-              <h4 className="text-base font-bold text-slate-900 tracking-tight">
+              <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 Delete Role?
               </h4>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                 Are you sure you want to delete the role{' '}
-                <span className="font-semibold text-slate-700">"{deleteConfirmRole.name}"</span>?
+                <span className="font-semibold text-slate-700 dark:text-slate-300">"{deleteConfirmRole.name}"</span>?
                 This action is permanent and cannot be undone.
               </p>
 
@@ -237,7 +237,7 @@ const RolesPage = () => {
                 <button
                   disabled={isUpdating}
                   onClick={() => setDeleteConfirmRole(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 font-semibold text-xs transition-all duration-150 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-900"
                 >
                   Cancel
                 </button>

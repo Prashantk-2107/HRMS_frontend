@@ -145,7 +145,7 @@ const LeavesPage = () => {
 
   const handleConfirmReject = (id) => {
     if (!rejectionReason || rejectionReason.trim().length < 3) {
-      alert('Please enter a valid rejection reason.');
+      toast.error('Please enter a valid rejection reason.');
       return;
     }
     rejectLeaveMutation.mutate({ id, reason: rejectionReason.trim() });
