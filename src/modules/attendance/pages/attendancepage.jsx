@@ -17,12 +17,10 @@ import AnalyticsDashboard from '../components/analyticsdashboard';
  */
 const AttendancePage = () => {
   const queryClient = useQueryClient();
-  const { role } = usePermission();
+  const { role, hasPermission } = usePermission();
 
   // Role checking for approving corrections
-  const roleName = (typeof role === 'object' ? role?.name : role) || '';
-  const normalizedRole = roleName.toLowerCase().replace(/[\s_-]/g, '');
-  const isHROrAdmin = ['admin', 'superadmin', 'humanresource', 'projectmanager'].includes(normalizedRole);
+  const isHROrAdmin = hasPermission("attendance:view_pending");
 
   const [activeTab, setActiveTab] = useState('my'); // 'my' or 'team'
 

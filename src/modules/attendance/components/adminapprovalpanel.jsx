@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { UserCheck, Check, X, AlertCircle, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 /**
  * AdminApprovalPanel renders a table of pending correction requests.
@@ -40,7 +41,7 @@ const AdminApprovalPanel = ({ requests, onApprove, onReject, isPending }) => {
 
   const handleConfirmReject = (id) => {
     if (!rejectionReason || rejectionReason.trim().length < 3) {
-      alert('Please enter a rejection reason (at least 3 characters).');
+      toast.error('Please enter a rejection reason (at least 3 characters).');
       return;
     }
     onReject(id, rejectionReason.trim());

@@ -10,12 +10,10 @@ import { usePermission } from '../../../hooks/usepermission';
  */
 const LeavesPage = () => {
   const queryClient = useQueryClient();
-  const { role } = usePermission();
+  const { role, hasPermission } = usePermission();
 
   // Role permissions checking
-  const roleName = (typeof role === 'object' ? role?.name : role) || '';
-  const normalizedRole = roleName.toLowerCase().replace(/[\s_-]/g, '');
-  const isHROrAdmin = ['admin', 'superadmin', 'humanresource', 'projectmanager'].includes(normalizedRole);
+  const isHROrAdmin = hasPermission("leave:view_pending");
 
   // Form states
   const [startDate, setStartDate] = useState('');
@@ -145,7 +143,7 @@ const LeavesPage = () => {
 
   const handleConfirmReject = (id) => {
     if (!rejectionReason || rejectionReason.trim().length < 3) {
-      alert('Please enter a valid rejection reason.');
+      toast.error('Please enter a valid rejection reason.');
       return;
     }
     rejectLeaveMutation.mutate({ id, reason: rejectionReason.trim() });

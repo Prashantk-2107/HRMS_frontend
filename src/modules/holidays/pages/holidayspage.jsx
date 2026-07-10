@@ -15,7 +15,8 @@ import { usePermission } from '../../../hooks/usepermission';
 
 const HolidaysPage = () => {
   const queryClient = useQueryClient();
-  const canManageHolidays = usePermission(PERMISSIONS.HOLIDAY_MANAGE);
+  const { hasPermission } = usePermission();
+  const canManageHolidays = hasPermission(PERMISSIONS.HOLIDAY_MANAGE);
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
