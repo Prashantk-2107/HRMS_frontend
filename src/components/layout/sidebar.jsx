@@ -83,7 +83,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: 'Calendar',
       path: '/holidays',
       icon: CalendarDays,
-      permissions: SIDEBAR_PERMISSIONS.HOLIDAYS,
     },
     {
       name: 'Documents',
